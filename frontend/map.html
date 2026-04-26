@@ -128,56 +128,153 @@
     /* ---- Add parcel form modal ----------------------------- */
     .modal-overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 1000;
       display: flex; align-items: center; justify-content: center;
       padding: var(--sp-4);
+      animation: fadeOverlay var(--dur-base) var(--ease-out);
     }
+    @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+
     .modal {
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-xl);
-      padding: var(--sp-7);
       width: 100%;
-      max-width: 480px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      max-width: 520px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22);
+      overflow: hidden;
+      animation: slideModal .22s var(--ease-out);
     }
-    .modal-title {
-      font-size: var(--text-lg);
-      font-weight: var(--weight-bold);
-      color: var(--text-primary);
-      margin: 0 0 var(--sp-5);
+    @keyframes slideModal {
+      from { opacity:0; transform: translateY(14px) scale(.98); }
+      to   { opacity:1; transform: translateY(0)    scale(1);   }
     }
+
+    /* Header gradient */
+    .modal-header {
+      background: linear-gradient(135deg, var(--brand-darker) 0%, var(--brand-dark) 60%, var(--brand-mid) 100%);
+      padding: var(--sp-5) var(--sp-6);
+      display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4);
+      position: relative; overflow: hidden;
+    }
+    .modal-header::before {
+      content:''; position:absolute;
+      width:200px; height:200px;
+      background: rgba(255,255,255,.06);
+      border-radius:50%; right:-40px; top:-70px; pointer-events:none;
+    }
+    .modal-header-left { display:flex; align-items:center; gap:var(--sp-3); position:relative; z-index:1; }
+    .modal-header-icon {
+      width:40px; height:40px; border-radius:var(--radius-md);
+      background:rgba(255,255,255,.15);
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; flex-shrink:0;
+    }
+    .modal-header-title {
+      font-size:var(--text-base); font-weight:var(--weight-bold); color:#fff; margin:0;
+    }
+    .modal-header-sub {
+      font-size:var(--text-xs); color:rgba(255,255,255,.65); margin:2px 0 0;
+    }
+    .modal-close-btn {
+      position:relative; z-index:1;
+      background: rgba(255,255,255,.15); border:none; cursor:pointer;
+      width:32px; height:32px; border-radius:var(--radius-md);
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; transition: background var(--dur-base) var(--ease-out);
+      flex-shrink:0;
+    }
+    .modal-close-btn:hover { background:rgba(255,255,255,.25); }
+
+    /* Body */
+    .modal-body { padding: var(--sp-6); }
+
+    /* Section label */
+    .form-section-label {
+      font-size: 10px; font-weight:var(--weight-semibold);
+      text-transform:uppercase; letter-spacing:.1em;
+      color:var(--text-muted); margin: 0 0 var(--sp-3);
+      display:flex; align-items:center; gap:var(--sp-2);
+    }
+    .form-section-label::after {
+      content:''; flex:1; height:1px; background:var(--border-subtle);
+    }
+    .form-section + .form-section { margin-top: var(--sp-5); }
+
     .form-row { margin-bottom: var(--sp-4); }
+    .form-row:last-child { margin-bottom: 0; }
+
     .form-label {
       display: block;
       font-size: var(--text-xs);
       font-weight: var(--weight-semibold);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       margin-bottom: var(--sp-2);
     }
+    .form-label span.req { color: var(--color-error); margin-left:2px; }
+
     .form-input, .form-select {
       width: 100%;
       height: 42px;
       padding: 0 var(--sp-4);
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border-subtle);
       border-radius: var(--radius-md);
       color: var(--text-primary);
       font-size: var(--text-sm);
       font-family: var(--font-sans);
       outline: none;
       box-sizing: border-box;
-      transition: border-color var(--dur-base) var(--ease-out);
+      transition: border-color var(--dur-base) var(--ease-out),
+                  box-shadow var(--dur-base) var(--ease-out),
+                  background var(--dur-base) var(--ease-out);
     }
-    .form-input:focus, .form-select:focus {
+    .form-input:hover,  .form-select:hover  { border-color: var(--border-default); background: var(--surface-1); }
+    .form-input:focus,  .form-select:focus  {
       border-color: var(--input-border-focus);
+      background: var(--surface-1);
       box-shadow: 0 0 0 3px var(--input-ring);
     }
-    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
-    .modal-actions { display: flex; gap: var(--sp-3); justify-content: flex-end; margin-top: var(--sp-5); }
+    .form-input.invalid { border-color: var(--color-error); box-shadow: 0 0 0 3px rgba(239,68,68,.15); }
+
+    /* Input with icon prefix */
+    .input-icon-wrap { position:relative; }
+    .input-icon-wrap .input-icon {
+      position:absolute; left:12px; top:50%; transform:translateY(-50%);
+      color:var(--text-muted); pointer-events:none; display:flex; align-items:center;
+    }
+    .input-icon-wrap .form-input { padding-left: 36px; }
+
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+
+    /* Coordinate picker */
+    .coord-picker-hint {
+      margin-top: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: var(--radius-md);
+      background: var(--color-info-bg);
+      border: 1px solid var(--color-info-border);
+      display: flex; align-items: center; gap: var(--sp-2);
+      font-size: var(--text-xs); color: var(--color-info);
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .coord-picker-hint.active-mode {
+      background: rgba(46,204,113,0.08);
+      border-color: var(--brand-primary);
+      color: var(--text-brand);
+    }
+    .coord-picker-hint svg { flex-shrink:0; }
+
+    /* Modal footer */
+    .modal-footer {
+      padding: var(--sp-4) var(--sp-6);
+      border-top: 1px solid var(--border-subtle);
+      display: flex; gap: var(--sp-3); justify-content: flex-end;
+      background: var(--bg-subtle);
+    }
 
     /* ---- Empty state in sidebar ---------------------------- */
     .sidebar-empty {
@@ -200,6 +297,8 @@
       display: flex; align-items: center;
     }
     .del-parcel:hover { color: var(--color-error); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---- Analysis dot on map ------------------------------- */
     .analysis-marker {
@@ -264,61 +363,140 @@
 <!-- Add Parcel Modal -->
 <div class="modal-overlay" id="addParcelModal" style="display:none;" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title">Add New Parcel</div>
-    <div class="form-row">
-      <label class="form-label">Parcel name *</label>
-      <input class="form-input" id="pName" placeholder="e.g. North Field — Maize 2024" />
-    </div>
-    <div class="form-row-2">
-      <div class="form-row" style="margin-bottom:0;">
-        <label class="form-label">Crop type</label>
-        <select class="form-select" id="pCrop">
-          <option value="">Select crop...</option>
-          <option value="Maïs">Maize</option>
-          <option value="Manioc">Cassava</option>
-          <option value="Tomate">Tomato</option>
-          <option value="Plantain">Plantain</option>
-          <option value="Arachides">Groundnut</option>
-          <option value="Haricot">Bean</option>
-          <option value="Autre">Other</option>
-        </select>
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon">🗺️</div>
+        <div>
+          <div class="modal-header-title">Add New Parcel</div>
+          <div class="modal-header-sub">Register a new agricultural field</div>
+        </div>
       </div>
-      <div class="form-row" style="margin-bottom:0;">
-        <label class="form-label">Area (ha)</label>
-        <input class="form-input" id="pArea" type="number" min="0.01" step="0.01" placeholder="0.50" />
+      <button class="modal-close-btn" onclick="closeAddParcel()" title="Close">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+
+      <!-- Section 1 : Parcel info -->
+      <div class="form-section">
+        <div class="form-section-label">Parcel Information</div>
+
+        <div class="form-row">
+          <label class="form-label">Name <span class="req">*</span></label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3 7h18M3 12h18M3 17h12"/>
+              </svg>
+            </span>
+            <input class="form-input" id="pName" placeholder="e.g. North Field — Maize 2024" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-row">
+            <label class="form-label">Crop type</label>
+            <select class="form-select" id="pCrop">
+              <option value="">— Select crop —</option>
+              <option value="Maïs">🌽  Maize</option>
+              <option value="Manioc">🥔  Cassava</option>
+              <option value="Tomate">🍅  Tomato</option>
+              <option value="Plantain">🍌  Plantain</option>
+              <option value="Arachides">🥜  Groundnut</option>
+              <option value="Haricot">🫘  Bean</option>
+              <option value="Autre">🌿  Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Area (hectares)</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon" style="font-size:11px;font-weight:600;color:var(--text-muted);">ha</span>
+              <input class="form-input" id="pArea" type="number" min="0.01" step="0.01" placeholder="0.50"
+                     style="padding-left:38px;" />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="form-row" style="margin-top:var(--sp-4);">
-      <label class="form-label">Region</label>
-      <select class="form-select" id="pRegion">
-        <option value="">Select region...</option>
-        <option>Centre</option><option>Littoral</option><option>Ouest</option>
-        <option>Nord-Ouest</option><option>Sud-Ouest</option><option>Sud</option>
-        <option>Est</option><option>Adamaoua</option><option>Nord</option>
-        <option>Extrême-Nord</option>
-      </select>
-    </div>
-    <div class="form-row-2">
-      <div class="form-row" style="margin-bottom:0;">
-        <label class="form-label">Latitude</label>
-        <input class="form-input" id="pLat" type="number" step="any" placeholder="3.848" />
+
+      <!-- Section 2 : Location -->
+      <div class="form-section">
+        <div class="form-section-label">Location</div>
+
+        <div class="form-row">
+          <label class="form-label">Region</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            <select class="form-select" id="pRegion" style="padding-left:36px;">
+              <option value="">— Select region —</option>
+              <option>Centre</option><option>Littoral</option><option>Ouest</option>
+              <option>Nord-Ouest</option><option>Sud-Ouest</option><option>Sud</option>
+              <option>Est</option><option>Adamaoua</option><option>Nord</option>
+              <option>Extrême-Nord</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-row">
+            <label class="form-label">Latitude</label>
+            <input class="form-input" id="pLat" type="number" step="any" placeholder="3.84800" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Longitude</label>
+            <input class="form-input" id="pLon" type="number" step="any" placeholder="11.50200" />
+          </div>
+        </div>
+
+        <!-- Coordinate pick hint -->
+        <div class="coord-picker-hint" id="coordHint">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span id="coordHintText">Click on the map to auto-fill coordinates</span>
+        </div>
       </div>
-      <div class="form-row" style="margin-bottom:0;">
-        <label class="form-label">Longitude</label>
-        <input class="form-input" id="pLon" type="number" step="any" placeholder="11.502" />
+
+      <!-- Section 3 : Notes -->
+      <div class="form-section">
+        <div class="form-section-label">Additional Notes</div>
+        <div class="form-row">
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </span>
+            <input class="form-input" id="pDesc" placeholder="Soil type, irrigation, observations…" />
+          </div>
+        </div>
       </div>
-    </div>
-    <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--sp-2);">
-      Tip: click on the map to auto-fill coordinates.
-    </div>
-    <div class="form-row" style="margin-top:var(--sp-4);">
-      <label class="form-label">Notes (optional)</label>
-      <input class="form-input" id="pDesc" placeholder="Additional notes..." />
-    </div>
-    <div class="modal-actions">
+
+    </div><!-- /modal-body -->
+
+    <!-- Footer -->
+    <div class="modal-footer">
       <button class="btn" onclick="closeAddParcel()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitParcel()">Save Parcel</button>
+      <button class="btn btn-primary" id="saveParcelBtn" onclick="submitParcel()">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" style="margin-right:6px;">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save Parcel
+      </button>
     </div>
+
   </div>
 </div>
 
@@ -371,6 +549,7 @@ function initMap() {
     if (_addMode) {
       document.getElementById('pLat').value = e.latlng.lat.toFixed(5);
       document.getElementById('pLon').value = e.latlng.lng.toFixed(5);
+      _updateCoordHint();
     }
   });
 }
@@ -545,7 +724,22 @@ async function deleteParcel(id) {
 function openAddParcel() {
   _addMode = true;
   document.getElementById('addParcelModal').style.display = 'flex';
-  App.toast('Click the map to set the parcel coordinates.', 'info');
+  _updateCoordHint();
+}
+
+function _updateCoordHint() {
+  const hint = document.getElementById('coordHint');
+  const text = document.getElementById('coordHintText');
+  const lat  = document.getElementById('pLat')?.value;
+  const lon  = document.getElementById('pLon')?.value;
+  if (!hint || !text) return;
+  if (lat && lon) {
+    hint.classList.add('active-mode');
+    text.textContent = `Pin set: ${parseFloat(lat).toFixed(4)}°N, ${parseFloat(lon).toFixed(4)}°E`;
+  } else {
+    hint.classList.remove('active-mode');
+    text.textContent = 'Click on the map to auto-fill coordinates';
+  }
 }
 
 function closeAddParcel() {
@@ -555,6 +749,8 @@ function closeAddParcel() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const hint = document.getElementById('coordHint');
+  if (hint) hint.classList.remove('active-mode');
 }
 
 function closeModal(e) {
@@ -562,8 +758,19 @@ function closeModal(e) {
 }
 
 async function submitParcel() {
-  const name = document.getElementById('pName').value.trim();
-  if (!name) { App.toast('Parcel name is required.', 'error'); return; }
+  const nameEl = document.getElementById('pName');
+  const name   = nameEl.value.trim();
+  if (!name) {
+    nameEl.classList.add('invalid');
+    nameEl.focus();
+    App.toast('Parcel name is required.', 'error');
+    setTimeout(() => nameEl.classList.remove('invalid'), 2000);
+    return;
+  }
+
+  const btn = document.getElementById('saveParcelBtn');
+  btn.disabled   = true;
+  btn.innerHTML  = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Saving…';
 
   const lat = parseFloat(document.getElementById('pLat').value);
   const lon = parseFloat(document.getElementById('pLon').value);
@@ -579,6 +786,10 @@ async function submitParcel() {
   };
 
   const { data, error } = await API.parcels.create(payload);
+
+  btn.disabled  = false;
+  btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" style="margin-right:6px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Parcel';
+
   if (error) { App.toast(error, 'error'); return; }
 
   App.toast(`Parcel "${name}" created!`, 'success');
