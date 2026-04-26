@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marketplace — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    /* ---- Category tabs -------------------------------------- */
+    .cat-tabs {
+      display: flex;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--sp-6);
+    }
+    .cat-tab {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      height: 38px;
+      padding: 0 var(--sp-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      border: 1.5px solid var(--border-default);
+      background: var(--surface-1);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .cat-tab:hover  { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .cat-tab.active { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+    .cat-tab .cat-count {
+      font-size: 10px;
+      font-weight: var(--weight-bold);
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background: rgba(0,0,0,0.12);
+    }
+    .cat-tab.active .cat-count { background: rgba(255,255,255,0.25); }
+
+    /* ---- Page layout --------------------------------------- */
+    .mkt-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: var(--sp-6);
+      align-items: start;
+    }
+    @media (max-width: 960px) { .mkt-layout { grid-template-columns: 1fr; } }
+
+    /* ---- Filter sidebar ------------------------------------ */
+    .filter-sidebar {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      position: sticky;
+      top: calc(var(--header-height) + var(--sp-4));
+    }
+    .filter-sidebar-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-muted);
+      margin: 0 0 var(--sp-4);
+    }
+    .filter-group { margin-bottom: var(--sp-5); }
+    .filter-group-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--text-secondary);
+      margin-bottom: var(--sp-3);
+    }
+    .filter-check {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      margin-bottom: var(--sp-2);
+      cursor: pointer;
+    }
+    .filter-check input[type=checkbox] { accent-color: var(--brand-primary); width: 14px; height: 14px; }
+    .filter-check span { font-size: var(--text-sm); color: var(--text-secondary); }
+    .price-range {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+    .price-range input[type=range] {
+      width: 100%;
+      accent-color: var(--brand-primary);
+    }
+    .price-range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ---- Product grid -------------------------------------- */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--sp-4);
+    }
+
+    /* ---- Product card -------------------------------------- */
+    .product-card {
+      background: var(--surface-1);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color var(--dur-base) var(--ease-out),
+                  box-shadow var(--dur-base) var(--ease-out),
+                  transform var(--dur-base) var(--ease-out);
+      position: relative;
+    }
+    .product-card:hover {
+      border-color: var(--brand-primary);
+      box-shadow: 0 4px 20px rgba(46,204,113,0.12);
+      transform: translateY(-2px);
+    }
+    .product-img {
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+    }
+    .product-badge {
+      position: absolute;
+      top: var(--sp-3);
+      left: var(--sp-3);
+      font-size: 10px;
+      font-weight: var(--weight-bold);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .badge-new       { background: #dcfce7; color: #15803d; }
+    .badge-popular   { background: #fef3c7; color: #92400e; }
+    .badge-certified { background: #ede9fe; color: #5b21b6; }
+    .badge-promo     { background: #fee2e2; color: #991b1b; }
+
+    .product-body { padding: var(--sp-4); }
+    .product-name {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      line-height: 1.35;
+    }
+    .product-supplier {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .supplier-verified { color: var(--brand-primary); }
+    .product-stars { font-size: 11px; color: #f59e0b; margin-bottom: var(--sp-2); }
+    .product-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .product-footer {
+      padding: var(--sp-3) var(--sp-4);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-2);
+    }
+    .product-price {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-extrabold);
+      color: var(--brand-primary);
+      white-space: nowrap;
+    }
+    .product-price .per-unit {
+      font-size: 10px;
+      font-weight: var(--weight-medium);
+      color: var(--text-muted);
+    }
+
+    /* Cart button with "coming soon" overlay */
+    .btn-cart {
+      height: 32px;
+      padding: 0 var(--sp-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      background: rgba(46,204,113,0.10);
+      color: var(--brand-primary);
+      border: 1px solid rgba(46,204,113,0.25);
+      cursor: not-allowed;
+      white-space: nowrap;
+      position: relative;
+      transition: background var(--dur-base) var(--ease-out);
+    }
+    .btn-cart:hover { background: rgba(46,204,113,0.18); }
+
+    /* ---- Coming soon ribbon -------------------------------- */
+    .coming-ribbon {
+      background: linear-gradient(135deg, rgba(46,204,113,0.08) 0%, rgba(46,204,113,0.02) 100%);
+      border: 1px solid rgba(46,204,113,0.15);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-4) var(--sp-6);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+    }
+    .coming-ribbon-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: rgba(46,204,113,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .coming-ribbon-text h4 {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0 0 2px;
+    }
+    .coming-ribbon-text p {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* ---- Stats row ----------------------------------------- */
+    .mkt-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+    }
+    @media (max-width: 800px) { .mkt-stats { grid-template-columns: repeat(2, 1fr); } }
+    .mkt-stat {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-4) var(--sp-5);
+      text-align: center;
+    }
+    .mkt-stat-val {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-extrabold);
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+    }
+    .mkt-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ---- Notify bar ---------------------------------------- */
+    .notify-bar {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6) var(--sp-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-6);
+      margin-top: var(--sp-6);
+    }
+    .notify-bar-text h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      margin: 0 0 4px;
+    }
+    .notify-bar-text p { font-size: var(--text-sm); color: var(--text-muted); margin: 0; }
+    .notify-form { display: flex; gap: var(--sp-3); flex-shrink: 0; }
+    .notify-input {
+      height: 40px;
+      padding: 0 var(--sp-4);
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      outline: none;
+      width: 220px;
+      transition: border-color var(--dur-base) var(--ease-out);
+    }
+    .notify-input:focus { border-color: var(--input-border-focus); box-shadow: 0 0 0 3px var(--input-ring); }
+    @media (max-width: 700px) {
+      .notify-bar { flex-direction: column; }
+      .notify-form { width: 100%; }
+      .notify-input { flex: 1; width: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Hero banner -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 50%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-8) var(--sp-10);margin-bottom:var(--sp-6);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);">
+        <div style="position:absolute;width:320px;height:320px;background:rgba(255,255,255,.05);border-radius:50%;right:-60px;top:-100px;pointer-events:none;"></div>
+        <div style="position:absolute;width:180px;height:180px;background:rgba(255,255,255,.03);border-radius:50%;right:120px;bottom:-60px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="display:inline-flex;align-items:center;gap:var(--sp-2);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-full);padding:3px 14px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.06em;text-transform:uppercase;margin-bottom:var(--sp-3);">
+            🛒 Coming Soon
+          </div>
+          <div style="font-size:var(--text-3xl);font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.15;margin-bottom:var(--sp-3);">GREEN Marketplace</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.7);max-width:460px;line-height:1.6;">
+            Buy certified seeds, plant protection products, fertilisers, and field equipment
+            directly from verified Cameroonian suppliers. Recommended by your GREEN AI.
+          </div>
+        </div>
+        <div style="position:relative;z-index:1;flex-shrink:0;text-align:center;display:none;" id="heroStats">
+          <div style="font-size:2.5rem;font-weight:800;color:#fff;letter-spacing:-.03em;">120+</div>
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:500;">Products at launch</div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mkt-stats">
+        <div class="mkt-stat">
+          <div class="mkt-stat-val">120+</div>
+          <div class="mkt-stat-label">Products planned</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="mkt-stat-val">18</div>
+          <div class="mkt-stat-label">Verified suppliers</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="mkt-stat-val">6</div>
+          <div class="mkt-stat-label">Regions covered</div>
+        </div>
+        <div class="mkt-stat">
+          <div class="mkt-stat-val">Q3 2026</div>
+          <div class="mkt-stat-label">Expected launch</div>
+        </div>
+      </div>
+
+      <!-- Coming soon notice -->
+      <div class="coming-ribbon">
+        <div class="coming-ribbon-icon">🔔</div>
+        <div class="coming-ribbon-text">
+          <h4>Preview mode — products cannot be ordered yet</h4>
+          <p>The marketplace is under development. Register below to be notified at launch and get early access.</p>
+        </div>
+      </div>
+
+      <!-- Category tabs -->
+      <div class="cat-tabs" id="catTabs">
+        <button class="cat-tab active" data-cat="all" onclick="setCategory(this,'all')">All <span class="cat-count">36</span></button>
+        <button class="cat-tab" data-cat="seeds" onclick="setCategory(this,'seeds')">🌱 Seeds <span class="cat-count">8</span></button>
+        <button class="cat-tab" data-cat="protection" onclick="setCategory(this,'protection')">🧪 Plant Protection <span class="cat-count">10</span></button>
+        <button class="cat-tab" data-cat="fertilizer" onclick="setCategory(this,'fertilizer')">⚗️ Fertilizers <span class="cat-count">7</span></button>
+        <button class="cat-tab" data-cat="bio" onclick="setCategory(this,'bio')">🌿 Bio-Inputs <span class="cat-count">5</span></button>
+        <button class="cat-tab" data-cat="equipment" onclick="setCategory(this,'equipment')">🤖 Equipment <span class="cat-count">6</span></button>
+      </div>
+
+      <!-- Main layout: sidebar + grid -->
+      <div class="mkt-layout">
+
+        <!-- Filter sidebar -->
+        <div class="filter-sidebar">
+          <div class="filter-sidebar-title">Filters</div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Crop compatibility</div>
+            <label class="filter-check"><input type="checkbox" checked /> <span>Maize</span></label>
+            <label class="filter-check"><input type="checkbox" checked /> <span>Cassava</span></label>
+            <label class="filter-check"><input type="checkbox" checked /> <span>Tomato</span></label>
+            <label class="filter-check"><input type="checkbox" /> <span>Groundnut</span></label>
+            <label class="filter-check"><input type="checkbox" /> <span>Plantain</span></label>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Price range (XAF)</div>
+            <div class="price-range">
+              <input type="range" min="0" max="500000" step="1000" value="500000"
+                     oninput="document.getElementById('priceMax').textContent=formatPrice(this.value)" />
+              <div class="price-range-labels">
+                <span>0</span>
+                <span id="priceMax">500 000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Supplier</div>
+            <label class="filter-check"><input type="checkbox" checked /> <span>✓ Verified only</span></label>
+            <label class="filter-check"><input type="checkbox" /> <span>GREEN recommended</span></label>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Region</div>
+            <label class="filter-check"><input type="checkbox" checked /> <span>Centre</span></label>
+            <label class="filter-check"><input type="checkbox" checked /> <span>Littoral</span></label>
+            <label class="filter-check"><input type="checkbox" /> <span>Ouest</span></label>
+            <label class="filter-check"><input type="checkbox" /> <span>All regions</span></label>
+          </div>
+        </div>
+
+        <!-- Product grid -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4);">
+            <div style="font-size:var(--text-sm);color:var(--text-muted);">
+              Showing <strong id="productCount" style="color:var(--text-primary);">36</strong> products
+            </div>
+            <select style="height:36px;padding:0 var(--sp-3);background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-md);color:var(--text-secondary);font-size:var(--text-sm);font-family:var(--font-sans);outline:none;">
+              <option>Sort: Most popular</option>
+              <option>Price: Low to high</option>
+              <option>Price: High to low</option>
+              <option>GREEN recommended</option>
+            </select>
+          </div>
+
+          <div class="product-grid" id="productGrid"></div>
+        </div>
+
+      </div>
+
+      <!-- Notify bar -->
+      <div class="notify-bar">
+        <div class="notify-bar-text">
+          <h3>Get early access at launch</h3>
+          <p>Register your email and receive a 10% discount code when the marketplace opens.</p>
+        </div>
+        <div class="notify-form">
+          <input type="email" class="notify-input" id="notifyEmail" placeholder="you@company.cm" />
+          <button class="btn btn-primary" onclick="registerNotify()">Notify me</button>
+        </div>
+      </div>
+      <div id="notifyMsg" style="display:none;text-align:center;margin-top:var(--sp-4);font-size:var(--text-sm);color:var(--brand-primary);font-weight:var(--weight-semibold);">
+        ✓ You're on the list! We'll notify you at launch.
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ---- Product catalogue (preview data) --------------------- */
+const PRODUCTS = [
+  // Seeds
+  { id:1, cat:'seeds',  name:'IITA Maize Hybrid CMS 8704', supplier:'AgroSem Cameroun', verified:true, price:12000, unit:'5 kg bag', rating:4.8, reviews:42, badge:'certified', desc:'High-yield hybrid maize, resistant to streak virus and Cercospora. +30% yield vs local varieties.', emoji:'🌽', bg:'rgba(46,204,113,.08)', crops:['Maize'] },
+  { id:2, cat:'seeds',  name:'Cassava Variety TMS 30572', supplier:'IRAD Yaoundé', verified:true, price:8500, unit:'50 cuttings', rating:4.9, reviews:87, badge:'popular', desc:'CMD-resistant cassava, certified by IRAD. Adapté aux deux saisons pluvieuses du Centre.', emoji:'🪴', bg:'rgba(245,158,11,.08)', crops:['Cassava'] },
+  { id:3, cat:'seeds',  name:'Tomato Mongal F1 Hybrid', supplier:'Technisem', verified:true, price:15000, unit:'10 g sachet', rating:4.6, reviews:31, badge:'new', desc:'Indeterminate hybrid, excellent blight tolerance. Yield 60–80 t/ha under good management.', emoji:'🍅', bg:'rgba(239,68,68,.08)', crops:['Tomato'] },
+  { id:4, cat:'seeds',  name:'Groundnut Fleur 11', supplier:'AgroSem Cameroun', verified:true, price:6500, unit:'1 kg', rating:4.4, reviews:19, badge:null, desc:'Early-maturing, rosette-resistant variety. Suited for Centre and Littoral regions.', emoji:'🥜', bg:'rgba(245,158,11,.08)', crops:['Groundnut'] },
+  { id:5, cat:'seeds',  name:'Maize Open Pollinated EV8728', supplier:'IRAD', verified:true, price:5500, unit:'3 kg', rating:4.3, reviews:55, badge:null, desc:'Adaptable open-pollinated variety. Tolerant to drought and mid-altitude conditions.', emoji:'🌽', bg:'rgba(46,204,113,.08)', crops:['Maize'] },
+  { id:6, cat:'seeds',  name:'Plantain Pépinière CRBP39', supplier:'CARBAP Njombé', verified:true, price:3500, unit:'per plant', rating:4.7, reviews:28, badge:'certified', desc:'Black Sigatoka tolerant plantain sucker, certified propagation material from CARBAP.', emoji:'🍌', bg:'rgba(252,211,77,.12)', crops:['Plantain'] },
+
+  // Plant protection
+  { id:7, cat:'protection', name:'Ridomil Gold MZ 68 WG', supplier:'Syngenta CM', verified:true, price:18500, unit:'250 g', rating:4.7, reviews:63, badge:'popular', desc:'Systemic + contact fungicide for Phytophthora (tomato blight) and downy mildew. GREEN recommended.', emoji:'🧪', bg:'rgba(59,130,246,.08)', crops:['Tomato','Cassava'] },
+  { id:8, cat:'protection', name:'Score 250 EC (Difenoconazole)', supplier:'Syngenta CM', verified:true, price:14000, unit:'100 ml', rating:4.5, reviews:44, badge:null, desc:'Systemic triazole fungicide for Cercospora, Alternaria, and other leaf diseases.', emoji:'🧪', bg:'rgba(59,130,246,.08)', crops:['Maize','Tomato'] },
+  { id:9, cat:'protection', name:'Confidor 200 SL (Imidacloprid)', supplier:'Bayer CM', verified:true, price:9500, unit:'100 ml', rating:4.6, reviews:38, badge:null, desc:'Systemic insecticide — controls whiteflies (CMD vector) and leafhoppers (MSV vector).', emoji:'🐛', bg:'rgba(139,92,246,.08)', crops:['Cassava','Maize'] },
+  { id:10, cat:'protection', name:'Copper Oxychloride 50 WP', supplier:'Agro-Chimie SA', verified:false, price:7000, unit:'500 g', rating:4.1, reviews:22, badge:null, desc:'Contact fungicide for Alternariose and blight. Compatible with organic farming.', emoji:'🟦', bg:'rgba(59,130,246,.06)', crops:['Tomato'] },
+  { id:11, cat:'protection', name:'Lambda-cyhalothrin 2.5 EC', supplier:'PhytoShield', verified:true, price:6500, unit:'100 ml', rating:4.4, reviews:17, badge:'new', desc:'Broad-spectrum pyrethroid for locusts and lepidopteran pests. Quick knockdown.', emoji:'🦗', bg:'rgba(239,68,68,.08)', crops:['Maize','Cassava'] },
+  { id:12, cat:'protection', name:'Neem Extract Bio-Pesticide', supplier:'BioPro Cameroun', verified:true, price:5000, unit:'1 L', rating:4.3, reviews:29, badge:'new', desc:'Cold-pressed neem oil (3000 ppm azadirachtin). Organic-certified for all crops.', emoji:'🌿', bg:'rgba(46,204,113,.08)', crops:['Tomato','Maize','Cassava'] },
+
+  // Fertilizers
+  { id:13, cat:'fertilizer', name:'NPK 20-10-10 Granular', supplier:'SOCAVER', verified:true, price:38000, unit:'50 kg bag', rating:4.6, reviews:91, badge:'popular', desc:'Balanced NPK for maize and cassava. Slow-release formula adapted to Cameroon soils.', emoji:'⚗️', bg:'rgba(245,158,11,.08)', crops:['Maize','Cassava'] },
+  { id:14, cat:'fertilizer', name:'Urea 46% Granular', supplier:'SOCAVER', verified:true, price:27000, unit:'50 kg bag', rating:4.4, reviews:68, badge:null, desc:'High-nitrogen top-dressing for maize. Apply at 3–4 weeks after emergence.', emoji:'🔵', bg:'rgba(59,130,246,.08)', crops:['Maize'] },
+  { id:15, cat:'fertilizer', name:'Calcium-Magnesium Lime', supplier:'CarrièresCM', verified:false, price:15000, unit:'50 kg bag', rating:4.0, reviews:12, badge:null, desc:'Reduces soil acidity and provides Ca/Mg. For acidic ferrallitic soils in forest zone.', emoji:'⬜', bg:'rgba(107,114,128,.07)', crops:['Maize','Tomato','Cassava'] },
+  { id:16, cat:'fertilizer', name:'Foliar Zinc-Boron Mix', supplier:'MicroNutrients SA', verified:true, price:12000, unit:'1 L', rating:4.5, reviews:24, desc:'Corrects micronutrient deficiencies causing Corn Stripe and Yellowing. Spray at V4.', badge:'certified', emoji:'💊', bg:'rgba(139,92,246,.08)', crops:['Maize'] },
+  { id:17, cat:'fertilizer', name:'Potassium Sulphate 50%', supplier:'SOCAVER', verified:true, price:42000, unit:'25 kg', rating:4.3, reviews:15, badge:null, desc:'Chloride-free potassium for fruit quality in tomato. Reduces blossom-end rot.', emoji:'🟠', bg:'rgba(249,115,22,.08)', crops:['Tomato'] },
+
+  // Bio-inputs
+  { id:18, cat:'bio', name:'Bokashi Compost Enriched', supplier:'BioPro Cameroun', verified:true, price:18000, unit:'25 kg bag', rating:4.6, reviews:33, badge:'popular', desc:'Fermented organic matter with EM (effective microorganisms). Improves soil biology.', emoji:'🌱', bg:'rgba(46,204,113,.08)', crops:['Maize','Tomato','Cassava'] },
+  { id:19, cat:'bio', name:'Trichoderma Bio-fungicide', supplier:'BioPro Cameroun', verified:true, price:9500, unit:'500 g', rating:4.4, reviews:21, badge:'new', desc:'Soil-applied biological fungicide suppressing Fusarium and root rot. Safe for pollinators.', emoji:'🍄', bg:'rgba(46,204,113,.08)', crops:['Tomato','Maize'] },
+  { id:20, cat:'bio', name:'Biochar — Rice Husk', supplier:'AgroRice CM', verified:false, price:12000, unit:'20 kg', rating:4.1, reviews:8, badge:null, desc:'Activated rice husk biochar. Increases water retention in sandy soils.', emoji:'🪨', bg:'rgba(107,114,128,.07)', crops:['Maize','Cassava'] },
+  { id:21, cat:'bio', name:'Bacillus subtilis WP', supplier:'BioPro Cameroun', verified:true, price:14000, unit:'500 g', rating:4.5, reviews:18, badge:'certified', desc:'Biopesticide for Alternaria and Cercospora. Compatible with integrated pest management.', emoji:'🧬', bg:'rgba(59,130,246,.08)', crops:['Tomato','Maize'] },
+  { id:22, cat:'bio', name:'Liquid Organic Fertilizer 7-3-6', supplier:'VertBio', verified:true, price:11000, unit:'5 L', rating:4.3, reviews:14, badge:null, desc:'Fish emulsion + seaweed extract. For foliar application to boost vegetative growth.', emoji:'🌊', bg:'rgba(6,182,212,.08)', crops:['Tomato','Maize'] },
+
+  // Equipment
+  { id:23, cat:'equipment', name:'IFAS Rover Camera Kit', supplier:'GREEN Technologies', verified:true, price:285000, unit:'kit', rating:5.0, reviews:7, badge:'new', desc:'Complete rover camera kit compatible with GREEN platform. MJPEG stream, IP67, 150m WiFi range.', emoji:'🤖', bg:'rgba(46,204,113,.12)', crops:['All'] },
+  { id:24, cat:'equipment', name:'Knapsack Sprayer 16 L', supplier:'AgroMatériel CM', verified:true, price:35000, unit:'unit', rating:4.5, reviews:52, badge:'popular', desc:'Manual compression sprayer with adjustable nozzle. Ergonomic design for 6–8 hour use.', emoji:'🧴', bg:'rgba(59,130,246,.08)', crops:['All'] },
+  { id:25, cat:'equipment', name:'Digital Soil Moisture Sensor', supplier:'SoilTech Africa', verified:true, price:45000, unit:'unit', rating:4.6, reviews:19, badge:null, desc:'Real-time soil moisture, temperature, and EC measurement. Bluetooth-connected.', emoji:'📡', bg:'rgba(139,92,246,.08)', crops:['All'] },
+  { id:26, cat:'equipment', name:'Manual Corn Sheller', supplier:'AgroMatériel CM', verified:false, price:22000, unit:'unit', rating:4.2, reviews:34, badge:null, desc:'Manual crank-operated corn sheller, 200 kg/h capacity. No electricity required.', emoji:'⚙️', bg:'rgba(245,158,11,.08)', crops:['Maize'] },
+  { id:27, cat:'equipment', name:'pH & NPK Soil Test Kit', supplier:'SoilTech Africa', verified:true, price:28000, unit:'kit (50 tests)', rating:4.4, reviews:26, badge:'certified', desc:'Field-portable soil analysis kit. Provides pH, available N, P, K in 10 minutes.', emoji:'🔬', bg:'rgba(46,204,113,.08)', crops:['All'] },
+  { id:28, cat:'equipment', name:'Solar Water Pump 0.5 HP', supplier:'EnergyAfrique', verified:true, price:195000, unit:'unit', rating:4.7, reviews:11, badge:null, desc:'24V solar-powered submersible pump. Irrigation for up to 2 ha. 6-month warranty.', emoji:'☀️', bg:'rgba(245,158,11,.08)', crops:['Tomato','Maize'] },
+];
+
+let _activeCategory = 'all';
+
+/* ---- Init ------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'marketplace', title: 'Marketplace', subtitle: 'Agricultural inputs & equipment' });
+  renderProducts();
+});
+
+/* ---- Category filter -------------------------------------- */
+function setCategory(btn, cat) {
+  _activeCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+/* ---- Render product grid ---------------------------------- */
+function renderProducts() {
+  const filtered = _activeCategory === 'all'
+    ? PRODUCTS
+    : PRODUCTS.filter(p => p.cat === _activeCategory);
+
+  document.getElementById('productCount').textContent = filtered.length;
+
+  document.getElementById('productGrid').innerHTML = filtered.map(p => {
+    const stars = '★'.repeat(Math.round(p.rating)) + '☆'.repeat(5 - Math.round(p.rating));
+    const badge = p.badge
+      ? `<span class="product-badge badge-${p.badge}">${p.badge}</span>`
+      : '';
+    const verifiedIcon = p.verified
+      ? `<svg class="supplier-verified" width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`
+      : '';
+    return `
+      <div class="product-card">
+        <div class="product-img" style="background:${p.bg};">
+          ${badge}
+          <span>${p.emoji}</span>
+        </div>
+        <div class="product-body">
+          <div class="product-name">${p.name}</div>
+          <div class="product-supplier">${verifiedIcon}${p.supplier}</div>
+          <div class="product-stars">${stars} <span style="color:var(--text-muted);">${p.rating} (${p.reviews})</span></div>
+          <div class="product-desc">${p.desc}</div>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">
+            ${formatPrice(p.price)} XAF
+            <div class="per-unit">${p.unit}</div>
+          </div>
+          <button class="btn-cart" title="Coming soon">
+            🛒 Order
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function formatPrice(v) {
+  return Number(v).toLocaleString('fr-FR');
+}
+
+/* ---- Notify ----------------------------------------------- */
+function registerNotify() {
+  const email = document.getElementById('notifyEmail').value.trim();
+  if (!email || !email.includes('@')) {
+    App.toast('Please enter a valid email address.', 'error');
+    return;
+  }
+  localStorage.setItem('green_mkt_notify', email);
+  document.getElementById('notifyMsg').style.display = 'block';
+  document.getElementById('notifyEmail').value = '';
+  App.toast('You\'re on the list!', 'success');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rover Analysis — GREEN</title>
+  <!-- Theme flash prevention -->
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <link rel="stylesheet" href="/css/camera.css" />
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+<div class="app-main" id="appMain">
+<main class="app-content" id="appContent">
+
+  <!-- ══════════════════════════════════════════════════════════
+       BANNER
+       ══════════════════════════════════════════════════════════ -->
+  <div style="
+    background: linear-gradient(135deg, var(--brand-darker) 0%, var(--brand-dark) 60%, var(--brand-mid) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-8) var(--sp-8);
+    margin-bottom: var(--sp-6);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--sp-6); overflow: hidden; position: relative;">
+    <!-- decorative circles -->
+    <div style="position:absolute;width:260px;height:260px;background:rgba(255,255,255,.05);border-radius:50%;right:-40px;top:-80px;pointer-events:none;"></div>
+    <div style="position:absolute;width:140px;height:140px;background:rgba(255,255,255,.04);border-radius:50%;right:140px;bottom:-50px;pointer-events:none;"></div>
+
+    <div style="position:relative;z-index:1;">
+      <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-2);">
+        <div style="width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+        </div>
+        <span style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.7);">AI Inspection</span>
+      </div>
+      <h2 style="font-size:var(--text-2xl);font-weight:var(--weight-extrabold);color:#fff;margin:0 0 var(--sp-2);letter-spacing:-.02em;">Rover Analysis</h2>
+      <p style="font-size:var(--text-sm);color:rgba(255,255,255,.8);margin:0;max-width:480px;line-height:var(--leading-relaxed);">
+        Connect the rover camera, capture frames and detect plant diseases &amp; pests with dual AI models in real time.
+      </p>
+    </div>
+
+    <div style="display:flex;gap:var(--sp-3);flex-shrink:0;position:relative;z-index:1;">
+      <a href="/history" style="
+        display:flex;align-items:center;gap:var(--sp-2);
+        padding:var(--sp-3) var(--sp-5);
+        background:rgba(255,255,255,.12);
+        border:1px solid rgba(255,255,255,.22);
+        border-radius:var(--radius-md);
+        color:#fff;text-decoration:none;
+        font-size:var(--text-sm);font-weight:var(--weight-semibold);
+        transition:background var(--dur-base);"
+        onmouseover="this.style.background='rgba(255,255,255,.2)'"
+        onmouseout="this.style.background='rgba(255,255,255,.12)'">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        View History
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       STATUS ROW (3 mini-KPIs)
+       ══════════════════════════════════════════════════════════ -->
+  <div class="rover-status-row">
+
+    <div class="rover-stat">
+      <div class="rover-stat-icon kpi-icon-green">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        </svg>
+      </div>
+      <div>
+        <div class="rover-stat-label">Connection</div>
+        <div class="rover-stat-value" id="statConnection">
+          <span class="conn-dot off" id="connDot"></span>
+          <span id="connLabel">Offline</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rover-stat">
+      <div class="rover-stat-icon kpi-icon-blue">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
+      <div>
+        <div class="rover-stat-label">Active mode</div>
+        <div class="rover-stat-value" id="statMode">IP Stream</div>
+      </div>
+    </div>
+
+    <div class="rover-stat">
+      <div class="rover-stat-icon kpi-icon-orange">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="rover-stat-label">Last analysis</div>
+        <div class="rover-stat-value" id="statLast">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN GRID
+       ══════════════════════════════════════════════════════════ -->
+  <div class="rover-grid">
+
+    <!-- ════════════════════════════════
+         LEFT — Control Panel
+         ════════════════════════════════ -->
+    <aside class="control-panel">
+
+      <div class="control-panel-header">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="2" y="7" width="20" height="15" rx="2"/>
+          <polyline points="17 2 12 7 7 2"/>
+        </svg>
+        <h3>Camera Control</h3>
+      </div>
+
+      <div class="control-panel-body">
+
+        <!-- Mode selector -->
+        <div>
+          <label class="f-lbl">Acquisition mode</label>
+          <div class="mode-tabs">
+            <button class="mode-tab active" id="tabStream"  onclick="switchMode('stream')">IP Stream</button>
+            <button class="mode-tab"        id="tabCamera"  onclick="switchMode('camera')">Camera</button>
+            <button class="mode-tab"        id="tabUpload"  onclick="switchMode('upload')">Upload</button>
+          </div>
+        </div>
+
+        <!-- ── IP STREAM ─────────────────────────── -->
+        <div id="sectionStream">
+          <div style="margin-bottom:var(--sp-3);">
+            <label class="f-lbl">Rover IP address</label>
+            <div class="ip-row">
+              <input type="text" id="camIp" class="form-input" placeholder="192.168.1.100" value="192.168.1.100"
+                     style="font-family:var(--font-mono);" />
+              <input type="number" id="camPort" class="form-input port-input" placeholder="8080" value="8080" />
+            </div>
+            <div class="field-error" id="connectErr"></div>
+          </div>
+
+          <div class="camera-note" style="margin-bottom:var(--sp-3);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            The rover streams MJPEG over WiFi or LAN. The browser renders the live feed directly — no bandwidth goes through the server.
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+            <button class="connect-btn primary" id="connectBtn" onclick="connectStream()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              Connect
+            </button>
+            <button class="connect-btn" id="disconnectBtn" onclick="disconnectStream()" style="display:none;">
+              Disconnect
+            </button>
+          </div>
+        </div>
+
+        <!-- ── EXTERNAL CAMERA ───────────────────── -->
+        <div id="sectionCamera" style="display:none;">
+
+          <!-- Permission denied warning (hidden by default) -->
+          <div id="camPermDenied" style="display:none;
+               background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);
+               border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);
+               margin-bottom:var(--sp-3);font-size:var(--text-xs);color:var(--color-error);
+               line-height:1.5;">
+            <strong>Camera access blocked.</strong><br>
+            Click the 🔒 or 📷 icon in your browser's address bar → allow camera access for this site, then click <em>Request Permission</em> again.
+          </div>
+
+          <div class="camera-note" style="margin-bottom:var(--sp-3);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Select the external camera connected to this device (USB, Bluetooth, or network adapter appearing as a video input).
+          </div>
+
+          <div style="margin-bottom:var(--sp-3);">
+            <label class="f-lbl">Video device</label>
+            <div style="display:flex;gap:var(--sp-2);align-items:center;">
+              <select class="device-select" id="deviceSelect" style="flex:1;">
+                <option value="">— Click "Request Permission" first —</option>
+              </select>
+              <button class="cam-btn" id="refreshDevBtn" onclick="requestCameraPermission()"
+                      title="Request camera permission and refresh list"
+                      style="flex-shrink:0;height:38px;padding:0 var(--sp-3);">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+            <button class="cam-btn primary" id="startCamBtn" onclick="startCamera()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              Start Camera
+            </button>
+            <button class="cam-btn" id="stopCamBtn" onclick="stopCamera()" style="display:none;">
+              Stop Camera
+            </button>
+          </div>
+        </div>
+
+        <!-- ── UPLOAD ────────────────────────────── -->
+        <div id="sectionUpload" style="display:none;">
+          <div class="upload-zone" id="uploadZone"
+               ondragover="event.preventDefault();this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="handleDrop(event)">
+            <input type="file" id="uploadInput" accept="image/*" onchange="handleFile(event)" />
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            <p>Click or drag an image here</p>
+            <p class="up-hint">JPG · PNG · max 10 MB</p>
+          </div>
+          <img id="uploadThumb" class="upload-thumb" alt="preview" />
+        </div>
+
+        <!-- Auto-analysis status indicator -->
+        <div id="autoStatus" style="display:none;border-top:1px solid var(--border-subtle);
+             padding-top:var(--sp-4);margin-top:var(--sp-1);">
+          <div style="display:flex;align-items:center;gap:var(--sp-2);
+               font-size:var(--text-xs);color:var(--brand-primary);font-weight:var(--weight-semibold);">
+            <span class="conn-dot on" style="flex-shrink:0;"></span>
+            Analyse en temps réel active
+          </div>
+        </div>
+
+      </div>
+    </aside><!-- /control-panel -->
+
+    <!-- ════════════════════════════════
+         RIGHT — Viewer + Results
+         ════════════════════════════════ -->
+    <section class="viewer-panel">
+
+      <!-- Live feed card -->
+      <div class="feed-card">
+        <div class="feed-card-header">
+          <h3>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+            </svg>
+            Live Feed
+          </h3>
+          <span class="live-badge hidden" id="liveBadge">
+            <span class="rec-dot"></span> LIVE
+          </span>
+        </div>
+
+        <div class="viewport" id="viewport">
+          <!-- Placeholder -->
+          <div class="vp-placeholder" id="vpPlaceholder">
+            <svg width="72" height="72" fill="none" stroke="currentColor" stroke-width=".8" viewBox="0 0 24 24">
+              <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+            </svg>
+            <p id="vpHint">Select a mode and connect to see the feed</p>
+            <div class="vp-stream-url" id="vpStreamUrl"></div>
+          </div>
+          <!-- Streams -->
+          <img  class="stream-img"  id="streamImg" alt="rover stream" onerror="onStreamError()" />
+          <video class="cam-video"  id="camVideo"  autoplay playsinline muted></video>
+          <canvas class="capture-canvas" id="captureCanvas"></canvas>
+          <!-- Analysing overlay -->
+          <div class="analysing-overlay" id="analysingOverlay">
+            <div class="spin-ring"></div>
+            <span>Analysing frame…</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results card (hidden until first analysis) -->
+      <div class="results-card" id="resultsCard">
+        <div class="results-card-header">
+          <h3>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Fiche Terrain
+          </h3>
+          <a href="/history" style="font-size:var(--text-xs);color:var(--brand-primary);font-weight:var(--weight-semibold);text-decoration:none;">
+            Voir dans l'historique →
+          </a>
+        </div>
+
+        <!-- ══ WINNER BANNER ══════════════════════════════════════ -->
+        <div id="winnerBanner" style="display:none;
+             border-radius:var(--radius-md);padding:var(--sp-4) var(--sp-5);
+             margin-bottom:var(--sp-4);border:1px solid;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--sp-3);">
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <div id="winnerIco" style="width:48px;height:48px;border-radius:var(--radius-md);
+                   display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.07em;opacity:.7;" id="winnerLabel">Résultat</div>
+                <div style="font-size:var(--text-lg);font-weight:var(--weight-bold);line-height:1.2;" id="winnerName">—</div>
+                <div style="font-size:var(--text-sm);opacity:.8;margin-top:2px;" id="winnerSub">—</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <div style="text-align:right;">
+                <div style="font-size:var(--text-2xl);font-weight:var(--weight-extrabold);line-height:1;" id="winnerConf">—</div>
+                <div style="font-size:var(--text-xs);opacity:.7;">confiance</div>
+              </div>
+              <span class="sev-tag none" id="winnerSev" style="flex-shrink:0;">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ CHARACTERISTICS ═══════════════════════════════════ -->
+        <div id="charSection" style="display:none;margin-bottom:var(--sp-4);">
+          <div style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:var(--sp-2);">Caractéristiques</div>
+          <p id="charText" style="font-size:var(--text-sm);color:var(--text-secondary);line-height:var(--leading-relaxed);margin:0;background:var(--surface-2);border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);"></p>
+        </div>
+
+        <!-- ══ EMITTER SIGNAL (pest only) ════════════════════════ -->
+        <div id="emitterSection" style="display:none;
+             background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);
+             border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-4);">
+          <div style="display:flex;align-items:flex-start;gap:var(--sp-3);">
+            <div style="width:32px;height:32px;border-radius:var(--radius-md);
+                 background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="16" height="16" fill="none" stroke="rgb(16,185,129)" stroke-width="2" viewBox="0 0 24 24">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:var(--text-xs);font-weight:var(--weight-semibold);color:rgb(16,185,129);text-transform:uppercase;letter-spacing:.07em;margin-bottom:var(--sp-1);">
+                Signal émetteur actif — <span id="emitterFreq">—</span>
+              </div>
+              <p id="emitterMsg" style="font-size:var(--text-sm);color:var(--text-secondary);margin:0;line-height:var(--leading-relaxed);"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ RECOMMENDATIONS ═══════════════════════════════════ -->
+        <div id="recoSection" style="display:none;margin-bottom:var(--sp-4);">
+          <div style="font-size:var(--text-xs);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:var(--sp-2);">Premières recommandations</div>
+          <ul id="recoList" style="margin:0;padding-left:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-2);"></ul>
+        </div>
+
+        <!-- ══ UNRECOGNIZED STATE ════════════════════════════════ -->
+        <div id="unrecognizedSection" style="display:none;
+             text-align:center;padding:var(--sp-8) var(--sp-6);">
+          <div style="width:56px;height:56px;border-radius:50%;
+               background:rgba(107,114,128,.1);display:inline-flex;
+               align-items:center;justify-content:center;color:var(--text-muted);
+               margin-bottom:var(--sp-4);">
+            <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M3 3l18 18"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/>
+              <path d="M3 9v10a2 2 0 0 0 2 2h10"/>
+            </svg>
+          </div>
+          <div style="font-size:var(--text-base);font-weight:var(--weight-semibold);
+               color:var(--text-primary);margin-bottom:var(--sp-2);">Image non reconnue</div>
+          <div style="font-size:var(--text-sm);color:var(--text-muted);
+               line-height:var(--leading-relaxed);max-width:280px;margin:0 auto;">
+            Niveau de confiance insuffisant (&lt;70 %).
+            Veuillez prendre une nouvelle image sous un meilleur angle ou éclairage.
+          </div>
+        </div>
+
+        <!-- ══ GREENBOT BUTTON ═══════════════════════════════════ -->
+        <div id="greenbotSection" style="display:none;
+             border-top:1px solid var(--border-subtle);padding-top:var(--sp-4);">
+          <a id="greenbotBtn" href="/chatbot"
+             style="display:flex;align-items:center;justify-content:center;gap:var(--sp-3);
+                    width:100%;padding:var(--sp-3) var(--sp-5);
+                    background:linear-gradient(135deg,var(--brand-dark),var(--brand-mid));
+                    border:none;border-radius:var(--radius-md);
+                    color:#fff;font-size:var(--text-sm);font-weight:var(--weight-semibold);
+                    text-decoration:none;cursor:pointer;
+                    transition:opacity var(--dur-base);"
+             onmouseover="this.style.opacity='.88'"
+             onmouseout="this.style.opacity='1'">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <circle cx="9"  cy="10" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+            Consulter GreenBot pour un diagnostic approfondi
+          </a>
+        </div>
+
+        <!-- Captured frame + YOLO bounding boxes -->
+        <div class="thumb-section" id="thumbSection" style="display:none;margin-top:var(--sp-4);">
+          <div style="font-size:var(--text-xs);font-weight:var(--weight-semibold);color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--sp-2);">Image capturée</div>
+          <canvas id="thumbCanvas" style="max-width:100%;border-radius:var(--radius-md);display:block;"></canvas>
+        </div>
+
+      </div><!-- /results-card -->
+
+    </section><!-- /viewer-panel -->
+
+
+    <!-- ════════════════════════════════
+         FULL WIDTH — Recent analyses
+         ════════════════════════════════ -->
+    <div class="recent-section">
+      <div class="recent-section-hdr">
+        <h3>Recent Analyses</h3>
+        <a href="/history" style="font-size:var(--text-xs);color:var(--brand-primary);font-weight:var(--weight-semibold);text-decoration:none;">View all →</a>
+      </div>
+
+      <table class="rv-tbl" id="recentTbl" style="display:none;">
+        <thead>
+          <tr>
+            <th>Disease detected</th>
+            <th>Pest detected</th>
+            <th>Plant</th>
+            <th>Confidence</th>
+            <th>Severity</th>
+            <th>Source</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="recentBody"></tbody>
+      </table>
+
+      <div id="recentEmpty" class="empty-state" style="padding:var(--sp-12) var(--sp-8);">
+        <div class="empty-state-icon">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <p class="empty-state-title" style="font-size:var(--text-base);">No analyses yet</p>
+        <p class="empty-state-description">Connect a camera or upload an image — analysis starts automatically.</p>
+      </div>
+    </div>
+
+  </div><!-- /rover-grid -->
+
+</main>
+</div><!-- /app-main -->
+</div><!-- /app-layout -->
+
+<!-- ════════════════════════════════════════════════════════════
+     SCRIPTS
+     ════════════════════════════════════════════════════════════ -->
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+
+<script>
+/* ============================================================
+   Rover Analysis — Page Controller
+   ============================================================ */
+
+// ---- State -------------------------------------------------
+const S = {
+  mode:        'stream',
+  connected:   false,
+  streamUrl:   null,
+  mediaStream: null,
+  uploadFile:  null,
+  deviceId:    null,
+};
+
+// Auto-analysis loop state
+let _autoInterval  = null;
+let _analysisLock  = false;
+const AUTO_MS      = 8000;   // analyse every 8 s when live (avoids API rate limits)
+
+// ---- Shortcuts -----
+const $  = id => document.getElementById(id);
+const _  = (id, txt) => { if ($(id)) $(id).textContent = txt; };
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  App.boot();
+  Layout.init({ page: 'camera', title: 'Rover Analysis', subtitle: 'Dual AI inspection' });
+  loadRecent();
+  enumerateDevices();
+});
+
+// ============================================================
+// AUTO-ANALYSIS LOOP
+// ============================================================
+function startAutoAnalysis() {
+  if (_autoInterval) return;
+  _analysisLock = false;
+  $('autoStatus').style.display = '';
+  analyse();                                      // immediate first capture
+  _autoInterval = setInterval(() => {
+    if (!_analysisLock) analyse();
+  }, AUTO_MS);
+}
+
+function stopAutoAnalysis() {
+  if (_autoInterval) { clearInterval(_autoInterval); _autoInterval = null; }
+  _analysisLock = false;
+  $('autoStatus').style.display = 'none';
+}
+
+// ============================================================
+// MODE SWITCH
+// ============================================================
+function switchMode(m) {
+  S.mode = m;
+  const modeLabels = { stream: 'IP Stream', camera: 'Connected Camera', upload: 'Upload' };
+  _('statMode', modeLabels[m]);
+
+  ['stream','camera','upload'].forEach(t => {
+    const cap = t.charAt(0).toUpperCase() + t.slice(1);
+    $('tab'    + cap).classList.toggle('active', t === m);
+    $('section'+ cap).style.display = t === m ? '' : 'none';
+  });
+
+  const hints = {
+    stream: 'Enter the rover IP and click Connect',
+    camera: 'Start the external camera to preview',
+    upload: 'Upload an image to preview',
+  };
+  _('vpHint', hints[m]);
+}
+
+// ============================================================
+// MODE A — IP STREAM
+// ============================================================
+async function connectStream() {
+  const ip   = $('camIp').value.trim();
+  const port = $('camPort').value.trim() || '8080';
+  if (!ip) return;
+
+  _setConn('checking', 'Connecting…');
+  $('connectBtn').disabled = true;
+  $('connectErr').style.display = 'none';
+
+  const { data, error } = await API.camera.connect(ip);
+  $('connectBtn').disabled = false;
+
+  if (error) {
+    _setConn('off', 'Offline');
+    $('connectErr').textContent = error;
+    $('connectErr').style.display = 'block';
+    return;
+  }
+
+  S.connected = true;
+  S.streamUrl = `http://${ip}:${port}/`;
+  _setConn('on', `${ip}:${port}`);
+
+  $('connectBtn').style.display    = 'none';
+  $('disconnectBtn').style.display = '';
+  $('liveBadge').classList.remove('hidden');
+
+  $('vpPlaceholder').style.display = 'none';
+  $('streamImg').style.display     = 'block';
+  $('streamImg').src               = S.streamUrl + '?t=' + Date.now();
+  _('vpStreamUrl', S.streamUrl);
+
+  startAutoAnalysis();
+}
+
+function disconnectStream() {
+  stopAutoAnalysis();
+  S.connected = false;
+  S.streamUrl = null;
+  $('streamImg').src               = '';
+  $('streamImg').style.display     = 'none';
+  $('vpPlaceholder').style.display = 'flex';
+  _('vpHint', 'Enter the rover IP and click Connect');
+  _setConn('off', 'Offline');
+  $('connectBtn').style.display    = '';
+  $('disconnectBtn').style.display = 'none';
+  $('liveBadge').classList.add('hidden');
+}
+
+function onStreamError() {
+  if (!S.connected) return;
+  stopAutoAnalysis();
+  $('streamImg').style.display     = 'none';
+  $('vpPlaceholder').style.display = 'flex';
+  _('vpHint', 'Stream lost. Check rover connection and try reconnecting.');
+  _setConn('off', 'Stream lost');
+  $('liveBadge').classList.add('hidden');
+}
+
+// ============================================================
+// MODE B — EXTERNAL CAMERA (getUserMedia with device selection)
+// ============================================================
+
+/**
+ * Explicitly request camera permission, then populate the device list.
+ * Must be triggered by a user gesture (button click) so browsers allow it.
+ */
+async function requestCameraPermission() {
+  const permEl  = $('camPermDenied');
+  const sel     = $('deviceSelect');
+  const btn     = $('refreshDevBtn');
+
+  permEl.style.display = 'none';
+  btn.disabled = true;
+  sel.innerHTML = '<option>Requesting permission…</option>';
+
+  let tempStream = null;
+  try {
+    // Ask for any video device — triggers the browser permission popup
+    tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+  } catch (err) {
+    btn.disabled = false;
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      permEl.style.display = 'block';
+      sel.innerHTML = '<option value="">— Permission denied —</option>';
+    } else if (err.name === 'NotFoundError') {
+      sel.innerHTML = '<option value="">— No camera hardware found —</option>';
+    } else {
+      sel.innerHTML = `<option value="">— Error: ${err.message} —</option>`;
+    }
+    return;
+  } finally {
+    // Always stop the temporary stream (we just needed the permission grant)
+    if (tempStream) tempStream.getTracks().forEach(t => t.stop());
+  }
+
+  btn.disabled = false;
+  await _populateDeviceList();
+}
+
+async function _populateDeviceList() {
+  try {
+    const devices   = await navigator.mediaDevices.enumerateDevices();
+    const videoCams = devices.filter(d => d.kind === 'videoinput');
+    const sel       = $('deviceSelect');
+    if (!videoCams.length) {
+      sel.innerHTML = '<option value="">— No video device detected —</option>';
+      return;
+    }
+    sel.innerHTML = videoCams.map((d, i) =>
+      `<option value="${d.deviceId}">${d.label || 'Camera ' + (i + 1)}</option>`
+    ).join('');
+  } catch (e) {
+    $('deviceSelect').innerHTML = '<option value="">— Cannot list devices —</option>';
+  }
+}
+
+// Called on page load — silently checks if permission was already granted
+async function enumerateDevices() {
+  try {
+    const devices   = await navigator.mediaDevices.enumerateDevices();
+    const videoCams = devices.filter(d => d.kind === 'videoinput');
+    // If labels are populated, permission was already granted — fill the list
+    if (videoCams.length && videoCams[0].label) {
+      await _populateDeviceList();
+    }
+    // else: leave placeholder — user must click "Request Permission"
+  } catch (_) {}
+}
+
+async function startCamera() {
+  const deviceId = $('deviceSelect').value;
+  const videoConstraint = deviceId ? { deviceId: { exact: deviceId } } : true;
+
+  try {
+    S.mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: videoConstraint,
+      audio: false,
+    });
+    const video = $('camVideo');
+    video.srcObject = S.mediaStream;
+    video.style.display              = 'block';
+    $('vpPlaceholder').style.display = 'none';
+    $('startCamBtn').style.display   = 'none';
+    $('stopCamBtn').style.display    = '';
+    $('liveBadge').classList.remove('hidden');
+    $('camPermDenied').style.display = 'none';
+    _setConn('on', 'Camera active');
+    startAutoAnalysis();
+  } catch (e) {
+    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+      $('camPermDenied').style.display = 'block';
+    } else if (e.name === 'NotFoundError') {
+      App.toast('No camera found. Check the device is connected.', 'error');
+    } else {
+      App.toast('Camera error: ' + e.message, 'error');
+    }
+  }
+}
+
+function stopCamera() {
+  stopAutoAnalysis();
+  if (S.mediaStream) {
+    S.mediaStream.getTracks().forEach(t => t.stop());
+    S.mediaStream = null;
+  }
+  $('camVideo').style.display      = 'none';
+  $('vpPlaceholder').style.display = 'flex';
+  $('startCamBtn').style.display   = '';
+  $('stopCamBtn').style.display    = 'none';
+  $('liveBadge').classList.add('hidden');
+  _setConn('off', 'Offline');
+}
+
+// Capture a frame from the browser video element
+function _captureBrowserFrame() {
+  return new Promise((resolve, reject) => {
+    const video  = $('camVideo');
+    const canvas = $('captureCanvas');
+    canvas.width  = video.videoWidth  || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    canvas.toBlob(b => b ? resolve(b) : reject('Canvas empty'), 'image/jpeg', 0.92);
+  });
+}
+
+// ============================================================
+// MODE C — UPLOAD
+// ============================================================
+function handleFile(e) { if (e.target.files[0]) _previewFile(e.target.files[0]); }
+function handleDrop(e) {
+  e.preventDefault();
+  $('uploadZone').classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) _previewFile(f);
+}
+function _previewFile(file) {
+  S.uploadFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const t = $('uploadThumb'); t.src = ev.target.result; t.style.display = 'block';
+    $('vpPlaceholder').style.display = 'none';
+    $('streamImg').src               = ev.target.result;
+    $('streamImg').style.display     = 'block';
+  };
+  reader.readAsDataURL(file);
+  // Upload mode: single shot — run once immediately, no loop
+  stopAutoAnalysis();
+  analyse();
+}
+
+// ============================================================
+// UNIFIED ANALYSE  (called by loop or directly for uploads)
+// ============================================================
+async function analyse() {
+  if (_analysisLock) return;
+  _analysisLock = true;
+  $('analysingOverlay').classList.add('active');
+
+  let data, error;
+
+  try {
+    if (S.mode === 'stream') {
+      const ip = $('camIp').value.trim();
+      ({ data, error } = await API.camera.captureFromStream(ip));
+
+    } else if (S.mode === 'camera') {
+      const blob = await _captureBrowserFrame();
+      const form = new FormData();
+      form.append('file', blob, 'frame.jpg');
+      ({ data, error } = await API.camera.analyzeFrame(form));
+
+    } else {
+      const form = new FormData();
+      form.append('file', S.uploadFile);
+      ({ data, error } = await API.camera.upload(form));
+    }
+  } catch(e) { error = e.message; }
+
+  $('analysingOverlay').classList.remove('active');
+  _analysisLock = false;
+
+  if (error) {
+    // Don't toast on every loop tick; just log
+    console.warn('[Rover] analysis error:', error);
+    return;
+  }
+
+  _renderResults(data);
+  _('statLast', new Date().toLocaleTimeString());
+  loadRecent();
+}
+
+// ============================================================
+// SVG ICON LIBRARY  (no emojis — pure SVG)
+// ============================================================
+const SVG = {
+  leaf: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+           <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+           <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+         </svg>`,
+
+  virus: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12
+                     M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+            <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none"/>
+            <circle cx="14" cy="13" r="1" fill="currentColor" stroke="none"/>
+          </svg>`,
+
+  bug: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect x="8" y="6" width="8" height="14" rx="4"/>
+          <path d="M19 7l-3 2M5 7l3 2M19 17l-3-2M5 17l3-2M19 12h-3M8 12H5"/>
+          <path d="M12 6V3"/>
+        </svg>`,
+
+  check: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>`,
+
+  scanOff: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M3 3l18 18"/>
+              <path d="M21 15V5a2 2 0 0 0-2-2H9"/>
+              <path d="M3 9v10a2 2 0 0 0 2 2h10"/>
+              <path d="M21 21H3M21 3H3"/>
+            </svg>`,
+};
+
+// Per-type config for the winner banner + verdict icons
+const TYPE_CFG = {
+  disease: {
+    bannerBg:    'rgba(239,68,68,.06)',
+    bannerBorder:'rgba(239,68,68,.2)',
+    icoBg:       'rgba(239,68,68,.12)',
+    icoColor:    'rgb(239,68,68)',
+    labelColor:  'rgb(239,68,68)',
+    label:       'Maladie détectée',
+    svg:         SVG.virus,
+  },
+  pest: {
+    bannerBg:    'rgba(245,158,11,.06)',
+    bannerBorder:'rgba(245,158,11,.2)',
+    icoBg:       'rgba(245,158,11,.12)',
+    icoColor:    'rgb(245,158,11)',
+    labelColor:  'rgb(245,158,11)',
+    label:       'Ravageur détecté',
+    svg:         SVG.bug,
+  },
+  healthy: {
+    bannerBg:    'rgba(16,185,129,.06)',
+    bannerBorder:'rgba(16,185,129,.2)',
+    icoBg:       'rgba(16,185,129,.12)',
+    icoColor:    'rgb(16,185,129)',
+    labelColor:  'rgb(16,185,129)',
+    label:       'Plante saine',
+    svg:         SVG.leaf,
+  },
+  uncertain: {
+    bannerBg:    'rgba(107,114,128,.06)',
+    bannerBorder:'rgba(107,114,128,.2)',
+    icoBg:       'rgba(107,114,128,.1)',
+    icoColor:    'var(--text-muted)',
+    labelColor:  'var(--text-muted)',
+    label:       'Image non reconnue',
+    svg:         SVG.scanOff,
+  },
+};
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function _renderResults(data) {
+  const fiche = data.fiche_terrain || {};
+  const w     = fiche.winner       || {};
+  const wType = w.type || 'uncertain';
+
+  $('resultsCard').classList.add('show');
+
+  // ── Uncertain / unrecognized: show simple message only ────
+  if (wType === 'uncertain') {
+    $('winnerBanner').style.display      = 'none';
+    $('charSection').style.display       = 'none';
+    $('emitterSection').style.display    = 'none';
+    $('recoSection').style.display       = 'none';
+    $('greenbotSection').style.display   = 'none';
+    $('thumbSection').style.display      = 'none';
+    $('unrecognizedSection').style.display = '';
+    return;
+  }
+
+  $('unrecognizedSection').style.display = 'none';
+
+  // ── Winner banner ──────────────────────────────────────────
+  const cfg   = TYPE_CFG[wType] || TYPE_CFG.uncertain;
+  const wConf = w.confidence || 0;
+
+  const banner = $('winnerBanner');
+  banner.style.display     = '';
+  banner.style.background  = cfg.bannerBg;
+  banner.style.borderColor = cfg.bannerBorder;
+
+  const icoEl = $('winnerIco');
+  icoEl.style.background = cfg.icoBg;
+  icoEl.style.color      = cfg.icoColor;
+  icoEl.innerHTML        = cfg.svg;
+
+  const labelEl = $('winnerLabel');
+  labelEl.textContent = cfg.label;
+  labelEl.style.color = cfg.labelColor;
+
+  _('winnerName', w.fr_name || w.name || '—');
+  _('winnerSub',  w.scientific_name
+      ? w.scientific_name
+      : w.plant_type ? w.plant_type.toUpperCase() : (w.message || ''));
+  _('winnerConf', wConf + '%');
+  _setSev('winnerSev', w.severity || (wType === 'healthy' ? 'none' : 'low'));
+
+  // ── Characteristics ───────────────────────────────────────
+  // For diseases: show symptoms list + characteristics text
+  if (wType === 'disease') {
+    const symptoms = w.symptoms || [];
+    const charLines = [];
+    if (w.characteristics) charLines.push(w.characteristics);
+    if (symptoms.length)   charLines.push('Symptômes : ' + symptoms.join(' · '));
+    if (w.affected_plants && w.affected_plants.length)
+      charLines.push('Plantes concernées : ' + w.affected_plants.join(', '));
+    if (charLines.length) {
+      $('charSection').style.display = '';
+      $('charText').textContent = charLines.join('\n\n');
+    } else {
+      $('charSection').style.display = 'none';
+    }
+  } else if (wType === 'pest' && w.characteristics) {
+    $('charSection').style.display = '';
+    $('charText').textContent = w.characteristics;
+  } else if (wType === 'healthy') {
+    $('charSection').style.display = 'none';
+  } else {
+    $('charSection').style.display = 'none';
+  }
+
+  // ── Emitter signal (pest only) ────────────────────────────
+  const sig = w.emitter_signal;
+  if (wType === 'pest' && sig && sig.frequency) {
+    $('emitterSection').style.display = '';
+    _('emitterFreq', sig.frequency);
+    $('emitterMsg').textContent = sig.message || '';
+  } else {
+    $('emitterSection').style.display = 'none';
+  }
+
+  // ── Recommendations ───────────────────────────────────────
+  const recos = w.recommendations || [];
+  if (recos.length) {
+    $('recoSection').style.display = '';
+    $('recoList').innerHTML = recos.map(r =>
+      `<li style="font-size:var(--text-sm);color:var(--text-secondary);line-height:var(--leading-relaxed);">${r}</li>`
+    ).join('');
+  } else {
+    $('recoSection').style.display = 'none';
+  }
+
+  // ── GreenBot link ──────────────────────────────────────────
+  if (data.analysis_id && wType !== 'healthy') {
+    $('greenbotSection').style.display = '';
+    $('greenbotBtn').href = `/chatbot?analysis_id=${data.analysis_id}`;
+  } else {
+    $('greenbotSection').style.display = 'none';
+  }
+
+  // ── Captured frame with YOLO bounding boxes ───────────────
+  // Bboxes only when the pest model is the winner
+  if (data.image_path) {
+    $('thumbSection').style.display = '';
+    const yoloBboxes = (wType === 'pest' && data.pest && data.pest.bboxes)
+      ? data.pest.bboxes
+      : [];
+    _drawFrameWithBboxes(data.image_path, yoloBboxes, data.pest);
+  } else {
+    $('thumbSection').style.display = 'none';
+  }
+
+  $('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ============================================================
+// YOLO BOUNDING BOX CANVAS DRAWING
+// ============================================================
+function _drawFrameWithBboxes(imagePath, bboxes, pestData) {
+  const canvas = $('thumbCanvas');
+  const ctx    = canvas.getContext('2d');
+  const img    = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+
+    if (!bboxes || !bboxes.length) return;
+
+    const W = img.naturalWidth;
+    const H = img.naturalHeight;
+
+    bboxes.forEach(box => {
+      const [x1n, y1n, x2n, y2n] = box.xyxyn || [];
+      if (x1n == null) return;
+
+      const x1 = x1n * W, y1 = y1n * H;
+      const x2 = x2n * W, y2 = y2n * H;
+      const conf = Math.round((box.conf || 0) * 100);
+
+      // Box colour: amber for pest
+      const color = 'rgba(245,158,11,1)';
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = Math.max(2, W / 300);
+      ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+      // Semi-transparent fill
+      ctx.fillStyle = 'rgba(245,158,11,0.08)';
+      ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+
+      // Label background
+      const label   = `${box.cls} ${conf}%`;
+      const fontSize = Math.max(12, W / 55);
+      ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+      const tw  = ctx.measureText(label).width;
+      const th  = fontSize + 6;
+      const lx  = x1;
+      const ly  = y1 > th ? y1 - th : y1 + 2;
+
+      ctx.fillStyle = 'rgba(245,158,11,0.92)';
+      ctx.fillRect(lx, ly, tw + 10, th);
+
+      // Label text
+      ctx.fillStyle = '#fff';
+      ctx.fillText(label, lx + 5, ly + fontSize);
+    });
+  };
+  img.onerror = () => { canvas.style.display = 'none'; };
+  img.src = imagePath + '?t=' + Date.now();
+}
+
+function _setSev(id, sev) {
+  const el = $(id);
+  const labels = { low:'Low', medium:'Medium', high:'High', none:'None' };
+  el.className   = `sev-tag ${sev || 'none'}`;
+  el.textContent = labels[sev] || '—';
+}
+
+// ============================================================
+// RECENT TABLE
+// ============================================================
+async function loadRecent() {
+  const { data } = await API.analysis.history(6, 0);
+  const items = data?.items || [];
+
+  if (!items.length) {
+    $('recentTbl').style.display   = 'none';
+    $('recentEmpty').style.display = 'flex';
+    return;
+  }
+  $('recentTbl').style.display   = '';
+  $('recentEmpty').style.display = 'none';
+
+  $('recentBody').innerHTML = items.map(a => {
+    const healthy = !a.detected_disease || a.detected_disease === 'healthy';
+    const noPest  = !a.pest_name;
+    const pct     = a.confidence ? (a.confidence * 100).toFixed(0) + '%' : '—';
+    const sev     = a.severity || 'low';
+    const dt      = a.created_at ? new Date(a.created_at).toLocaleDateString() : '—';
+    return `<tr>
+      <td class="${healthy ? 'td-healthy' : 'td-primary'}">${healthy ? 'Healthy' : (a.disease_name || '—')}</td>
+      <td class="${noPest ? 'td-muted' : 'td-pest-val'}">${noPest ? '—' : a.pest_name}</td>
+      <td>${a.plant_type || '—'}</td>
+      <td>${pct}</td>
+      <td><span class="sev-tag ${sev}">${sev}</span></td>
+      <td class="td-muted">${a.source || '—'}</td>
+      <td class="td-muted">${dt}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// CONNECTION STATUS HELPER
+// ============================================================
+function _setConn(state, label) {
+  const dot = $('connDot');
+  dot.className   = `conn-dot ${state === 'on' ? 'on' : state === 'checking' ? '' : 'off'}`;
+  _('connLabel', label);
+}
+</script>
+
+</body>
+</html>

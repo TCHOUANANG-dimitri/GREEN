@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    /* ---- Two-column layout ---------------------------------- */
+    .history-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: var(--sp-6);
+      align-items: start;
+    }
+    @media (max-width: 1100px) { .history-grid { grid-template-columns: 1fr; } }
+
+    /* ---- Filter bar ---------------------------------------- */
+    .filter-bar {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-4) var(--sp-6);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-4);
+      align-items: flex-end;
+      margin-bottom: var(--sp-6);
+    }
+    .filter-group { display: flex; flex-direction: column; gap: var(--sp-1); }
+    .filter-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .filter-select {
+      height: 38px;
+      padding: 0 var(--sp-3);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: border-color var(--dur-base) var(--ease-out);
+      outline: none;
+    }
+    .filter-select:hover { border-color: var(--input-border-hover); }
+    .filter-select:focus { border-color: var(--input-border-focus); box-shadow: 0 0 0 3px var(--input-ring); }
+
+    /* ---- History card -------------------------------------- */
+    .hist-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .hist-card-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--sp-5) var(--sp-6);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .hist-card-hdr h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0;
+    }
+    .count-badge {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 2px 10px;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--text-muted);
+    }
+
+    /* ---- Table --------------------------------------------- */
+    .hist-tbl { width: 100%; border-collapse: collapse; }
+    .hist-tbl th {
+      text-align: left;
+      padding: 10px var(--sp-5);
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+    .hist-tbl td {
+      padding: 11px var(--sp-5);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+    .hist-tbl tr:last-child td { border-bottom: none; }
+    .hist-tbl tbody tr { cursor: pointer; transition: background-color var(--dur-base) var(--ease-out); }
+    .hist-tbl tbody tr:hover td { background: var(--bg-subtle); }
+    .hist-tbl tbody tr.selected td { background: rgba(46,204,113,.06); }
+
+    .td-disease { font-weight: var(--weight-semibold); color: var(--text-primary); }
+    .td-healthy  { font-weight: var(--weight-semibold); color: var(--brand-primary); }
+    .td-pest     { font-weight: var(--weight-semibold); color: #d97706; }
+
+    .sev-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .sev-low    { background: rgba(46,204,113,.12); color: var(--brand-primary); }
+    .sev-medium { background: rgba(245,158,11,.12); color: #d97706; }
+    .sev-high   { background: rgba(239,68,68,.12);  color: #ef4444; }
+
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+      display: flex;
+      align-items: center;
+    }
+    .del-btn:hover { color: var(--color-error); background: rgba(239,68,68,.08); }
+
+    /* ---- Empty state --------------------------------------- */
+    .empty-state {
+      padding: var(--sp-16) var(--sp-6);
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .empty-state svg { opacity: .25; margin-bottom: var(--sp-4); display: block; margin-inline: auto; }
+    .empty-state p { font-size: var(--text-sm); margin: 0; }
+
+    /* ---- Pagination ---------------------------------------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-2);
+      padding: var(--sp-4) var(--sp-6);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .pg-btn {
+      height: 34px;
+      padding: 0 var(--sp-4);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: border-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+    }
+    .pg-btn:hover:not(:disabled) { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .pg-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .pg-info { font-size: var(--text-xs); color: var(--text-muted); padding: 0 var(--sp-2); }
+
+    /* ---- Fiche panel (sticky right) ------------------------ */
+    .fiche-panel {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: sticky;
+      top: calc(var(--header-height) + var(--sp-6));
+    }
+    .fiche-panel-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--sp-5) var(--sp-6);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .fiche-panel-hdr h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .fiche-body { padding: var(--sp-5) var(--sp-6); }
+
+    .fiche-verdict {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-5);
+      padding-bottom: var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .verdict-ico {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .verdict-ico.healthy  { background: rgba(46,204,113,.12); }
+    .verdict-ico.diseased { background: rgba(239,68,68,.1); }
+    .verdict-main h4 { font-size: var(--text-base); font-weight: var(--weight-semibold); color: var(--text-primary); margin: 0 0 2px; }
+    .verdict-sub { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .conf-row { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-2); }
+    .conf-track { flex: 1; height: 5px; background: var(--bg-muted); border-radius: var(--radius-full); overflow: hidden; }
+    .conf-fill { height: 100%; border-radius: var(--radius-full); background: linear-gradient(90deg, var(--brand-primary), var(--brand-mid)); transition: width var(--dur-slower) var(--ease-out); }
+    .conf-pct { font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--text-secondary); min-width: 32px; text-align: right; }
+
+    .pest-block {
+      background: rgba(245,158,11,.07);
+      border: 1px solid rgba(245,158,11,.2);
+      border-radius: var(--radius-md);
+      padding: var(--sp-3) var(--sp-4);
+      margin-bottom: var(--sp-4);
+    }
+    .pest-block-name { font-weight: var(--weight-semibold); color: #d97706; font-size: var(--text-sm); }
+    .pest-block-sub  { font-size: var(--text-xs); color: var(--text-muted); margin-top: 2px; }
+
+    .fiche-section { margin-bottom: var(--sp-4); }
+    .fiche-section-title {
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 0 0 var(--sp-2);
+    }
+    .fiche-section ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+    .fiche-section ul li {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      display: flex; align-items: flex-start; gap: var(--sp-2);
+      line-height: 1.45;
+    }
+    .fiche-section ul li::before { content: '•'; color: var(--brand-primary); flex-shrink: 0; margin-top: 1px; }
+
+    .thumb-img { width: 100%; border-radius: var(--radius-md); max-height: 160px; object-fit: cover; margin-bottom: var(--sp-4); }
+    .fiche-meta { font-size: var(--text-xs); color: var(--text-muted); display: flex; gap: var(--sp-4); flex-wrap: wrap; padding-top: var(--sp-3); border-top: 1px solid var(--border-subtle); margin-top: var(--sp-2); }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 60%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-8) var(--sp-10);margin-bottom:var(--sp-8);position:relative;overflow:hidden;">
+        <div style="position:absolute;width:260px;height:260px;background:rgba(255,255,255,.05);border-radius:50%;right:-40px;top:-80px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Operations</div>
+          <div style="font-size:var(--text-2xl);font-weight:var(--weight-extrabold);color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:var(--sp-2);">Analysis History</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.6);">All disease and pest detections from your rover camera and uploads.</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">Source</span>
+          <select class="filter-select" id="filterSource" onchange="applyFilters()">
+            <option value="">All sources</option>
+            <option value="camera">Camera</option>
+            <option value="upload">Upload</option>
+            <option value="drone">Drone</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Result type</span>
+          <select class="filter-select" id="filterType" onchange="applyFilters()">
+            <option value="">All results</option>
+            <option value="disease">Disease detected</option>
+            <option value="pest">Pest detected</option>
+            <option value="healthy">Healthy</option>
+          </select>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:flex-end;">
+          <button class="btn" style="height:38px;font-size:var(--text-sm);" onclick="applyFilters()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="history-grid">
+
+        <!-- Left: table -->
+        <div>
+          <div class="hist-card">
+            <div class="hist-card-hdr">
+              <h3>Analyses</h3>
+              <span class="count-badge" id="totalBadge">— total</span>
+            </div>
+
+            <div id="histTableWrap">
+              <div id="histEmpty" class="empty-state">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <p>No analyses found. Run a scan from the Camera page.</p>
+              </div>
+              <table class="hist-tbl" id="histTbl" style="display:none;">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Disease</th>
+                    <th>Pest</th>
+                    <th>Plant</th>
+                    <th>Conf.</th>
+                    <th>Severity</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="histBody"></tbody>
+              </table>
+            </div>
+
+            <div class="pagination" id="pagination" style="display:none;">
+              <button class="pg-btn" id="prevBtn" onclick="changePage(-1)">← Prev</button>
+              <span class="pg-info" id="pgInfo">Page 1</span>
+              <button class="pg-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: fiche terrain panel -->
+        <div class="fiche-panel" id="fichePanel">
+          <div class="fiche-panel-hdr">
+            <h3>Fiche Terrain</h3>
+            <span id="ficheDate" style="font-size:var(--text-xs);color:var(--text-muted);"></span>
+          </div>
+          <div id="ficheContent">
+            <div class="empty-state">
+              <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              <p>Select an analysis to view its fiche terrain.</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /history-grid -->
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+const PAGE_SIZE = 15;
+let currentPage = 0;
+let totalItems  = 0;
+let selectedId  = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'history', title: 'History', subtitle: 'Analysis records' });
+  loadHistory();
+});
+
+function applyFilters() { currentPage = 0; loadHistory(); }
+function changePage(dir) { currentPage = Math.max(0, currentPage + dir); loadHistory(); }
+
+async function loadHistory() {
+  const offset  = currentPage * PAGE_SIZE;
+  const filters = {
+    source:      document.getElementById('filterSource').value || undefined,
+    result_type: document.getElementById('filterType').value   || undefined,
+  };
+  const { data, error } = await API.analysis.history(PAGE_SIZE, offset, filters);
+  if (error || !data) return;
+
+  totalItems = data.total || 0;
+  const filtered = data.items || [];
+
+  document.getElementById('totalBadge').textContent = totalItems + ' total';
+
+  const tbody = document.getElementById('histBody');
+  const tbl   = document.getElementById('histTbl');
+  const empty = document.getElementById('histEmpty');
+
+  if (!filtered.length) {
+    tbl.style.display   = 'none';
+    empty.style.display = '';
+    document.getElementById('pagination').style.display = 'none';
+    return;
+  }
+
+  tbl.style.display   = '';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map((a, i) => {
+    const isHealthy = !a.detected_disease || a.detected_disease === 'healthy';
+    const pct       = a.confidence ? (a.confidence * 100).toFixed(0) + '%' : '—';
+    const sev       = a.severity || 'low';
+    const dt        = a.created_at ? new Date(a.created_at).toLocaleDateString() : '—';
+    const sel       = a.id === selectedId ? ' selected' : '';
+    return `<tr class="${sel}" onclick="selectAnalysis(${a.id})">
+      <td style="color:var(--text-muted);font-size:var(--text-xs);">${offset + i + 1}</td>
+      <td class="${isHealthy ? 'td-healthy' : 'td-disease'}">${isHealthy ? 'Healthy' : (a.disease_name || a.detected_disease || '—')}</td>
+      <td class="${a.pest_name ? 'td-pest' : ''}">${a.pest_name || '—'}</td>
+      <td style="color:var(--text-secondary);">${a.plant_type || '—'}</td>
+      <td style="color:var(--text-secondary);">${pct}</td>
+      <td><span class="sev-pill sev-${sev}">${sev}</span></td>
+      <td style="font-size:var(--text-xs);color:var(--text-muted);">${a.source || '—'}</td>
+      <td style="font-size:var(--text-xs);white-space:nowrap;color:var(--text-muted);">${dt}</td>
+      <td>
+        <button class="del-btn" onclick="deleteAnalysis(event,${a.id})" title="Delete">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const pg = document.getElementById('pagination');
+  if (totalPages > 1) {
+    pg.style.display = 'flex';
+    document.getElementById('pgInfo').textContent = `Page ${currentPage + 1} of ${totalPages}`;
+    document.getElementById('prevBtn').disabled = currentPage === 0;
+    document.getElementById('nextBtn').disabled = currentPage >= totalPages - 1;
+  } else {
+    pg.style.display = 'none';
+  }
+}
+
+async function selectAnalysis(id) {
+  selectedId = id;
+  document.querySelectorAll('#histBody tr').forEach(tr => {
+    const hasId = tr.getAttribute('onclick') && tr.getAttribute('onclick').includes('(' + id + ')');
+    tr.classList.toggle('selected', hasId);
+  });
+  const { data, error } = await API.analysis.get(id);
+  if (error || !data) return;
+  renderFiche(data);
+  document.getElementById('ficheDate').textContent =
+    data.created_at ? new Date(data.created_at).toLocaleString() : '';
+}
+
+function renderFiche(a) {
+  const fiche    = a.fiche_terrain || {};
+  const disease  = fiche.disease   || {};
+  const pest     = fiche.pest      || {};
+  const isHealthy= a.detected_disease === 'healthy' || !a.detected_disease;
+  const dConf    = typeof disease.confidence === 'number'
+    ? disease.confidence
+    : (a.confidence ? a.confidence * 100 : 0);
+
+  let html = '';
+  if (a.image_path) {
+    html += `<img class="thumb-img" src="${a.image_path}" alt="frame" />`;
+  }
+
+  html += `
+    <div class="fiche-verdict">
+      <div class="verdict-ico ${isHealthy ? 'healthy' : 'diseased'}">${isHealthy ? '🌿' : '🦠'}</div>
+      <div class="verdict-main">
+        <h4>${a.disease_name || (isHealthy ? 'Healthy plant' : '—')}</h4>
+        <div class="verdict-sub">${a.plant_type || 'Unknown plant'}</div>
+        <div class="conf-row">
+          <div class="conf-track"><div class="conf-fill" style="width:${dConf.toFixed(1)}%"></div></div>
+          <span class="conf-pct">${dConf.toFixed(1)}%</span>
+        </div>
+      </div>
+    </div>`;
+
+  if (a.pest_name && a.pest_name !== 'No pest detected') {
+    const pConf = typeof pest.confidence === 'number'
+      ? pest.confidence
+      : (a.pest_confidence ? a.pest_confidence * 100 : 0);
+    html += `
+      <div class="pest-block">
+        <div class="pest-block-name">🐛 ${a.pest_name}</div>
+        <div class="pest-block-sub">Confidence: ${pConf.toFixed(1)}% · Severity: ${a.pest_severity || '—'}</div>
+      </div>`;
+  }
+
+  const symptoms = fiche.symptoms || disease.symptoms || [];
+  if (symptoms.length) {
+    html += `<div class="fiche-section"><div class="fiche-section-title">Symptoms</div><ul>${symptoms.map(s=>`<li>${s}</li>`).join('')}</ul></div>`;
+  }
+
+  const recos = fiche.recommendations || disease.recommendations || [];
+  if (recos.length) {
+    html += `<div class="fiche-section"><div class="fiche-section-title">Recommendations</div><ul>${recos.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+  }
+
+  html += `<div class="fiche-meta"><span>Source: ${a.source || '—'}</span><span>ID #${a.id}</span></div>`;
+
+  document.getElementById('ficheContent').innerHTML = `<div class="fiche-body">${html}</div>`;
+}
+
+async function deleteAnalysis(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this analysis permanently?')) return;
+  const { error } = await API.analysis.delete(id);
+  if (error) { App.toast(error, 'error'); return; }
+  if (selectedId === id) {
+    document.getElementById('ficheContent').innerHTML = `<div class="empty-state"><p>Select an analysis to view its details.</p></div>`;
+    selectedId = null;
+  }
+  App.toast('Analysis deleted.', 'success');
+  loadHistory();
+}
+</script>
+</body>
+</html>

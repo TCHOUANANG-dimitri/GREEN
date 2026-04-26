@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<!--
+  GREEN App — Register Page
+  New enterprise users create their account here.
+  Fields: first name, last name, phone (required), email (optional),
+          company name, Cameroon region, password + confirmation.
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GREEN — Create Account</title>
+  <meta name="description" content="Create your GREEN enterprise account and start managing your agricultural operations with AI." />
+
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+
+  <!-- Prevent theme flash -->
+  <script>
+    (function () {
+      const saved = localStorage.getItem('green_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <style>
+    /* Register page specific: right panel scrolls, not full-height centered */
+    .auth-right { justify-content: flex-start; padding-top: var(--sp-10); padding-bottom: var(--sp-10); }
+    @media (min-width: 901px) { .auth-right { justify-content: center; } }
+  </style>
+</head>
+
+<body>
+  <div class="auth-page">
+
+    <!-- =========================================================
+         LEFT PANEL — Branding
+         ========================================================= -->
+    <aside class="auth-left" aria-hidden="true">
+      <div class="auth-left-pattern"></div>
+
+      <div class="auth-left-content">
+        <!-- Logo -->
+        <div class="auth-logo">
+          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <span class="auth-logo-name">GREEN</span>
+        </div>
+
+        <div class="auth-headline">
+          <div class="auth-tag">
+            <span class="auth-tag-dot"></span>
+            Enterprise Platform
+          </div>
+
+          <h1 class="auth-title">
+            Join Africa's<br />
+            <span>agricultural future.</span>
+          </h1>
+
+          <p class="auth-subtitle">
+            Create your enterprise account and get access to drone-powered disease detection,
+            field intelligence mapping, and AI-driven agronomic guidance.
+          </p>
+
+          <!-- What you get -->
+          <div class="auth-features">
+            <div class="auth-feature">
+              <div class="auth-feature-icon">
+                <!-- Leaf icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                </svg>
+              </div>
+              <div class="auth-feature-text">
+                <h4>GreenBot — AI Agronomist</h4>
+                <p>Your 24/7 crop advisor, powered by expert agricultural knowledge and AI.</p>
+              </div>
+            </div>
+
+            <div class="auth-feature">
+              <div class="auth-feature-icon">
+                <!-- Shield icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <div class="auth-feature-text">
+                <h4>Smart Agricultural Calendar</h4>
+                <p>Planting schedules adapted to Cameroon's climate and your specific crops.</p>
+              </div>
+            </div>
+
+            <div class="auth-feature">
+              <div class="auth-feature-icon">
+                <!-- Users icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="auth-feature-text">
+                <h4>Anonymous Local Benchmarking</h4>
+                <p>Know what's happening on nearby farms — disease outbreaks, seasonal alerts — anonymously.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="auth-stats">
+          <div>
+            <div class="auth-stat-value">Free</div>
+            <div class="auth-stat-label">To get started</div>
+          </div>
+          <div>
+            <div class="auth-stat-value">2 min</div>
+            <div class="auth-stat-label">To set up</div>
+          </div>
+          <div>
+            <div class="auth-stat-value">∞</div>
+            <div class="auth-stat-label">Potential yield</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =========================================================
+         RIGHT PANEL — Registration Form
+         ========================================================= -->
+    <main class="auth-right">
+      <div class="auth-card">
+
+        <!-- Mobile logo -->
+        <div class="auth-mobile-logo">
+          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <span class="auth-mobile-logo-name">GREEN</span>
+        </div>
+
+        <!-- Card header -->
+        <div class="auth-card-header">
+          <h2 class="auth-greeting">Create your account</h2>
+          <p class="auth-description">Join the GREEN enterprise platform — it only takes 2 minutes.</p>
+        </div>
+
+        <!-- Global alert -->
+        <div id="registerAlert" class="alert" style="display:none;" role="alert"></div>
+
+        <!-- Register form -->
+        <form id="registerForm" class="auth-form" novalidate>
+
+          <!-- ---- SECTION: Personal Information --------------- -->
+          <div class="form-section-label">Personal information</div>
+
+          <!-- First & Last Name (side by side) -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="first_name">First name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="first_name"
+                  name="first_name"
+                  class="form-input"
+                  placeholder="Jean"
+                  autocomplete="given-name"
+                  required
+                />
+              </div>
+              <span id="first_name_error" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="last_name">Last name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="last_name"
+                  name="last_name"
+                  class="form-input"
+                  placeholder="Mbarga"
+                  autocomplete="family-name"
+                  required
+                />
+              </div>
+              <span id="last_name_error" class="field-error"></span>
+            </div>
+          </div><!-- /form-row -->
+
+          <!-- ---- SECTION: Contact ---------------------------- -->
+          <div class="form-section-label" style="margin-top: var(--sp-2);">Contact</div>
+
+          <!-- Phone (required) -->
+          <div class="form-group">
+            <label class="form-label" for="phone">
+              Phone number <span style="color: var(--color-error);">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                class="form-input"
+                placeholder="+237 6XX XXX XXX"
+                autocomplete="tel"
+                inputmode="tel"
+                required
+              />
+            </div>
+            <span id="phone_error" class="field-error"></span>
+          </div>
+
+          <!-- Email (optional) -->
+          <div class="form-group">
+            <label class="form-label" for="email">
+              Email address
+              <span style="color: var(--text-muted); font-weight: var(--weight-regular);">(optional)</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-input"
+                placeholder="name@company.cm"
+                autocomplete="email"
+                inputmode="email"
+              />
+            </div>
+            <span id="email_error" class="field-error"></span>
+          </div>
+
+          <!-- ---- SECTION: Enterprise Details ----------------- -->
+          <div class="form-section-label" style="margin-top: var(--sp-2);">Enterprise details</div>
+
+          <!-- Company name -->
+          <div class="form-group">
+            <label class="form-label" for="company_name">
+              Company / Farm name
+              <span style="color: var(--text-muted); font-weight: var(--weight-regular);">(optional)</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="company_name"
+                name="company_name"
+                class="form-input"
+                placeholder="e.g. Plantation du Moungo S.A."
+              />
+            </div>
+          </div>
+
+          <!-- Region of Cameroon -->
+          <div class="form-group">
+            <label class="form-label" for="region">
+              Region of Cameroon
+              <span style="color: var(--text-muted); font-weight: var(--weight-regular);">(optional)</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              </span>
+              <select id="region" name="region" class="form-select">
+                <option value="">Select your region...</option>
+                <option value="Adamaoua">Adamaoua</option>
+                <option value="Centre">Centre</option>
+                <option value="Est">East (Est)</option>
+                <option value="Extrême-Nord">Far North (Extrême-Nord)</option>
+                <option value="Littoral">Littoral</option>
+                <option value="Nord">North (Nord)</option>
+                <option value="Nord-Ouest">North West (Nord-Ouest)</option>
+                <option value="Ouest">West (Ouest)</option>
+                <option value="Sud">South (Sud)</option>
+                <option value="Sud-Ouest">South West (Sud-Ouest)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ---- SECTION: Security --------------------------- -->
+          <div class="form-section-label" style="margin-top: var(--sp-2);">Security</div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label" for="password">
+              Password <span style="color: var(--color-error);">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input has-action"
+                placeholder="At least 6 characters"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                id="togglePassword"
+                class="input-action"
+                aria-label="Toggle password visibility"
+              >
+                <svg class="icon-eye-open" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="icon-eye-close" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Password strength bars -->
+            <div id="passwordStrengthBars" class="password-strength">
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
+              <div class="strength-bar"></div>
+            </div>
+            <span id="passwordStrengthLabel" class="strength-label"></span>
+            <span id="password_error" class="field-error"></span>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label class="form-label" for="confirm_password">
+              Confirm password <span style="color: var(--color-error);">*</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                class="form-input has-action"
+                placeholder="Repeat your password"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                id="toggleConfirmPassword"
+                class="input-action"
+                aria-label="Toggle confirm password visibility"
+              >
+                <svg class="icon-eye-open" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="icon-eye-close" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <span id="confirm_password_error" class="field-error"></span>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            id="registerSubmitBtn"
+            class="btn btn-primary btn-full btn-submit"
+            style="margin-top: var(--sp-2);"
+          >
+            <span class="spinner"></span>
+            <span class="btn-text">Create Account</span>
+          </button>
+
+        </form><!-- /registerForm -->
+
+        <!-- Sign in redirect -->
+        <p class="auth-footer">
+          Already have an account?
+          <a href="/">Sign in &rarr;</a>
+        </p>
+
+        <!-- Legal -->
+        <p class="auth-terms">
+          By creating an account, you agree to our
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </p>
+
+      </div><!-- /auth-card -->
+    </main>
+
+  </div><!-- /auth-page -->
+
+  <!-- Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

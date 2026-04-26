@@ -1,0 +1,629 @@
+/* ============================================================
+   GREEN App — Drone Analysis Page Styles
+   Covers: connection panel, live stream viewer, results panel,
+   upload tab, fiche terrain display.
+   ============================================================ */
+
+
+/* ---- Page layout ------------------------------------------ */
+.drone-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .drone-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ---- Connection panel ------------------------------------- */
+.connection-panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.connection-panel h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.connection-panel h3 svg {
+  color: var(--brand-primary);
+}
+
+/* Status badge */
+.drone-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.drone-status.disconnected {
+  background: rgba(239,68,68,.1);
+  color: var(--color-red);
+}
+
+.drone-status.connecting {
+  background: rgba(245,158,11,.1);
+  color: var(--color-orange);
+}
+
+.drone-status.connected {
+  background: rgba(46,204,113,.12);
+  color: var(--brand-primary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.drone-status.connected .status-dot {
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* IP input row */
+.ip-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.ip-row .form-input {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+/* GPS coordinate inputs */
+.gps-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.gps-row .form-input {
+  font-size: 0.85rem;
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Tab selector (drone / upload) */
+.source-tabs {
+  display: flex;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 4px;
+}
+
+.source-tab {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: center;
+}
+
+.source-tab.active {
+  background: var(--surface-card);
+  color: var(--brand-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Upload drop zone */
+.upload-zone {
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background: var(--bg-subtle);
+  position: relative;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: var(--brand-primary);
+  background: rgba(46,204,113,.05);
+}
+
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-zone svg {
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.upload-zone p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.upload-zone .upload-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+.upload-preview {
+  display: none;
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+}
+
+
+/* ---- Viewer panel ----------------------------------------- */
+.viewer-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stream-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.stream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.stream-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stream-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Stream viewer */
+.stream-viewport {
+  position: relative;
+  background: #0a0a0a;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stream-img {
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  display: none;  /* shown once connected */
+}
+
+.stream-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  color: #444;
+  text-align: center;
+}
+
+.stream-placeholder svg {
+  opacity: 0.4;
+}
+
+.stream-placeholder p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #555;
+}
+
+/* Inference overlay (shown briefly on capture) */
+.stream-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.stream-overlay.active {
+  display: flex;
+}
+
+.stream-overlay .spinner-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255,255,255,.2);
+  border-top-color: var(--brand-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+
+/* ---- Capture button --------------------------------------- */
+.capture-btn {
+  width: 100%;
+  padding: var(--space-3);
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-mid));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  letter-spacing: 0.03em;
+}
+
+.capture-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(46,204,113,.35);
+}
+
+.capture-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ---- Results / Fiche terrain ------------------------------ */
+.results-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: none;  /* shown after first analysis */
+}
+
+.results-card.visible {
+  display: block;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.results-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Disease verdict banner */
+.verdict-banner {
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.verdict-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.6rem;
+}
+
+.verdict-icon.healthy   { background: rgba(46,204,113,.12); }
+.verdict-icon.diseased  { background: rgba(239,68,68,.1);   }
+.verdict-icon.uncertain { background: rgba(245,158,11,.1);  }
+
+.verdict-info h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-1);
+}
+
+.verdict-info .plant-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Confidence bar */
+.confidence-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.confidence-bar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-mid));
+  transition: width 0.6s ease;
+}
+
+.confidence-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Severity badge */
+.severity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.severity-badge.low    { background: rgba(46,204,113,.12);  color: var(--brand-primary); }
+.severity-badge.medium { background: rgba(245,158,11,.12);  color: var(--color-orange);  }
+.severity-badge.high   { background: rgba(239,68,68,.12);   color: var(--color-red);     }
+
+/* Fiche body grid */
+.fiche-body {
+  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 700px) {
+  .fiche-body { grid-template-columns: 1fr; }
+}
+
+.fiche-section h5 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0 0 var(--space-2);
+}
+
+.fiche-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.fiche-list li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  line-height: 1.45;
+}
+
+.fiche-list li::before {
+  content: '•';
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.fiche-empty {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Top-3 probabilities */
+.top3-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.top3-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.top3-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  min-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top3-track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.top3-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brand-primary);
+  opacity: 0.6;
+}
+
+.top3-fill.rank-1 { opacity: 1; }
+
+.top3-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Captured image thumbnail */
+.capture-thumbnail {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.capture-thumbnail img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+
+/* ---- Recent analyses mini-table --------------------------- */
+.recent-analyses-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  grid-column: 1 / -1;
+}
+
+.recent-analyses-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.recent-analyses-card .card-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mini-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mini-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.mini-table tr:last-child td { border-bottom: none; }
+
+.mini-table tr:hover td { background: var(--bg-subtle); }
+
+.disease-cell {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.healthy-cell { color: var(--brand-primary); font-weight: 600; }

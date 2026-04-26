@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Benchmark — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <style>
+    /* ---- Score card ---------------------------------------- */
+    .score-banner {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--sp-8) var(--sp-10);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-10);
+      margin-bottom: var(--sp-8);
+    }
+    @media (max-width: 800px) { .score-banner { flex-direction: column; gap: var(--sp-6); } }
+
+    .score-ring-wrap {
+      flex-shrink: 0;
+      position: relative;
+      width: 120px; height: 120px;
+    }
+    .score-ring-svg { width: 120px; height: 120px; transform: rotate(-90deg); }
+    .score-ring-track { fill: none; stroke: var(--bg-muted); stroke-width: 10; }
+    .score-ring-fill  {
+      fill: none; stroke: var(--brand-primary); stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 314;
+      transition: stroke-dashoffset 1s ease;
+    }
+    .score-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .score-ring-num {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+    .score-ring-label { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+
+    .score-info { flex: 1; }
+    .score-info h3 {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-extrabold);
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+      margin: 0 0 var(--sp-2);
+    }
+    .score-info p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--sp-5); max-width: 420px; }
+
+    .score-breakdown {
+      display: flex;
+      gap: var(--sp-6);
+      flex-wrap: wrap;
+    }
+    .score-item { display: flex; flex-direction: column; gap: 2px; }
+    .score-item-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .score-item-val   { font-size: var(--text-lg); font-weight: var(--weight-extrabold); color: var(--text-primary); }
+
+    /* ---- Section title ------------------------------------- */
+    .section-title {
+      font-size: var(--text-lg);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      letter-spacing: -.01em;
+      margin-bottom: var(--sp-4);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    .section-title-line { flex:1; height:1px; background: var(--border-subtle); }
+
+    /* ---- Benchmark comparison rows ------------------------- */
+    .bench-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-8);
+    }
+    @media (max-width: 900px) { .bench-grid { grid-template-columns: 1fr; } }
+
+    .bench-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5) var(--sp-6);
+    }
+    .bench-card-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-5);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .bench-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .bench-row:last-child { margin-bottom: 0; }
+    .bench-row-label {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      width: 100px;
+      flex-shrink: 0;
+    }
+    .bench-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-muted);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      position: relative;
+    }
+    .bench-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 0.8s ease;
+    }
+    .bench-row-val {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-bold);
+      width: 55px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ---- Comparison meter ---------------------------------- */
+    .metric-compare {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5) var(--sp-6);
+      margin-bottom: var(--sp-4);
+    }
+    .mc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-4);
+    }
+    .mc-title { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--text-primary); }
+    .mc-badge {
+      font-size: 11px;
+      font-weight: var(--weight-bold);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+    }
+    .mc-badge.good    { background: rgba(46,204,113,.12); color: var(--brand-primary); }
+    .mc-badge.warning { background: rgba(245,158,11,.12); color: #d97706; }
+    .mc-badge.bad     { background: rgba(239,68,68,.12);  color: var(--color-error); }
+
+    .mc-bars {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-2);
+    }
+    .mc-bar-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    .mc-bar-label { font-size: 11px; color: var(--text-muted); width: 100px; flex-shrink: 0; text-align: right; }
+    .mc-bar-track {
+      flex: 1;
+      height: 10px;
+      background: var(--bg-muted);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .mc-bar-fill { height: 100%; border-radius: var(--radius-full); transition: width 1s ease; }
+    .mc-bar-val { font-size: 11px; font-weight: var(--weight-bold); width: 45px; flex-shrink: 0; }
+
+    /* ---- Chart card ---------------------------------------- */
+    .chart-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      margin-bottom: var(--sp-6);
+    }
+    .chart-card-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--sp-4);
+    }
+    .chart-card-title { font-size: var(--text-base); font-weight: var(--weight-semibold); color: var(--text-primary); }
+    .chart-container  { position: relative; height: 220px; }
+
+    /* ---- Tips list ----------------------------------------- */
+    .tips-list { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .tip-item {
+      display: flex;
+      gap: var(--sp-4);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-4) var(--sp-5);
+      align-items: flex-start;
+    }
+    .tip-item.positive { border-color: rgba(46,204,113,.2); background: rgba(46,204,113,.03); }
+    .tip-item.caution  { border-color: rgba(245,158,11,.2); background: rgba(245,158,11,.03); }
+    .tip-item.alert    { border-color: rgba(239,68,68,.2);  background: rgba(239,68,68,.03); }
+    .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .tip-title { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--text-primary); margin-bottom: 2px; }
+    .tip-body  { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 60%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-8) var(--sp-10);margin-bottom:var(--sp-6);position:relative;overflow:hidden;">
+        <div style="position:absolute;width:280px;height:280px;background:rgba(255,255,255,.05);border-radius:50%;right:-50px;top:-80px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Analytics</div>
+          <div style="font-size:var(--text-2xl);font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:var(--sp-2);">Local Benchmark</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.65);">
+            Compare your monitoring performance to regional averages and best practices.
+          </div>
+        </div>
+      </div>
+
+      <!-- Score banner -->
+      <div class="score-banner">
+        <div class="score-ring-wrap">
+          <svg class="score-ring-svg" viewBox="0 0 100 100">
+            <circle class="score-ring-track" cx="50" cy="50" r="45"/>
+            <circle class="score-ring-fill" id="scoreRing" cx="50" cy="50" r="45"/>
+          </svg>
+          <div class="score-ring-text">
+            <div class="score-ring-num" id="scoreNum">—</div>
+            <div class="score-ring-label">Score</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <h3 id="scoreTitleText">Calculating your score...</h3>
+          <p id="scoreDesc">We compare your GREEN platform usage and scan frequency to regional benchmarks for Cameroon agribusiness operators.</p>
+          <div class="score-breakdown" id="scoreBreakdown"></div>
+        </div>
+      </div>
+
+      <!-- Comparison metrics -->
+      <div class="section-title">Your Activity vs. Regional Benchmark <div class="section-title-line"></div></div>
+
+      <div id="metricCards"></div>
+
+      <!-- Chart row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6);margin-bottom:var(--sp-8);" class="bench-grid">
+        <div class="chart-card" style="margin-bottom:0;">
+          <div class="chart-card-hdr">
+            <div class="chart-card-title">Disease Detection Distribution</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="donutChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-bottom:0;">
+          <div class="chart-card-hdr">
+            <div class="chart-card-title">Scan Activity — Last 4 Months</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Best practices & tips -->
+      <div class="section-title">Recommendations <div class="section-title-line"></div></div>
+      <div class="tips-list" id="tipsList"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ---- Regional benchmark data (Cameroon averages) ---------- */
+const BENCHMARK = {
+  scans_per_month:    4.2,   // avg scans/month by similar operators
+  disease_rate:       0.38,  // avg % of scans returning disease
+  healthy_rate:       0.62,
+  response_time_h:    18,    // hours from detection to treatment order
+  parcels_count:      3.1,
+  chat_sessions:      2.8,
+  scans_per_hectare:  1.8,   // scans per ha per season
+};
+
+let _donut = null;
+let _activity = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'benchmark', title: 'Local Benchmark', subtitle: 'Performance analysis' });
+  loadBenchmark();
+});
+
+async function loadBenchmark() {
+  const [statsRes, histRes] = await Promise.all([
+    API.dashboard.stats(),
+    API.analysis.history(100, 0),
+  ]);
+
+  const stats   = statsRes.data || {};
+  const history = histRes.data?.items || [];
+
+  const totalAnalyses = stats.analyses || 0;
+  const diseases      = stats.diseases  || 0;
+  const pests         = stats.pests     || 0;
+  const parcels       = stats.parcels   || 0;
+  const chatSessions  = stats.chat_sessions || 0;
+
+  const healthyCount  = history.filter(a => a.detected_disease === 'healthy').length;
+  const diseaseCount  = history.filter(a => a.detected_disease && a.detected_disease !== 'healthy').length;
+  const diseaseRate   = totalAnalyses > 0 ? diseaseCount / totalAnalyses : 0;
+  const healthyRate   = totalAnalyses > 0 ? healthyCount / totalAnalyses : 0;
+
+  // Approximate scans/month (assume 3 months activity)
+  const scansPerMonth = totalAnalyses / 3;
+
+  // Score calculation (0-100)
+  const s1 = Math.min(100, (scansPerMonth / BENCHMARK.scans_per_month) * 100) * 0.30;
+  const s2 = Math.min(100, (chatSessions  / BENCHMARK.chat_sessions)   * 100) * 0.20;
+  const s3 = Math.min(100, (parcels       / BENCHMARK.parcels_count)   * 100) * 0.20;
+  const s4 = (1 - Math.abs(diseaseRate - BENCHMARK.disease_rate)) * 100       * 0.30;
+  const score = Math.round(Math.max(0, Math.min(100, s1 + s2 + s3 + s4)));
+
+  // Ring animation
+  const circumference = 2 * Math.PI * 45;  // 282.74
+  const offset = circumference * (1 - score / 100);
+  document.getElementById('scoreRing').style.strokeDashoffset = offset;
+  document.getElementById('scoreRing').style.stroke = score >= 70 ? 'var(--brand-primary)' : score >= 45 ? '#f59e0b' : '#ef4444';
+  document.getElementById('scoreNum').textContent = score;
+
+  const tier = score >= 75 ? 'Advanced Operator' : score >= 50 ? 'Active Operator' : score >= 25 ? 'Getting Started' : 'New User';
+  document.getElementById('scoreTitleText').textContent = `${tier} — ${score}/100`;
+  document.getElementById('scoreDesc').textContent =
+    score >= 75 ? 'Excellent usage of GREEN platform. Your monitoring frequency and chatbot usage are above the regional average.' :
+    score >= 50 ? 'Good start. Increase scan frequency and use GreenBot for field advice to improve your score.' :
+                  'Your account is new or underutilised. Run more scans and explore GreenBot to unlock full platform value.';
+
+  document.getElementById('scoreBreakdown').innerHTML = `
+    <div class="score-item"><div class="score-item-label">Total Scans</div><div class="score-item-val">${totalAnalyses}</div></div>
+    <div class="score-item"><div class="score-item-label">Disease Rate</div><div class="score-item-val">${(diseaseRate*100).toFixed(0)}%</div></div>
+    <div class="score-item"><div class="score-item-label">Parcels</div><div class="score-item-val">${parcels}</div></div>
+    <div class="score-item"><div class="score-item-label">GreenBot</div><div class="score-item-val">${chatSessions} sessions</div></div>
+  `;
+
+  // Metric cards
+  const metrics = [
+    {
+      title:   'Scan Frequency',
+      desc:    'Scans per month',
+      yours:   scansPerMonth,
+      bench:   BENCHMARK.scans_per_month,
+      format:  v => v.toFixed(1),
+      unit:    'scans/month',
+      tip:     'More frequent scanning enables earlier disease detection and reduces crop losses.',
+      inverse: false,
+    },
+    {
+      title:   'Disease Detection Rate',
+      desc:    'Share of scans returning a disease',
+      yours:   diseaseRate * 100,
+      bench:   BENCHMARK.disease_rate * 100,
+      format:  v => v.toFixed(1) + '%',
+      unit:    '',
+      tip:     'High disease rate may indicate late-stage field conditions or a disease outbreak.',
+      inverse: true,  // lower is better
+    },
+    {
+      title:   'Parcel Coverage',
+      desc:    'Registered parcels on GREEN Map',
+      yours:   parcels,
+      bench:   BENCHMARK.parcels_count,
+      format:  v => Math.round(v),
+      unit:    'parcels',
+      tip:     'More registered parcels enables better traceability and parcel-level disease tracking.',
+      inverse: false,
+    },
+    {
+      title:   'GreenBot Usage',
+      desc:    'AI agronomic consultation sessions',
+      yours:   chatSessions,
+      bench:   BENCHMARK.chat_sessions,
+      format:  v => Math.round(v),
+      unit:    'sessions',
+      tip:     'Users who regularly consult GreenBot detect and treat diseases 2× faster on average.',
+      inverse: false,
+    },
+  ];
+
+  document.getElementById('metricCards').innerHTML = metrics.map(m => {
+    const ratio      = m.bench > 0 ? m.yours / m.bench : 0;
+    const pct        = Math.min(100, ratio * 100);
+    const benchPct   = 100;
+    const isGood     = m.inverse ? ratio <= 1.2 : ratio >= 0.8;
+    const badge      = isGood ? 'good' : ratio >= 0.5 ? 'warning' : 'bad';
+    const badgeText  = isGood ? '✓ Above average' : ratio >= 0.5 ? '~ Near average' : '↓ Below average';
+    const yourColor  = m.inverse
+      ? (ratio > 1.3 ? '#ef4444' : ratio > 1 ? '#f59e0b' : '#2ECC71')
+      : (ratio >= 0.8 ? '#2ECC71' : ratio >= 0.5 ? '#f59e0b' : '#ef4444');
+
+    return `
+      <div class="metric-compare">
+        <div class="mc-header">
+          <div>
+            <div class="mc-title">${m.title}</div>
+            <div style="font-size:var(--text-xs);color:var(--text-muted);">${m.desc}</div>
+          </div>
+          <span class="mc-badge ${badge}">${badgeText}</span>
+        </div>
+        <div class="mc-bars">
+          <div class="mc-bar-row">
+            <div class="mc-bar-label">You</div>
+            <div class="mc-bar-track">
+              <div class="mc-bar-fill" style="width:${pct}%;background:${yourColor};"></div>
+            </div>
+            <div class="mc-bar-val" style="color:${yourColor};">${m.format(m.yours)}</div>
+          </div>
+          <div class="mc-bar-row">
+            <div class="mc-bar-label">Regional avg</div>
+            <div class="mc-bar-track">
+              <div class="mc-bar-fill" style="width:${benchPct}%;background:rgba(107,114,128,0.4);"></div>
+            </div>
+            <div class="mc-bar-val" style="color:var(--text-muted);">${m.format(m.bench)}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Charts
+  renderDonut(healthyCount, diseaseCount, pests);
+  renderActivity(history);
+
+  // Tips
+  renderTips(score, scansPerMonth, diseaseRate, parcels, chatSessions);
+}
+
+function renderDonut(healthy, disease, pests) {
+  if (typeof Chart === 'undefined') return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const canvas = document.getElementById('donutChart');
+  if (!canvas || _donut) return;
+
+  const total = healthy + disease + pests || 1;
+  _donut = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Healthy', 'Disease', 'Pest'],
+      datasets: [{
+        data: [healthy, disease, pests],
+        backgroundColor: ['rgba(46,204,113,0.7)', 'rgba(239,68,68,0.7)', 'rgba(245,158,11,0.7)'],
+        borderColor: ['#2ECC71','#ef4444','#f59e0b'],
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: isDark ? '#8B949E' : '#6B7280', font: { family: 'Inter', size: 12 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} (${((ctx.parsed/total)*100).toFixed(0)}%)` } },
+      }
+    }
+  });
+}
+
+function renderActivity(history) {
+  if (typeof Chart === 'undefined') return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const canvas = document.getElementById('activityChart');
+  if (!canvas || _activity) return;
+
+  // Group by month
+  const months = {};
+  const now = new Date();
+  for (let i = 3; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months[`${d.getFullYear()}-${d.getMonth()}`] = { label: d.toLocaleString('default', { month: 'short' }), yours: 0, bench: BENCHMARK.scans_per_month };
+  }
+  history.forEach(a => {
+    const d = new Date(a.created_at);
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    if (months[k]) months[k].yours++;
+  });
+
+  const keys = Object.keys(months);
+  const gridColor = isDark ? '#21262D' : '#F3F4F6';
+  const tickColor = isDark ? '#6E7681' : '#9CA3AF';
+
+  _activity = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: keys.map(k => months[k].label),
+      datasets: [
+        {
+          label: 'Your scans',
+          data: keys.map(k => months[k].yours),
+          backgroundColor: 'rgba(46,204,113,0.6)', borderColor: '#2ECC71', borderWidth: 1.5, borderRadius: 5,
+        },
+        {
+          label: 'Regional avg',
+          data: keys.map(k => parseFloat(months[k].bench.toFixed(1))),
+          backgroundColor: 'rgba(107,114,128,0.25)', borderColor: 'rgba(107,114,128,0.5)', borderWidth: 1.5, borderRadius: 5, borderDash: [4,4],
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: isDark ? '#8B949E' : '#6B7280', font: { family: 'Inter', size: 12 }, boxWidth: 12 } }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function renderTips(score, scansPerMonth, diseaseRate, parcels, chatSessions) {
+  const tips = [];
+
+  if (scansPerMonth < BENCHMARK.scans_per_month) {
+    tips.push({ type:'caution', icon:'📷', title:'Increase scan frequency', body:`You average ${scansPerMonth.toFixed(1)} scans/month vs ${BENCHMARK.scans_per_month} for comparable operators. Scanning every 5–7 days enables earlier disease detection.` });
+  } else {
+    tips.push({ type:'positive', icon:'✅', title:'Great scanning frequency', body:`Your scan rate (${scansPerMonth.toFixed(1)}/month) is above or near the regional average. Keep up regular monitoring especially during the rainy season.` });
+  }
+
+  if (diseaseRate > 0.5) {
+    tips.push({ type:'alert', icon:'⚠️', title:'High disease detection rate', body:`${(diseaseRate*100).toFixed(0)}% of your scans detect disease — significantly above the regional average (38%). Consider preventive fungicide treatment and crop rotation.` });
+  } else if (diseaseRate > 0) {
+    tips.push({ type:'positive', icon:'🌿', title:'Healthy disease rate', body:`Your disease detection rate (${(diseaseRate*100).toFixed(0)}%) is within normal range. Continue monitoring and apply preventive treatments at peak risk months.` });
+  }
+
+  if (parcels < 1) {
+    tips.push({ type:'caution', icon:'🗺️', title:'Register your parcels on GREEN Map', body:'No parcels registered yet. Mapping your fields enables parcel-level disease tracking and automatic GPS tagging of analyses.' });
+  } else {
+    tips.push({ type:'positive', icon:'🗺️', title:'Field mapping active', body:`${parcels} parcel${parcels > 1 ? 's' : ''} registered. Analysis results are automatically linked to your field map for traceability.` });
+  }
+
+  if (chatSessions < 2) {
+    tips.push({ type:'caution', icon:'🤖', title:'Use GreenBot for agronomic advice', body:'GreenBot can interpret your disease results and provide customised treatment recommendations. Users who consult GreenBot weekly respond to disease outbreaks 2× faster.' });
+  } else {
+    tips.push({ type:'positive', icon:'🤖', title:'Active GreenBot usage', body:`${chatSessions} consultation sessions recorded. Continue using GreenBot for personalised agronomic recommendations linked to your latest scan results.` });
+  }
+
+  document.getElementById('tipsList').innerHTML = tips.map(t => `
+    <div class="tip-item ${t.type}">
+      <div class="tip-icon">${t.icon}</div>
+      <div>
+        <div class="tip-title">${t.title}</div>
+        <div class="tip-body">${t.body}</div>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drone Analysis — GREEN</title>
+
+  <!-- Theme flash prevention -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('green_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/drone.css" />
+</head>
+<body>
+
+<!-- Layout shell injected by layout.js -->
+<div id="app-shell">
+
+  <!-- ======================================================
+       APP CONTENT  (layout.js wraps this in sidebar + header)
+       ====================================================== -->
+  <main class="app-content" id="page-content">
+
+    <!-- ---- Welcome / instruction bar -------------------- -->
+    <div class="page-intro" style="
+      background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-mid) 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) var(--space-6);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+    ">
+      <div>
+        <h2 style="font-size:1.25rem; font-weight:700; margin:0 0 4px;">
+          Drone Disease Detection
+        </h2>
+        <p style="font-size:0.875rem; opacity:.85; margin:0;">
+          Connect your drone, capture frames and let the AI diagnose your crops in real-time.
+        </p>
+      </div>
+      <div style="display:flex; gap:var(--space-2); flex-shrink:0;">
+        <a href="/history" class="btn" style="
+          background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.25);
+          text-decoration:none; display:flex; align-items:center; gap:6px; padding:8px 16px;
+          border-radius:8px; font-size:.85rem; font-weight:600;
+        ">
+          <!-- clock icon -->
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          History
+        </a>
+      </div>
+    </div>
+
+    <!-- ---- Main grid ------------------------------------- -->
+    <div class="drone-layout">
+
+      <!-- ================================================
+           LEFT — Connection + Controls
+           ================================================ -->
+      <aside class="connection-panel">
+
+        <!-- Panel title -->
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+          Drone Control
+        </h3>
+
+        <!-- Status badge -->
+        <div class="drone-status disconnected" id="droneStatus">
+          <span class="status-dot"></span>
+          <span id="droneStatusText">Disconnected</span>
+        </div>
+
+        <!-- Source selector: Drone / Upload -->
+        <div>
+          <div class="field-label">Analysis source</div>
+          <div class="source-tabs">
+            <button class="source-tab active" id="tabDrone" onclick="switchTab('drone')">
+              Live Drone
+            </button>
+            <button class="source-tab" id="tabUpload" onclick="switchTab('upload')">
+              Upload Image
+            </button>
+          </div>
+        </div>
+
+        <!-- ---- DRONE TAB -------------------------------- -->
+        <div id="droneSection">
+
+          <!-- IP Address -->
+          <div>
+            <div class="field-label">Drone IP address</div>
+            <div class="ip-row">
+              <input
+                type="text"
+                id="droneIp"
+                class="form-input"
+                placeholder="192.168.10.1"
+                value="192.168.10.1"
+                spellcheck="false"
+              />
+              <button
+                class="btn btn-primary"
+                id="connectBtn"
+                onclick="connectDrone()"
+                style="white-space:nowrap; padding: 0 var(--space-4);"
+              >
+                Connect
+              </button>
+            </div>
+            <p id="connectError" style="color:var(--color-red); font-size:.8rem; margin:4px 0 0; display:none;"></p>
+          </div>
+
+          <!-- GPS coordinates (optional) -->
+          <div>
+            <div class="field-label">GPS coordinates (optional)</div>
+            <div class="gps-row">
+              <input type="number" id="gpsLat" class="form-input" placeholder="Latitude" step="any" />
+              <input type="number" id="gpsLon" class="form-input" placeholder="Longitude" step="any" />
+            </div>
+            <p style="font-size:.75rem; color:var(--text-muted); margin:4px 0 0;">
+              Used to pin the result on the GREEN Map.
+            </p>
+          </div>
+
+          <!-- Capture button -->
+          <button
+            class="capture-btn"
+            id="captureBtn"
+            onclick="captureAndAnalyze()"
+            disabled
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M16.5 3.5h-9L5.5 6H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2.5L16.5 3.5z"/>
+            </svg>
+            Capture &amp; Analyse
+          </button>
+
+          <!-- Disconnect -->
+          <button
+            class="btn"
+            id="disconnectBtn"
+            onclick="disconnectDrone()"
+            style="display:none; width:100%; justify-content:center;"
+          >
+            Disconnect
+          </button>
+
+        </div><!-- /droneSection -->
+
+        <!-- ---- UPLOAD TAB ------------------------------- -->
+        <div id="uploadSection" style="display:none;">
+
+          <!-- Drop zone -->
+          <div
+            class="upload-zone"
+            id="uploadZone"
+            ondragover="event.preventDefault(); this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleDrop(event)"
+          >
+            <input
+              type="file"
+              id="uploadInput"
+              accept="image/*"
+              onchange="handleFileSelect(event)"
+            />
+            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path d="M4 16l4-4 4 4 4-8 4 8"/>
+              <rect x="2" y="3" width="20" height="18" rx="2"/>
+            </svg>
+            <p>Click or drag an image here</p>
+            <p class="upload-hint">JPG, PNG — max 10 MB</p>
+          </div>
+          <img id="uploadPreview" class="upload-preview" alt="preview" />
+
+          <!-- GPS coordinates -->
+          <div>
+            <div class="field-label">GPS coordinates (optional)</div>
+            <div class="gps-row">
+              <input type="number" id="uploadLat" class="form-input" placeholder="Latitude"  step="any" />
+              <input type="number" id="uploadLon" class="form-input" placeholder="Longitude" step="any" />
+            </div>
+          </div>
+
+          <!-- Analyse button -->
+          <button
+            class="capture-btn"
+            id="uploadBtn"
+            onclick="uploadAndAnalyze()"
+            disabled
+          >
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <polyline points="16 16 12 12 8 16"/>
+              <line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            Analyse Image
+          </button>
+
+        </div><!-- /uploadSection -->
+
+      </aside><!-- /connection-panel -->
+
+
+      <!-- ================================================
+           RIGHT — Stream viewer + Results
+           ================================================ -->
+      <section class="viewer-panel">
+
+        <!-- Live stream card -->
+        <div class="stream-card">
+          <div class="stream-header">
+            <h3>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              Live Feed
+            </h3>
+            <div class="stream-actions">
+              <span id="streamQuality" style="font-size:.75rem; color:var(--text-muted); align-self:center;"></span>
+            </div>
+          </div>
+
+          <div class="stream-viewport" id="streamViewport">
+            <!-- Placeholder shown before connection -->
+            <div class="stream-placeholder" id="streamPlaceholder">
+              <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+              </svg>
+              <p>Connect your drone to see the live stream</p>
+              <p style="font-size:.78rem;">Stream: <code id="streamUrlDisplay" style="color:var(--brand-primary);">—</code></p>
+            </div>
+
+            <!-- MJPEG stream — browser renders natively -->
+            <img
+              class="stream-img"
+              id="streamImg"
+              alt="Drone live stream"
+              onerror="onStreamError()"
+            />
+
+            <!-- Inference overlay -->
+            <div class="stream-overlay" id="streamOverlay">
+              <div class="spinner-ring"></div>
+              <span>Analysing frame…</span>
+            </div>
+          </div>
+        </div><!-- /stream-card -->
+
+
+        <!-- ---- Results / Fiche terrain ------------------ -->
+        <div class="results-card" id="resultsCard">
+
+          <div class="results-header">
+            <h3>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+              <span data-i18n="fiche_terrain.title">Field Report</span>
+            </h3>
+            <div style="display:flex; gap:var(--space-2); align-items:center;">
+              <span class="severity-badge" id="fichesSeverityBadge">—</span>
+              <a id="historyLink" href="/history" style="font-size:.8rem; color:var(--brand-primary); text-decoration:none; font-weight:600;">
+                <span data-i18n="fiche_terrain.view_in_history">View in history</span> →
+              </a>
+            </div>
+          </div>
+
+          <!-- Disease verdict banner -->
+          <div class="verdict-banner" id="verdictBanner">
+            <div class="verdict-icon" id="verdictIcon">🌿</div>
+            <div class="verdict-info">
+              <h4 id="verdictName">—</h4>
+              <div class="plant-tag" id="verdictPlant">—</div>
+              <div class="confidence-row">
+                <div class="confidence-bar-track">
+                  <div class="confidence-bar-fill" id="confidenceBar" style="width:0%"></div>
+                </div>
+                <span class="confidence-pct" id="confidencePct">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fiche body -->
+          <div class="fiche-body">
+
+            <!-- Top predictions -->
+            <div class="fiche-section" style="grid-column: 1 / -1;">
+              <h5 data-i18n="fiche_terrain.top_predictions">Top Predictions</h5>
+              <div class="top3-list" id="top3List">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <!-- Symptoms -->
+            <div class="fiche-section" id="symptomsSection">
+              <h5 data-i18n="fiche_terrain.characteristics">Characteristics</h5>
+              <ul class="fiche-list" id="symptomsList">
+                <li class="fiche-empty">—</li>
+              </ul>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="fiche-section" id="recoSection">
+              <h5 data-i18n="fiche_terrain.recommendations">Recommendations</h5>
+              <ul class="fiche-list" id="recoList">
+                <li class="fiche-empty">—</li>
+              </ul>
+            </div>
+
+          </div><!-- /fiche-body -->
+
+          <!-- Captured image thumbnail -->
+          <div class="capture-thumbnail" id="captureThumbnail" style="display:none;">
+            <div class="field-label" style="margin-bottom:var(--space-2);" data-i18n="fiche_terrain.captured_frame">Captured frame</div>
+            <img id="capturedImg" src="" alt="captured frame" />
+          </div>
+
+        </div><!-- /results-card -->
+
+      </section><!-- /viewer-panel -->
+
+
+      <!-- ================================================
+           BOTTOM — Recent analyses mini-table
+           ================================================ -->
+      <div class="recent-analyses-card">
+        <div class="card-header">
+          <h3>Recent Analyses</h3>
+          <a href="/history" style="font-size:.82rem; color:var(--brand-primary); text-decoration:none; font-weight:600;">
+            View all →
+          </a>
+        </div>
+        <div id="recentTableWrapper">
+          <table class="mini-table" id="recentTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Disease</th>
+                <th>Plant</th>
+                <th>Confidence</th>
+                <th>Severity</th>
+                <th>Source</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentTableBody"></tbody>
+          </table>
+          <div id="recentEmpty" style="padding:var(--space-8); text-align:center; color:var(--text-muted); font-size:.9rem;">
+            No analyses yet. Connect a drone or upload an image to get started.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /drone-layout -->
+
+  </main>
+</div><!-- /app-shell -->
+
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+
+<script>
+/* ============================================================
+   Drone Page Controller
+   ============================================================ */
+
+// ---- State --------------------------------------------------
+const state = {
+  connected:    false,
+  droneIp:      '192.168.10.1',
+  streamUrl:    null,
+  analysisId:   null,
+  activeTab:    'drone',     // 'drone' | 'upload'
+  uploadFile:   null,
+};
+
+// ---- DOM refs -----------------------------------------------
+const $droneStatus    = document.getElementById('droneStatus');
+const $droneStatusTxt = document.getElementById('droneStatusText');
+const $connectBtn     = document.getElementById('connectBtn');
+const $captureBtn     = document.getElementById('captureBtn');
+const $disconnectBtn  = document.getElementById('disconnectBtn');
+const $streamImg      = document.getElementById('streamImg');
+const $streamPH       = document.getElementById('streamPlaceholder');
+const $streamOverlay  = document.getElementById('streamOverlay');
+const $resultsCard    = document.getElementById('resultsCard');
+const $connectError   = document.getElementById('connectError');
+
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  App.boot();
+  await i18n.init();
+  Layout.init({ page: 'drone', title: i18n.t('navigation.drone'), subtitle: i18n.t('drone.title') });
+  loadRecentAnalyses();
+});
+
+
+// ============================================================
+// TAB SWITCHER
+// ============================================================
+function switchTab(tab) {
+  state.activeTab = tab;
+  document.getElementById('tabDrone').classList.toggle('active', tab === 'drone');
+  document.getElementById('tabUpload').classList.toggle('active', tab === 'upload');
+  document.getElementById('droneSection').style.display  = tab === 'drone'  ? '' : 'none';
+  document.getElementById('uploadSection').style.display = tab === 'upload' ? '' : 'none';
+}
+
+
+// ============================================================
+// DRONE — CONNECT
+// ============================================================
+async function connectDrone() {
+  const ip = document.getElementById('droneIp').value.trim();
+  if (!ip) return;
+
+  // UI — connecting state
+  _setStatus('connecting', 'Connecting…');
+  $connectBtn.disabled = true;
+  $connectBtn.textContent = 'Connecting…';
+  $connectError.style.display = 'none';
+
+  const { data, error } = await API.drone.connect(ip);
+
+  $connectBtn.disabled = false;
+  $connectBtn.textContent = 'Connect';
+
+  if (error) {
+    _setStatus('disconnected', 'Disconnected');
+    $connectError.textContent = error;
+    $connectError.style.display = 'block';
+    return;
+  }
+
+  // Connected!
+  state.connected = true;
+  state.droneIp   = ip;
+  state.streamUrl = data.stream_url;
+
+  _setStatus('connected', `Connected · ${ip}`);
+  $captureBtn.disabled = false;
+  $disconnectBtn.style.display = '';
+  $connectBtn.style.display    = 'none';
+
+  // Show the live MJPEG stream directly in <img>
+  _startStream(data.stream_url);
+}
+
+
+// ============================================================
+// DRONE — STREAM
+// ============================================================
+function _startStream(url) {
+  document.getElementById('streamUrlDisplay').textContent = url;
+  $streamPH.style.display  = 'none';
+  $streamImg.style.display = 'block';
+  // Browser handles MJPEG natively when src is set to the stream URL
+  $streamImg.src = url + '?ts=' + Date.now();  // cache-bust
+}
+
+function onStreamError() {
+  // Stream disconnected or timed out
+  if (state.connected) {
+    $streamImg.style.display = 'none';
+    $streamPH.style.display  = 'flex';
+    $streamPH.querySelector('p').textContent = 'Stream lost. Try reconnecting.';
+  }
+}
+
+function disconnectDrone() {
+  state.connected = false;
+  state.streamUrl = null;
+
+  $streamImg.src           = '';
+  $streamImg.style.display = 'none';
+  $streamPH.style.display  = 'flex';
+  $streamPH.querySelector('p').textContent = 'Connect your drone to see the live stream';
+
+  _setStatus('disconnected', 'Disconnected');
+  $captureBtn.disabled         = true;
+  $disconnectBtn.style.display = 'none';
+  $connectBtn.style.display    = '';
+  document.getElementById('streamUrlDisplay').textContent = '—';
+}
+
+
+// ============================================================
+// DRONE — CAPTURE & ANALYSE
+// ============================================================
+async function captureAndAnalyze() {
+  if (!state.connected) return;
+
+  const lat = parseFloat(document.getElementById('gpsLat').value) || null;
+  const lon = parseFloat(document.getElementById('gpsLon').value) || null;
+
+  // UI — analysing overlay
+  $streamOverlay.classList.add('active');
+  $captureBtn.disabled = true;
+  $captureBtn.innerHTML = `<span class="spinner" style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;"></span> Analysing…`;
+
+  const { data, error } = await API.drone.captureAndAnalyze(
+    state.droneIp, null, lat, lon
+  );
+
+  $streamOverlay.classList.remove('active');
+  $captureBtn.disabled = false;
+  $captureBtn.innerHTML = `
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M16.5 3.5h-9L5.5 6H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2.5L16.5 3.5z"/>
+    </svg>
+    Capture &amp; Analyse`;
+
+  if (error) {
+    App.toast(error, 'error');
+    return;
+  }
+
+  state.analysisId = data.analysis_id;
+  _renderFiche(data.fiche_terrain, data.image_path);
+  loadRecentAnalyses();
+  App.toast('Analysis complete!', 'success');
+}
+
+
+// ============================================================
+// UPLOAD — FILE HANDLING
+// ============================================================
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) _previewFile(file);
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) _previewFile(file);
+}
+
+function _previewFile(file) {
+  state.uploadFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('uploadPreview');
+    preview.src   = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+  document.getElementById('uploadBtn').disabled = false;
+}
+
+
+// ============================================================
+// UPLOAD — ANALYSE
+// ============================================================
+async function uploadAndAnalyze() {
+  if (!state.uploadFile) return;
+
+  const lat = parseFloat(document.getElementById('uploadLat').value) || null;
+  const lon = parseFloat(document.getElementById('uploadLon').value) || null;
+
+  const $btn = document.getElementById('uploadBtn');
+  $btn.disabled = true;
+  $btn.innerHTML = `<span class="spinner" style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;"></span> Analysing…`;
+
+  const formData = new FormData();
+  formData.append('file', state.uploadFile);
+  if (lat !== null) formData.append('latitude', lat);
+  if (lon !== null) formData.append('longitude', lon);
+
+  const { data, error } = await API.drone.upload(formData);
+
+  $btn.disabled = false;
+  $btn.innerHTML = `
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+      <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+    </svg>
+    Analyse Image`;
+
+  if (error) {
+    App.toast(error, 'error');
+    return;
+  }
+
+  state.analysisId = data.analysis_id;
+  _renderFiche(data.fiche_terrain, data.image_path);
+  loadRecentAnalyses();
+  App.toast('Analysis complete!', 'success');
+}
+
+
+// ============================================================
+// RENDER FICHE TERRAIN
+// ============================================================
+function _renderFiche(fiche, imagePath) {
+  if (!fiche) return;
+
+  const isHealthy = fiche.disease_id === 'healthy';
+  const severity  = fiche.severity || 'low';
+
+  // Show the results card
+  $resultsCard.classList.add('visible');
+
+  // Verdict icon
+  const icon = document.getElementById('verdictIcon');
+  icon.className = `verdict-icon ${isHealthy ? 'healthy' : 'diseased'}`;
+  icon.textContent = isHealthy ? '🌿' : '🦠';
+
+  // Name + plant
+  document.getElementById('verdictName').textContent  = fiche.disease_name || fiche.detected_pest || 'Unknown';
+  document.getElementById('verdictPlant').textContent = fiche.plant_type   || '—';
+
+  // Confidence bar
+  const pct = fiche.confidence || 0;
+  document.getElementById('confidenceBar').style.width = pct + '%';
+  document.getElementById('confidencePct').textContent = pct.toFixed(1) + '%';
+
+  // Severity badge translated
+  const sev = document.getElementById('fichesSeverityBadge');
+  sev.className   = `severity-badge ${severity}`;
+  const severityText = severity === 'high' ? i18n.t('fiche_terrain.severity_high')
+                      : severity === 'medium' ? i18n.t('fiche_terrain.severity_medium')
+                      : i18n.t('fiche_terrain.severity_low');
+  sev.textContent = severityText;
+
+  // Top-3 predictions
+  const top3List = document.getElementById('top3List');
+  top3List.innerHTML = '';
+  (fiche.top3 || []).forEach((item, i) => {
+    top3List.insertAdjacentHTML('beforeend', `
+      <div class="top3-item">
+        <div class="top3-label">${item.class}</div>
+        <div class="top3-track">
+          <div class="top3-fill rank-${i+1}" style="width:${item.confidence}%"></div>
+        </div>
+        <div class="top3-pct">${item.confidence}%</div>
+      </div>
+    `);
+  });
+
+  // Display symptoms/characteristics and recommendations
+  const symptomsSection = document.getElementById('symptomsSection');
+  const recoSection = document.getElementById('recoSection');
+
+  // If fiche has enrichment (from YOLO pest detection)
+  if (fiche.enrichment) {
+    symptomsSection.style.display = 'block';
+    recoSection.style.display = 'block';
+    _renderList('symptomsList', [fiche.enrichment.characteristics]);
+    _renderList('recoList', fiche.enrichment.recommendations || []);
+  } 
+  // If fiche has direct symptoms and recommendations (from disease detection)
+  else if (fiche.symptoms || fiche.recommendations) {
+    symptomsSection.style.display = 'block';
+    recoSection.style.display = 'block';
+    _renderList('symptomsList', fiche.symptoms || []);
+    _renderList('recoList', fiche.recommendations || []);
+  } 
+  // Otherwise hide both sections
+  else {
+    symptomsSection.style.display = 'none';
+    recoSection.style.display = 'none';
+  }
+
+  // Captured image thumbnail
+  if (imagePath) {
+    const thumb = document.getElementById('captureThumbnail');
+    thumb.style.display = 'block';
+    document.getElementById('capturedImg').src = imagePath;
+  }
+
+  // Scroll to results
+  $resultsCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function _renderList(elementId, items) {
+  const el = document.getElementById(elementId);
+  if (!items || items.length === 0) {
+    el.innerHTML = '<li class="fiche-empty">No data available.</li>';
+    return;
+  }
+  el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+}
+
+
+// ============================================================
+// RECENT ANALYSES TABLE
+// ============================================================
+async function loadRecentAnalyses() {
+  const { data, error } = await API.analysis.history(5, 0);
+  if (error || !data) return;
+
+  const tbody  = document.getElementById('recentTableBody');
+  const table  = document.getElementById('recentTable');
+  const empty  = document.getElementById('recentEmpty');
+  const items  = data.items || [];
+
+  if (items.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  table.style.display = '';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = items.map(a => {
+    const isHealthy = !a.detected_disease || a.detected_disease === 'healthy';
+    const nameCell  = isHealthy
+      ? `<span class="healthy-cell">Healthy</span>`
+      : `<span class="disease-cell">${a.disease_name || a.detected_disease}</span>`;
+    const sevClass  = a.severity || 'low';
+    const pct       = a.confidence ? (a.confidence * 100).toFixed(1) + '%' : '—';
+    const date      = a.created_at ? new Date(a.created_at).toLocaleDateString() : '—';
+
+    return `<tr>
+      <td>${nameCell}</td>
+      <td>${a.plant_type || '—'}</td>
+      <td>${pct}</td>
+      <td><span class="severity-badge ${sevClass}">${sevClass}</span></td>
+      <td>${a.source || '—'}</td>
+      <td>${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+
+// ============================================================
+// STATUS HELPER
+// ============================================================
+function _setStatus(type, text) {
+  $droneStatus.className   = `drone-status ${type}`;
+  $droneStatusTxt.textContent = text;
+}
+</script>
+
+</body>
+</html>

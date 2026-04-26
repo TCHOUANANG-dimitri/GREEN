@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Economic Scenarios — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <style>
+    /* ---- Two-column layout ---------------------------------- */
+    .eco-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: var(--sp-6);
+      align-items: start;
+    }
+    @media (max-width: 1050px) { .eco-layout { grid-template-columns: 1fr; } }
+
+    /* ---- Input panel --------------------------------------- */
+    .input-panel {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: sticky;
+      top: calc(var(--header-height) + var(--sp-4));
+    }
+    .input-panel-hdr {
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: var(--sp-5) var(--sp-6);
+    }
+    .input-panel-hdr h3 {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0 0 2px;
+    }
+    .input-panel-hdr p {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .input-panel-body { padding: var(--sp-6); }
+
+    .form-field { margin-bottom: var(--sp-5); }
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+    }
+    .form-label-val {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      color: var(--brand-primary);
+      background: rgba(46,204,113,0.10);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .form-select, .form-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 var(--sp-4);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color var(--dur-base) var(--ease-out);
+    }
+    .form-select:focus, .form-input:focus {
+      border-color: var(--input-border-focus);
+      box-shadow: 0 0 0 3px var(--input-ring);
+    }
+    .form-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--bg-muted);
+      outline: none;
+      accent-color: var(--brand-primary);
+      margin-top: var(--sp-2);
+    }
+    .form-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .divider { height: 1px; background: var(--border-subtle); margin: var(--sp-5) 0; }
+
+    /* ---- Result cards -------------------------------------- */
+    .result-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-6);
+    }
+    @media (max-width: 700px) { .result-kpis { grid-template-columns: 1fr; } }
+
+    .result-kpi {
+      background: var(--surface-1);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+    }
+    .result-kpi.highlight { border-color: var(--brand-primary); background: rgba(46,204,113,0.04); }
+    .result-kpi.danger    { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.03); }
+
+    .kpi-label {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+    }
+    .kpi-value {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-extrabold);
+      letter-spacing: -.02em;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .kpi-value.green  { color: var(--brand-primary); }
+    .kpi-value.red    { color: var(--color-error); }
+    .kpi-value.orange { color: #d97706; }
+    .kpi-sub { font-size: 11px; color: var(--text-muted); }
+
+    /* ---- Scenario comparison table ------------------------- */
+    .scenario-table {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--sp-6);
+    }
+    .scenario-table-hdr {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .scenario-table-hdr div, .scenario-row div {
+      padding: var(--sp-4) var(--sp-5);
+      font-size: var(--text-sm);
+    }
+    .scenario-table-hdr div {
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+    }
+    .scenario-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      border-top: 1px solid var(--border-subtle);
+      transition: background var(--dur-base) var(--ease-out);
+    }
+    .scenario-row:hover { background: var(--bg-subtle); }
+    .scenario-row .label { font-weight: var(--weight-semibold); color: var(--text-primary); }
+    .scenario-row .val   { font-weight: var(--weight-bold); color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .scenario-row.best   { background: rgba(46,204,113,.04); }
+    .scenario-row.best .label { color: var(--brand-primary); }
+    .scenario-row.worst  { background: rgba(239,68,68,.03); }
+
+    /* ---- Chart -------------------------------------------- */
+    .chart-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      margin-bottom: var(--sp-6);
+    }
+    .chart-card-title {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin: 0 0 var(--sp-4);
+    }
+    .chart-container { position: relative; height: 220px; }
+
+    /* ---- ROI block ----------------------------------------- */
+    .roi-block {
+      background: linear-gradient(135deg, rgba(46,204,113,0.08), rgba(46,204,113,0.02));
+      border: 1px solid rgba(46,204,113,0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5) var(--sp-6);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-6);
+      margin-bottom: var(--sp-6);
+    }
+    .roi-number {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: -.04em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .roi-label { font-size: var(--text-sm); color: var(--text-secondary); }
+    .roi-label strong { color: var(--text-primary); }
+
+    /* ---- Section title ------------------------------------- */
+    .section-title {
+      font-size: var(--text-lg);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      letter-spacing: -.01em;
+      margin-bottom: var(--sp-4);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    .section-title-line { flex:1; height:1px; background: var(--border-subtle); }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 60%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-8) var(--sp-10);margin-bottom:var(--sp-6);position:relative;overflow:hidden;">
+        <div style="position:absolute;width:280px;height:280px;background:rgba(255,255,255,.05);border-radius:50%;right:-50px;top:-80px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Analytics</div>
+          <div style="font-size:var(--text-2xl);font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:var(--sp-2);">Economic Scenarios</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.65);">
+            Simulate revenue, disease losses, and treatment ROI for your crops.
+          </div>
+        </div>
+      </div>
+
+      <!-- Main layout -->
+      <div class="eco-layout">
+
+        <!-- LEFT: input panel -->
+        <div>
+          <div class="input-panel">
+            <div class="input-panel-hdr">
+              <h3>Simulation Parameters</h3>
+              <p>Adjust values to see real-time revenue projections.</p>
+            </div>
+            <div class="input-panel-body">
+
+              <!-- Crop -->
+              <div class="form-field">
+                <div class="form-label">Crop type</div>
+                <select class="form-select" id="cropType" onchange="simulate()">
+                  <option value="maize">Maize</option>
+                  <option value="cassava">Cassava</option>
+                  <option value="tomato">Tomato</option>
+                </select>
+              </div>
+
+              <!-- Area -->
+              <div class="form-field">
+                <div class="form-label">
+                  Planted area
+                  <span class="form-label-val" id="areaVal">2.0 ha</span>
+                </div>
+                <input type="range" class="form-slider" id="area"
+                       min="0.5" max="20" step="0.5" value="2"
+                       oninput="document.getElementById('areaVal').textContent=this.value+' ha'; simulate()" />
+              </div>
+
+              <!-- Expected yield -->
+              <div class="form-field">
+                <div class="form-label">
+                  Expected yield
+                  <span class="form-label-val" id="yieldVal">2.5 t/ha</span>
+                </div>
+                <input type="range" class="form-slider" id="yield"
+                       min="0.5" max="10" step="0.1" value="2.5"
+                       oninput="document.getElementById('yieldVal').textContent=parseFloat(this.value).toFixed(1)+' t/ha'; simulate()" />
+              </div>
+
+              <!-- Market price -->
+              <div class="form-field">
+                <div class="form-label">
+                  Market price
+                  <span class="form-label-val" id="priceVal">150 XAF/kg</span>
+                </div>
+                <input type="range" class="form-slider" id="price"
+                       min="50" max="1000" step="10" value="150"
+                       oninput="document.getElementById('priceVal').textContent=this.value+' XAF/kg'; simulate()" />
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Disease severity -->
+              <div class="form-field">
+                <div class="form-label">
+                  Disease incidence
+                  <span class="form-label-val" id="diseaseVal" style="background:rgba(239,68,68,.10);color:var(--color-error);">25%</span>
+                </div>
+                <input type="range" class="form-slider" id="disease"
+                       min="0" max="80" step="1" value="25"
+                       oninput="document.getElementById('diseaseVal').textContent=this.value+'%'; simulate()"
+                       style="accent-color:#ef4444;" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:var(--sp-1);">% of yield lost to detected diseases if untreated</div>
+              </div>
+
+              <!-- Treatment cost -->
+              <div class="form-field">
+                <div class="form-label">
+                  Treatment cost
+                  <span class="form-label-val" id="treatVal">25 000 XAF/ha</span>
+                </div>
+                <input type="range" class="form-slider" id="treatCost"
+                       min="5000" max="150000" step="1000" value="25000"
+                       oninput="document.getElementById('treatVal').textContent=formatXAF(this.value)+' XAF/ha'; simulate()" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:var(--sp-1);">Fungicide + labour per hectare per season</div>
+              </div>
+
+              <!-- Treatment effectiveness -->
+              <div class="form-field">
+                <div class="form-label">
+                  Treatment effectiveness
+                  <span class="form-label-val" id="effVal">75%</span>
+                </div>
+                <input type="range" class="form-slider" id="effectiveness"
+                       min="20" max="98" step="1" value="75"
+                       oninput="document.getElementById('effVal').textContent=this.value+'%'; simulate()" />
+              </div>
+
+              <button class="btn btn-primary" style="width:100%;margin-top:var(--sp-2);" onclick="simulate()">
+                Recalculate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: results -->
+        <div>
+
+          <!-- KPI summary row -->
+          <div class="section-title">Revenue Projections <div class="section-title-line"></div></div>
+          <div class="result-kpis">
+            <div class="result-kpi highlight">
+              <div class="kpi-label">Gross Revenue (no disease)</div>
+              <div class="kpi-value green" id="kpiGross">—</div>
+              <div class="kpi-sub" id="kpiGrossSub">—</div>
+            </div>
+            <div class="result-kpi danger">
+              <div class="kpi-label">Loss without treatment</div>
+              <div class="kpi-value red" id="kpiLoss">—</div>
+              <div class="kpi-sub" id="kpiLossSub">—</div>
+            </div>
+            <div class="result-kpi highlight">
+              <div class="kpi-label">Net revenue with treatment</div>
+              <div class="kpi-value green" id="kpiNet">—</div>
+              <div class="kpi-sub" id="kpiNetSub">—</div>
+            </div>
+          </div>
+
+          <!-- ROI block -->
+          <div class="roi-block" id="roiBlock">
+            <div class="roi-number" id="roiValue">—</div>
+            <div>
+              <div class="roi-label"><strong>Treatment ROI</strong> — Return on investment of your fungicide treatment</div>
+              <div class="roi-label" id="roiDesc" style="margin-top:4px;">For every 1 000 XAF spent on treatment, you save <strong id="roiPer">—</strong> XAF in losses.</div>
+            </div>
+          </div>
+
+          <!-- Comparison chart -->
+          <div class="chart-card">
+            <div class="chart-card-title">Revenue comparison — 3 scenarios</div>
+            <div class="chart-container">
+              <canvas id="scenarioChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Scenario table -->
+          <div class="section-title">Detailed Scenario Table <div class="section-title-line"></div></div>
+          <div class="scenario-table">
+            <div class="scenario-table-hdr">
+              <div>Scenario</div>
+              <div>Gross revenue</div>
+              <div>Total loss</div>
+              <div>Net revenue</div>
+            </div>
+            <div id="scenarioRows"></div>
+          </div>
+
+          <!-- Market price reference -->
+          <div class="section-title" style="margin-top:var(--sp-6);">Cameroon Market Reference Prices <div class="section-title-line"></div></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-4);" id="priceRef"></div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ---- Reference crop prices (XAF/kg) — Cameroon averages --- */
+const CROP_PRICES = {
+  maize:   { min:100,  avg:150,  max:220,  unit:'t/ha',  yield_avg:2.5, yield_best:5.0 },
+  cassava: { min:60,   avg:100,  max:160,  unit:'t/ha',  yield_avg:8.0, yield_best:15.0 },
+  tomato:  { min:200,  avg:450,  max:900,  unit:'t/ha',  yield_avg:15.0, yield_best:40.0 },
+};
+
+const PRICE_REF = [
+  { name:'Maize (grain)',    min:100,  avg:150,  max:220,  unit:'XAF/kg', emoji:'🌽' },
+  { name:'Cassava (tubers)', min:60,   avg:100,  max:160,  unit:'XAF/kg', emoji:'🪴' },
+  { name:'Tomato',           min:200,  avg:450,  max:900,  unit:'XAF/kg', emoji:'🍅' },
+  { name:'Groundnut',        min:500,  avg:750,  max:1100, unit:'XAF/kg', emoji:'🥜' },
+];
+
+let _chart = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'economics', title: 'Economic Scenarios', subtitle: 'Revenue simulation' });
+  renderPriceRef();
+  simulate();
+});
+
+function formatXAF(n) {
+  return Math.round(n).toLocaleString('fr-FR');
+}
+
+function simulate() {
+  const area       = parseFloat(document.getElementById('area').value);
+  const yieldTha   = parseFloat(document.getElementById('yield').value);
+  const priceKg    = parseFloat(document.getElementById('price').value);
+  const diseasePct = parseFloat(document.getElementById('disease').value) / 100;
+  const treatHa    = parseFloat(document.getElementById('treatCost').value);
+  const eff        = parseFloat(document.getElementById('effectiveness').value) / 100;
+
+  // Calculations
+  const totalYieldKg  = area * yieldTha * 1000;          // kg
+  const grossRevenue  = totalYieldKg * priceKg;           // XAF
+  const lossNoTreat   = grossRevenue * diseasePct;        // XAF
+  const totalTreatCost= area * treatHa;                   // XAF
+  const lossWithTreat = lossNoTreat * (1 - eff);          // XAF
+  const netNoTreat    = grossRevenue - lossNoTreat;
+  const netWithTreat  = grossRevenue - lossWithTreat - totalTreatCost;
+  const savedByTreating = lossNoTreat - lossWithTreat;
+  const roi            = totalTreatCost > 0 ? savedByTreating / totalTreatCost : 0;
+
+  // KPIs
+  setEl('kpiGross',   formatXAF(grossRevenue) + ' XAF');
+  setEl('kpiGrossSub', area + ' ha × ' + (yieldTha * 1000) + ' kg/ha × ' + priceKg + ' XAF');
+  setEl('kpiLoss',    '−' + formatXAF(lossNoTreat) + ' XAF');
+  setEl('kpiLossSub', diseasePct * 100 + '% incidence → ' + formatXAF(lossNoTreat / totalYieldKg) + ' XAF/kg lost');
+  setEl('kpiNet',     formatXAF(netWithTreat) + ' XAF');
+  setEl('kpiNetSub',  'After treatment cost (' + formatXAF(totalTreatCost) + ' XAF)');
+
+  // ROI
+  setEl('roiValue', (roi * 100).toFixed(0) + '%');
+  setEl('roiPer',   formatXAF(roi * 1000));
+
+  // Scenarios
+  const scenarios = [
+    { name:'Optimistic — No disease',   gross: grossRevenue, loss: 0,                    treat: 0,              net: grossRevenue,   cls:'best'  },
+    { name:'With treatment ✓ (recommended)', gross: grossRevenue, loss: lossWithTreat, treat: totalTreatCost, net: netWithTreat,  cls:''      },
+    { name:'No treatment — baseline',   gross: grossRevenue, loss: lossNoTreat,          treat: 0,              net: netNoTreat,    cls:''      },
+    { name:'Pessimistic — Epidemic',    gross: grossRevenue, loss: grossRevenue * 0.65,  treat: totalTreatCost * 1.5, net: grossRevenue - grossRevenue * 0.65 * 0.3 - totalTreatCost * 1.5, cls:'worst' },
+  ];
+
+  document.getElementById('scenarioRows').innerHTML = scenarios.map(s => `
+    <div class="scenario-row ${s.cls}">
+      <div class="label">${s.name}</div>
+      <div class="val">${formatXAF(s.gross)} XAF</div>
+      <div class="val" style="color:${s.loss > 0 ? 'var(--color-error)' : 'var(--text-muted)'};">
+        ${s.loss > 0 ? '−' + formatXAF(s.loss) : '—'} XAF
+      </div>
+      <div class="val" style="color:${s.net > 0 ? 'var(--brand-primary)' : 'var(--color-error)'};">
+        ${formatXAF(s.net)} XAF
+      </div>
+    </div>
+  `).join('');
+
+  // Chart
+  updateChart(scenarios);
+}
+
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function updateChart(scenarios) {
+  if (typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('scenarioChart');
+  if (!canvas) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? '#21262D' : '#F3F4F6';
+  const tickColor = isDark ? '#6E7681' : '#9CA3AF';
+
+  const labels = scenarios.map(s => s.name);
+  const nets   = scenarios.map(s => Math.max(0, Math.round(s.net / 1000)));  // in kXAF
+
+  const colors = ['rgba(46,204,113,0.7)', 'rgba(46,204,113,0.5)', 'rgba(245,158,11,0.6)', 'rgba(239,68,68,0.6)'];
+  const borders = ['#2ECC71','#2ECC71','#f59e0b','#ef4444'];
+
+  if (_chart) { _chart.destroy(); _chart = null; }
+
+  _chart = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Net Revenue (× 1000 XAF)',
+        data: nets,
+        backgroundColor: colors,
+        borderColor: borders,
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed.y.toLocaleString('fr-FR')} 000 XAF`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor, callback: v => v.toLocaleString('fr-FR') + 'k' },
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+}
+
+function renderPriceRef() {
+  document.getElementById('priceRef').innerHTML = PRICE_REF.map(p => `
+    <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:var(--sp-4) var(--sp-5);">
+      <div style="font-size:1.4rem;margin-bottom:var(--sp-2);">${p.emoji}</div>
+      <div style="font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--text-primary);margin-bottom:var(--sp-2);">${p.name}</div>
+      <div style="display:flex;gap:var(--sp-4);">
+        <div><div style="font-size:10px;color:var(--text-muted);">Min</div><div style="font-size:var(--text-sm);font-weight:600;color:var(--color-error);">${p.min}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);">Avg</div><div style="font-size:var(--text-sm);font-weight:700;color:var(--brand-primary);">${p.avg}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);">Max</div><div style="font-size:var(--text-sm);font-weight:600;color:var(--color-success);">${p.max}</div></div>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${p.unit}</div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

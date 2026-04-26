@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agricultural Calendar — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    /* ---- Month header strip --------------------------------- */
+    .months-strip {
+      display: grid;
+      grid-template-columns: 160px repeat(12, 1fr);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      overflow: hidden;
+    }
+    .month-hdr {
+      padding: var(--sp-3) 0;
+      text-align: center;
+      font-size: 11px;
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      border-right: 1px solid var(--border-subtle);
+    }
+    .month-hdr.current-month {
+      background: rgba(46,204,113,0.10);
+      color: var(--brand-primary);
+    }
+    .month-hdr:first-child {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      font-weight: var(--weight-medium);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ---- Crop rows ----------------------------------------- */
+    .crop-table {
+      border: 1px solid var(--border-subtle);
+      border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--sp-8);
+    }
+    .crop-row {
+      display: grid;
+      grid-template-columns: 160px repeat(12, 1fr);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-1);
+      transition: background-color var(--dur-base) var(--ease-out);
+    }
+    .crop-row:hover { background: var(--bg-subtle); }
+    .crop-label {
+      padding: var(--sp-4) var(--sp-5);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      border-right: 1px solid var(--border-subtle);
+    }
+    .crop-emoji { font-size: 1.2rem; flex-shrink: 0; }
+    .crop-name { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--text-primary); }
+    .crop-sub  { font-size: 11px; color: var(--text-muted); }
+
+    .cell {
+      border-right: 1px solid var(--border-subtle);
+      padding: var(--sp-2);
+      display: flex;
+      align-items: stretch;
+    }
+    .cell:last-child { border-right: none; }
+
+    /* Activity blocks inside cells */
+    .act-block {
+      border-radius: var(--radius-sm);
+      width: 100%;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .act-plant  { background: rgba(46,204,113,0.22); }
+    .act-grow   { background: rgba(46,204,113,0.08); }
+    .act-harvest{ background: rgba(245,158,11,0.20); }
+    .act-risk   { background: rgba(239,68,68,0.15); }
+    .act-empty  { }
+
+    /* ---- Legend -------------------------------------------- */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-5);
+      margin-bottom: var(--sp-8);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-4) var(--sp-6);
+    }
+    .legend-item { display: flex; align-items: center; gap: var(--sp-2); }
+    .legend-dot  {
+      width: 16px; height: 16px; border-radius: var(--radius-sm); flex-shrink: 0;
+    }
+    .legend-label { font-size: var(--text-sm); color: var(--text-secondary); }
+
+    /* ---- Monthly tips -------------------------------------- */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-8);
+    }
+    .tip-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+    }
+    .tip-month {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+    }
+    .tip-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-1);
+    }
+    .tip-body {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+    .tip-card.warning { border-color: rgba(239,68,68,0.3); }
+    .tip-card.warning .tip-month { color: #ef4444; }
+    .tip-card.caution { border-color: rgba(245,158,11,0.3); }
+    .tip-card.caution .tip-month { color: #d97706; }
+    .tip-card.ok      { border-color: rgba(46,204,113,0.3); }
+    .tip-card.ok      .tip-month { color: var(--brand-primary); }
+
+    /* Highlighted today month */
+    .today-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      background: rgba(46,204,113,0.12);
+      color: var(--brand-primary);
+      border: 1px solid rgba(46,204,113,0.2);
+      border-radius: var(--radius-full);
+      padding: 3px 12px;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      margin-left: var(--sp-3);
+    }
+
+    @media (max-width: 900px) {
+      .months-strip, .crop-row { grid-template-columns: 120px repeat(12, 1fr); }
+      .crop-label { padding: var(--sp-3); }
+      .month-hdr  { font-size: 9px; }
+      .crop-name  { font-size: var(--text-xs); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Banner -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 60%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-8) var(--sp-10);margin-bottom:var(--sp-8);position:relative;overflow:hidden;">
+        <div style="position:absolute;width:280px;height:280px;background:rgba(255,255,255,.05);border-radius:50%;right:-50px;top:-80px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Analytics</div>
+          <div style="font-size:var(--text-2xl);font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:var(--sp-2);">
+            Agricultural Calendar
+            <span class="today-badge" id="currentMonthBadge" style="vertical-align:middle;"></span>
+          </div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.6);">
+            Cameroon seasonal planting guide — maize, cassava, and tomato.
+            Two rainy seasons per year (March–June &amp; August–November).
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:rgba(46,204,113,0.22);border:1px solid rgba(46,204,113,0.4);"></div>
+          <span class="legend-label">Planting period</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.2);"></div>
+          <span class="legend-label">Growing / vegetative phase</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:rgba(245,158,11,0.20);border:1px solid rgba(245,158,11,0.3);"></div>
+          <span class="legend-label">Harvest period</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);"></div>
+          <span class="legend-label">High disease / pest risk</span>
+        </div>
+      </div>
+
+      <!-- Calendar table -->
+      <div class="months-strip" id="monthsStrip"></div>
+      <div class="crop-table" id="cropTable"></div>
+
+      <!-- Section title -->
+      <div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary);letter-spacing:-.01em;margin-bottom:var(--sp-4);display:flex;align-items:center;gap:var(--sp-3);">
+        Monthly Agronomic Tips
+        <div style="flex:1;height:1px;background:var(--border-subtle);"></div>
+      </div>
+
+      <!-- Monthly tips grid -->
+      <div class="tips-grid" id="tipsGrid"></div>
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ============================================================
+   DATA — Cameroon agricultural calendar
+   Seasons: Grande saison des pluies (S1) Mar–Jun
+            Petite saison des pluies  (S2) Aug–Nov
+
+   Activity per month (0-indexed Jan=0):
+     'P' = Plant  |  'G' = Growing  |  'H' = Harvest  |  'R' = High Risk  |  '' = Off
+   ============================================================ */
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const CROPS = [
+  {
+    name:  'Maize (Season 1)',
+    sub:   'Grande saison des pluies',
+    emoji: '🌽',
+    // Plant Mar-Apr, Grow May, Harvest Jun-Jul, Risk May-Jun
+    acts: ['','','P','P','G','H','H','','','','',''],
+    risk: ['','','','','R','R','','','','','',''],
+  },
+  {
+    name:  'Maize (Season 2)',
+    sub:   'Petite saison des pluies',
+    emoji: '🌽',
+    // Plant Aug-Sep, Grow Oct, Harvest Nov-Dec, Risk Sep-Oct
+    acts: ['','','','','','','','P','P','G','H','H'],
+    risk: ['','','','','','','','','R','R','',''],
+  },
+  {
+    name:  'Cassava',
+    sub:   'Year-round crop (~18 months)',
+    emoji: '🪴',
+    // Plant Mar-Apr or Aug-Sep, long growing cycle, harvest staggered
+    acts: ['G','G','P','P','G','G','G','P','P','G','G','G'],
+    risk: ['','','','','R','R','','','R','R','',''],
+  },
+  {
+    name:  'Tomato (Season 1)',
+    sub:   'Grande saison',
+    emoji: '🍅',
+    // Seedlings Feb, transplant Mar, grow Apr-May, harvest Jun
+    acts: ['','P','P','G','G','H','','','','','',''],
+    risk: ['','','','R','R','R','','','','','',''],
+  },
+  {
+    name:  'Tomato (Season 2)',
+    sub:   'Petite saison',
+    emoji: '🍅',
+    // Seedlings Jul, transplant Aug, grow Sep-Oct, harvest Nov
+    acts: ['','','','','','','P','P','G','G','H',''],
+    risk: ['','','','','','','','','R','R','R',''],
+  },
+  {
+    name:  'Pest Risk — Locust',
+    sub:   'Criquet pèlerin (monitoring)',
+    emoji: '🦗',
+    acts: ['','','','','','','','','','','',''],
+    risk: ['','','R','R','','','','R','R','','',''],
+  },
+];
+
+/* ============================================================
+   MONTHLY TIPS
+   ============================================================ */
+const TIPS = [
+  { month: 'January',   type: 'ok',      title: 'Prepare fields',         body: 'Dry season — ideal for clearing, soil preparation and applying organic amendments. Plan crop rotations for the upcoming season.' },
+  { month: 'February',  type: 'ok',      title: 'Nursery for tomatoes',   body: 'Start tomato and pepper seedlings in nurseries. Apply basal fertilizer. Begin irrigation trials if water is available.' },
+  { month: 'March',     type: 'caution', title: 'Maize planting begins',  body: 'First rains arrive. Plant maize S1 and cassava cuttings. First wave of weeds — apply pre-emergent herbicide. Monitor for cassava mosaic.' },
+  { month: 'April',     type: 'caution', title: 'Transplant tomatoes',    body: 'Transplant tomato seedlings. Apply top-dressing nitrogen to maize. High humidity increases downy mildew risk — inspect weekly.' },
+  { month: 'May',       type: 'warning', title: 'Peak disease pressure',  body: 'High humidity and temperature create ideal conditions for Cercospora, blight, and mildew. Apply preventive fungicide sprays every 10–14 days.' },
+  { month: 'June',      type: 'warning', title: 'Harvest S1 maize',       body: 'Harvest S1 maize when kernels dent. Continue monitoring tomatoes for late blight. Begin drying and storage. Store dry at < 13% moisture.' },
+  { month: 'July',      type: 'ok',      title: 'Short dry season',       body: 'Brief dry spell — prepare land for S2 planting. Apply compost to improve soil structure. Control weeds before next rains.' },
+  { month: 'August',    type: 'caution', title: 'S2 planting begins',     body: 'Plant S2 maize and new cassava plots. Transplant tomato S2 seedlings. First locust monitoring reports in the Sahel — check regional alerts.' },
+  { month: 'September', type: 'warning', title: 'Watch for locusts',      body: 'Peak locust migration risk in northern Cameroon. Inspect crops every 2–3 days. Tomato late blight at peak risk. Use copper-based fungicides.' },
+  { month: 'October',   type: 'warning', title: 'Disease peak S2',        body: 'Second rainy season peak — highest disease pressure of the year. Double scouting frequency. Apply YOLO rover scans every other day.' },
+  { month: 'November',  type: 'caution', title: 'Harvest S2 crops',       body: 'Harvest S2 maize and tomatoes. Cassava can be selectively harvested from 8-month plots. Prepare storage facilities.' },
+  { month: 'December',  type: 'ok',      title: 'Post-harvest',           body: 'Dry crops for storage. Assess season results. Plan fertilizer inputs and variety selection for next year. Soil testing recommended.' },
+];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'calendar', title: 'Ag. Calendar', subtitle: 'Seasonal planting guide' });
+
+  const currentMonthIdx = new Date().getMonth();
+
+  // Current month badge
+  document.getElementById('currentMonthBadge').textContent = `📅 ${MONTHS[currentMonthIdx]}`;
+
+  // Month header strip
+  const strip = document.getElementById('monthsStrip');
+  let stripHtml = '<div class="month-hdr">Crop / Activity</div>';
+  MONTHS.forEach((m, i) => {
+    const isCurrent = i === currentMonthIdx;
+    stripHtml += `<div class="month-hdr${isCurrent ? ' current-month' : ''}">${m}</div>`;
+  });
+  strip.innerHTML = stripHtml;
+
+  // Crop rows
+  const table = document.getElementById('cropTable');
+  table.innerHTML = CROPS.map(crop => {
+    let rowHtml = `
+      <div class="crop-row">
+        <div class="crop-label">
+          <span class="crop-emoji">${crop.emoji}</span>
+          <div>
+            <div class="crop-name">${crop.name}</div>
+            <div class="crop-sub">${crop.sub}</div>
+          </div>
+        </div>`;
+
+    for (let i = 0; i < 12; i++) {
+      const act  = crop.acts[i];
+      const risk = crop.risk[i];
+      let cls = 'act-empty';
+      if (risk === 'R') cls = 'act-risk';
+      else if (act === 'P') cls = 'act-plant';
+      else if (act === 'G') cls = 'act-grow';
+      else if (act === 'H') cls = 'act-harvest';
+
+      const isCurrentMonth = i === currentMonthIdx;
+      const cellStyle = isCurrentMonth ? 'background:rgba(46,204,113,0.04);' : '';
+      const label = act === 'P' ? '🌱' : act === 'H' ? '🌾' : risk === 'R' ? '⚠' : '';
+
+      rowHtml += `
+        <div class="cell" style="${cellStyle}">
+          <div class="act-block ${cls}" title="${act||risk||'—'}">
+            <span style="font-size:12px;">${label}</span>
+          </div>
+        </div>`;
+    }
+    rowHtml += '</div>';
+    return rowHtml;
+  }).join('');
+
+  // Monthly tips
+  const tipsGrid = document.getElementById('tipsGrid');
+  tipsGrid.innerHTML = TIPS.map((tip, i) => {
+    const isCurrent = i === currentMonthIdx;
+    return `
+      <div class="tip-card ${tip.type}" style="${isCurrent ? 'box-shadow:0 0 0 2px var(--brand-primary);' : ''}">
+        <div class="tip-month">${isCurrent ? '▶ ' : ''}${tip.month}</div>
+        <div class="tip-title">${tip.title}</div>
+        <div class="tip-body">${tip.body}</div>
+      </div>`;
+  }).join('');
+});
+</script>
+</body>
+</html>

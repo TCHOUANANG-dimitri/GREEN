@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenBot — GREEN</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <style>
+    /* ============================================================
+       GREENBOT — Chat UI
+       Two-column: sessions sidebar (left) + chat pane (right)
+       ============================================================ */
+
+    /* Remove default page padding — chat fills viewport */
+    #appContent { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ---- Top-level split ----------------------------------- */
+    .chat-shell {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - var(--header-height));
+      overflow: hidden;
+    }
+
+    /* ---- Sessions sidebar ---------------------------------- */
+    .sessions-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-1);
+      border-right: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    .sessions-top {
+      padding: var(--sp-4) var(--sp-4) var(--sp-3);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .sessions-top-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: var(--sp-3);
+    }
+    .sessions-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--sp-2) var(--sp-2);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-default) transparent;
+    }
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-3);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background-color var(--dur-base) var(--ease-out);
+      position: relative;
+    }
+    .session-item:hover { background: var(--bg-subtle); }
+    .session-item.active { background: rgba(46,204,113,.09); }
+    .session-item.active .session-title { color: var(--brand-primary); font-weight: var(--weight-semibold); }
+    .session-ico {
+      width: 30px; height: 30px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .session-item.active .session-ico { background: rgba(46,204,113,.15); color: var(--brand-primary); }
+    .session-info { flex: 1; min-width: 0; }
+    .session-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .session-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .session-del {
+      position: absolute;
+      right: var(--sp-2);
+      opacity: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      transition: opacity var(--dur-base), color var(--dur-base);
+    }
+    .session-item:hover .session-del { opacity: 1; }
+    .session-del:hover { color: var(--color-error); }
+
+    .sessions-empty {
+      padding: var(--sp-8) var(--sp-4);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+    }
+
+    /* ---- Chat pane ----------------------------------------- */
+    .chat-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-subtle);
+    }
+
+    /* Welcome state (no session selected) */
+    .chat-welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--sp-8);
+      text-align: center;
+    }
+    .chat-welcome-logo {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin-bottom: var(--sp-5);
+      box-shadow: var(--shadow-brand);
+    }
+    .chat-welcome h2 {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-extrabold);
+      color: var(--text-primary);
+      letter-spacing: -.02em;
+      margin: 0 0 var(--sp-2);
+    }
+    .chat-welcome p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      max-width: 400px;
+      line-height: var(--leading-relaxed);
+      margin: 0 0 var(--sp-6);
+    }
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+      justify-content: center;
+      max-width: 520px;
+    }
+    .chip {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: var(--sp-2) var(--sp-4);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: border-color var(--dur-base), color var(--dur-base), background-color var(--dur-base);
+    }
+    .chip:hover { border-color: var(--brand-primary); color: var(--brand-primary); background: rgba(46,204,113,.05); }
+
+    /* Messages area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--sp-6) var(--sp-8);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-5);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-default) transparent;
+    }
+
+    /* Message bubble */
+    .msg-row {
+      display: flex;
+      gap: var(--sp-3);
+      align-items: flex-start;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      flex-shrink: 0;
+    }
+    .msg-avatar.bot {
+      background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
+      color: #fff;
+      font-size: 1rem;
+    }
+    .msg-avatar.user-av {
+      background: var(--bg-muted);
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+    }
+
+    .msg-bubble {
+      max-width: 68%;
+      padding: var(--sp-4) var(--sp-5);
+      border-radius: var(--radius-lg);
+      font-size: var(--text-sm);
+      line-height: var(--leading-relaxed);
+    }
+    .msg-row.bot .msg-bubble {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      border-top-left-radius: var(--radius-xs);
+    }
+    .msg-row.user .msg-bubble {
+      background: var(--brand-dark);
+      color: #fff;
+      border-top-right-radius: var(--radius-xs);
+    }
+
+    /* Markdown-ish: format lists inside bot messages */
+    .msg-bubble ul { padding-left: var(--sp-5); margin: var(--sp-2) 0; }
+    .msg-bubble li { margin-bottom: var(--sp-1); }
+    .msg-bubble p  { margin: 0 0 var(--sp-2); }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble strong { font-weight: var(--weight-semibold); }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: var(--sp-1);
+      padding: 0 var(--sp-1);
+    }
+    .msg-row.user .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) 0;
+    }
+    .typing-dots { display: flex; gap: 4px; }
+    .typing-dots span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      animation: dot-bounce 1.4s infinite ease-in-out both;
+    }
+    .typing-dots span:nth-child(1) { animation-delay: -.32s; }
+    .typing-dots span:nth-child(2) { animation-delay: -.16s; }
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: scale(0); opacity: .5; }
+      40%            { transform: scale(1); opacity: 1; }
+    }
+
+    /* Input bar */
+    .chat-input-bar {
+      flex-shrink: 0;
+      padding: var(--sp-4) var(--sp-8);
+      background: var(--surface-1);
+      border-top: 1px solid var(--border-subtle);
+    }
+    .chat-input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--sp-3);
+      background: var(--bg-subtle);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-3) var(--sp-4);
+      transition: border-color var(--dur-base), box-shadow var(--dur-base);
+    }
+    .chat-input-row:focus-within {
+      border-color: var(--input-border-focus);
+      box-shadow: 0 0 0 3px var(--input-ring);
+      background: var(--input-bg);
+    }
+    #chatInput {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      line-height: var(--leading-relaxed);
+      max-height: 140px;
+      min-height: 24px;
+    }
+    #chatInput::placeholder { color: var(--input-placeholder); }
+    .send-btn {
+      width: 36px; height: 36px;
+      flex-shrink: 0;
+      border-radius: var(--radius-md);
+      background: var(--brand-primary);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      transition: background-color var(--dur-base), transform var(--dur-fast);
+    }
+    .send-btn:hover:not(:disabled) { background: var(--brand-mid); transform: scale(1.05); }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    .chat-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: var(--sp-2);
+      text-align: center;
+    }
+
+    /* Context banner (when analysis_id is linked) */
+    .analysis-ctx-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-8);
+      background: rgba(46,204,113,.07);
+      border-bottom: 1px solid rgba(46,204,113,.15);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .analysis-ctx-bar span { font-weight: var(--weight-semibold); color: var(--brand-primary); }
+    .ctx-clear-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .ctx-clear-btn:hover { color: var(--color-error); }
+
+    /* RAG badge on bot messages */
+    .rag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 1px 7px;
+      margin-top: var(--sp-2);
+    }
+
+    /* ---- Conversations sidebar drawer (mobile) ----------------- */
+    .conv-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 130;
+    }
+    .conv-backdrop.open { display: block; }
+
+    @media (max-width: 768px) {
+      /* Conversations sidebar becomes a bottom sheet / left drawer */
+      .sessions-sidebar {
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        width: 80vw;
+        max-width: 300px;
+        z-index: 140;
+        transform: translateX(-100%);
+        transition: transform .25s ease-out;
+        box-shadow: 4px 0 24px rgba(0,0,0,.18);
+      }
+      .sessions-sidebar.mob-open {
+        transform: translateX(0);
+      }
+      .chat-messages { padding: var(--sp-4); }
+      .chat-input-bar { padding: var(--sp-3) var(--sp-4); }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent">
+
+      <!-- Backdrop for conversations drawer (mobile) -->
+      <div class="conv-backdrop" id="convBackdrop" onclick="closeMobileSidebar()"></div>
+
+      <div class="chat-shell">
+
+        <!-- ===== Sessions sidebar ========================= -->
+        <div class="sessions-sidebar" id="sessionsSidebar">
+          <div class="sessions-top">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3);">
+              <div class="sessions-top-title" style="margin-bottom:0;">Conversations</div>
+              <!-- Close button — only visible on mobile -->
+              <button onclick="closeMobileSidebar()" title="Fermer"
+                style="display:none;background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;border-radius:var(--radius-sm);"
+                id="closeSidebarBtn">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <button class="btn btn-primary" style="width:100%;font-size:var(--text-sm);" onclick="newSession()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New conversation
+            </button>
+          </div>
+          <div class="sessions-list" id="sessionsList">
+            <div class="sessions-empty" id="sessionsEmpty">No conversations yet</div>
+          </div>
+        </div>
+
+        <!-- ===== Chat pane ================================ -->
+        <div class="chat-pane" id="chatPane">
+
+          <!-- Welcome state -->
+          <div class="chat-welcome" id="chatWelcome">
+            <div class="chat-welcome-logo">🌿</div>
+            <h2>GreenBot</h2>
+            <p>Your AI agronomic partner. Ask me about plant diseases, pests, crop management, and agricultural best practices for Cameroon.</p>
+            <div class="suggestion-chips">
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Comment traiter la mosaïque du manioc ?</button>
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Ravageurs du maïs en saison des pluies</button>
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Fungicides recommandés pour la tomate</button>
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Calendrier agricole Cameroun</button>
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Sévérité High — que faire maintenant ?</button>
+            </div>
+          </div>
+
+          <!-- Active chat -->
+          <div id="chatActive" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+
+            <!-- Analysis context banner -->
+            <div class="analysis-ctx-bar" id="ctxBar" style="display:none;">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Contexte lié à l'analyse <span id="ctxLabel">#—</span>
+              <button class="ctx-clear-btn" onclick="clearAnalysisContext()">Retirer</button>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chatMessages"></div>
+
+          </div>
+
+          <!-- Input bar (always visible once a session is active) -->
+          <div class="chat-input-bar" id="chatInputBar" style="display:none;">
+            <div class="chat-input-row">
+              <textarea
+                id="chatInput"
+                placeholder="Ask GreenBot about plant diseases, pests, treatments…"
+                rows="1"
+                onkeydown="handleKey(event)"
+                oninput="autoResize(this)"></textarea>
+              <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send (Enter)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+            <div class="chat-hint">Enter to send · Shift+Enter for new line</div>
+          </div>
+
+        </div><!-- /chat-pane -->
+      </div><!-- /chat-shell -->
+
+    </main>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentSessionId = null;
+let linkedAnalysisId = null;
+let userInitials     = '?';
+let isSending        = false;
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', async () => {
+  App.boot();
+  Layout.init({ page: 'chatbot', title: 'GreenBot', subtitle: 'AI agronomic partner' });
+
+  const user = Auth.getUser();
+  if (user) userInitials = getInitials(user.first_name || '', user.last_name || '');
+
+  // Check if arriving from camera/history page with an analysis ID
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('analysis_id')) {
+    linkedAnalysisId = parseInt(params.get('analysis_id'));
+    showCtxBar(linkedAnalysisId);
+  }
+
+  await loadSessions(true);  // true = auto-open most recent session
+});
+
+/* ============================================================
+   SESSIONS
+   ============================================================ */
+async function loadSessions(autoOpen = false) {
+  const { data } = await API.chat.sessions();
+  const list  = document.getElementById('sessionsList');
+  const empty = document.getElementById('sessionsEmpty');
+
+  if (!data || !data.length) {
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  list.innerHTML = data.map(s => `
+    <div class="session-item ${s.id === currentSessionId ? 'active' : ''}"
+         id="session-${s.id}"
+         onclick="openSession(${s.id})">
+      <div class="session-ico">💬</div>
+      <div class="session-info">
+        <div class="session-title">${escHtml(s.title || 'Conversation')}</div>
+        <div class="session-date">${relTime(s.updated_at)} · ${s.message_count} msg</div>
+      </div>
+      <button class="session-del" onclick="deleteSession(event, ${s.id})" title="Delete">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+
+  // On initial page load, auto-open the most recent session so the user
+  // immediately sees their conversation history without having to click.
+  if (autoOpen && !currentSessionId && data.length > 0) {
+    await openSession(data[0].id);
+  }
+}
+
+async function openSession(id) {
+  currentSessionId = id;
+  document.querySelectorAll('.session-item').forEach(el =>
+    el.classList.toggle('active', el.id === 'session-' + id)
+  );
+
+  const { data, error } = await API.chat.getSession(id);
+  if (error || !data) { App.toast('Could not load conversation.', 'error'); return; }
+
+  showChatPane();
+  renderMessages(data.messages || []);
+  scrollToBottom();
+
+  // On mobile, close the sidebar after selecting a session
+  closeMobileSidebar();
+}
+
+async function newSession() {
+  const { data, error } = await API.chat.createSession();
+  if (error || !data) { App.toast('Could not create conversation.', 'error'); return; }
+
+  currentSessionId = data.id;
+  await loadSessions();
+  showChatPane();
+  renderMessages([]);
+  document.getElementById('chatInput').focus();
+}
+
+async function deleteSession(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this conversation permanently?')) return;
+  const { error } = await API.chat.deleteSession(id);
+  if (error) { App.toast(error, 'error'); return; }
+  if (currentSessionId === id) {
+    currentSessionId = null;
+    hideChatPane();
+  }
+  await loadSessions();
+  App.toast('Conversation deleted.', 'success');
+}
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+async function sendMessage() {
+  if (isSending) return;
+  const input   = document.getElementById('chatInput');
+  const content = input.value.trim();
+  if (!content) return;
+
+  // If no session yet, create one first
+  if (!currentSessionId) {
+    const { data, error } = await API.chat.createSession();
+    if (error || !data) { App.toast('Could not start conversation.', 'error'); return; }
+    currentSessionId = data.id;
+    showChatPane();
+    renderMessages([]);
+    await loadSessions();
+  }
+
+  input.value = '';
+  autoResize(input);
+  isSending = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  // Optimistic: append user message
+  appendMessage({ role: 'user', content, created_at: new Date().toISOString() });
+  scrollToBottom();
+
+  // Show typing indicator
+  const typingId = showTyping();
+
+  const { data, error } = await API.chat.sendMessage(
+    currentSessionId,
+    content,
+    linkedAnalysisId
+  );
+
+  removeTyping(typingId);
+  isSending = false;
+  document.getElementById('sendBtn').disabled = false;
+
+  if (error) {
+    // Show quota error as a bot message so the user sees it in context
+    if (error.includes('Quota') || error.includes('429') || error.includes('quota')) {
+      appendMessage({
+        role: 'assistant',
+        content: '⚠️ **Quota API Gemini épuisé.**\n\nVotre clé gratuite est limitée en nombre de requêtes par minute et par jour. Veuillez patienter quelques minutes avant de réessayer.\n\nPour augmenter votre quota, consultez [console.cloud.google.com](https://console.cloud.google.com).',
+        created_at: new Date().toISOString(),
+        rag_used: false,
+      });
+      scrollToBottom();
+    } else {
+      App.toast(error, 'error');
+    }
+    return;
+  }
+
+  appendMessage({
+    role: 'assistant',
+    content: data.content,
+    created_at: data.created_at,
+    rag_used: data.rag_used,
+  });
+  scrollToBottom();
+
+  // Refresh sessions list (title may have been updated)
+  await loadSessions();
+
+  // Re-mark active session
+  document.querySelectorAll('.session-item').forEach(el =>
+    el.classList.toggle('active', el.id === 'session-' + currentSessionId)
+  );
+}
+
+function renderMessages(messages) {
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = '';
+  messages.forEach(m => appendMessage(m));
+}
+
+function appendMessage(m) {
+  const container = document.getElementById('chatMessages');
+  const isUser    = m.role === 'user';
+  const time      = m.created_at ? new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '';
+
+  const row = document.createElement('div');
+  row.className = `msg-row ${isUser ? 'user' : 'bot'}`;
+
+  const avatarHtml = isUser
+    ? `<div class="msg-avatar user-av">${escHtml(userInitials)}</div>`
+    : `<div class="msg-avatar bot">🌿</div>`;
+
+  const ragHtml = (!isUser && m.rag_used)
+    ? `<div class="rag-badge">📚 Base agronomique</div>`
+    : '';
+
+  row.innerHTML = `
+    ${avatarHtml}
+    <div>
+      <div class="msg-bubble">${formatMarkdown(m.content)}${ragHtml}</div>
+      <div class="msg-time">${escHtml(time)}</div>
+    </div>
+  `;
+  container.appendChild(row);
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const id = 'typing-' + Date.now();
+  const el = document.createElement('div');
+  el.id = id;
+  el.className = 'msg-row bot';
+  el.innerHTML = `
+    <div class="msg-avatar bot">🌿</div>
+    <div class="msg-bubble" style="padding:var(--sp-3) var(--sp-4);">
+      <div class="typing-indicator">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span style="font-size:var(--text-xs);color:var(--text-muted);">GreenBot is thinking…</span>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  scrollToBottom();
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function scrollToBottom() {
+  const container = document.getElementById('chatMessages');
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+}
+
+/* ============================================================
+   SUGGESTIONS (welcome screen)
+   ============================================================ */
+async function startWithSuggestion(text) {
+  await newSession();
+  document.getElementById('chatInput').value = text;
+  await sendMessage();
+}
+
+/* ============================================================
+   ANALYSIS CONTEXT
+   ============================================================ */
+function showCtxBar(analysisId) {
+  const bar = document.getElementById('ctxBar');
+  document.getElementById('ctxLabel').textContent = '#' + analysisId;
+  bar.style.display = 'flex';
+}
+
+function clearAnalysisContext() {
+  linkedAnalysisId = null;
+  document.getElementById('ctxBar').style.display = 'none';
+}
+
+/* ============================================================
+   UI STATE HELPERS
+   ============================================================ */
+function showChatPane() {
+  document.getElementById('chatWelcome').style.display = 'none';
+  const active = document.getElementById('chatActive');
+  active.style.display = 'flex';
+  document.getElementById('chatInputBar').style.display = 'block';
+  if (linkedAnalysisId) showCtxBar(linkedAnalysisId);
+}
+
+function hideChatPane() {
+  document.getElementById('chatWelcome').style.display = 'flex';
+  document.getElementById('chatActive').style.display = 'none';
+  document.getElementById('chatInputBar').style.display = 'none';
+}
+
+/* ============================================================
+   CONVERSATIONS SIDEBAR — mobile open/close
+   Triggered by the global header hamburger (headerMenuToggle)
+   which is wired by layout.js for the app sidebar. On the
+   chatbot page we intercept it to also toggle the conversations
+   panel, which is separate from the main nav sidebar.
+   ============================================================ */
+function openMobileSidebar() {
+  document.getElementById('sessionsSidebar').classList.add('mob-open');
+  document.getElementById('convBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileSidebar() {
+  document.getElementById('sessionsSidebar').classList.remove('mob-open');
+  document.getElementById('convBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Wire the global header hamburger to also open the conversations sidebar on mobile.
+// Also show/hide the close button inside the sidebar based on viewport width.
+document.addEventListener('DOMContentLoaded', () => {
+  const updateCloseBtn = () => {
+    const btn = document.getElementById('closeSidebarBtn');
+    if (btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  };
+  updateCloseBtn();
+  window.addEventListener('resize', updateCloseBtn);
+
+  // Wait for layout.js to inject the header, then patch the toggle
+  setTimeout(() => {
+    const toggle = document.getElementById('headerMenuToggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          // On mobile the header hamburger opens the app nav sidebar (via layout.js).
+          // On the chatbot page we ALSO open the conversations sidebar.
+          const sidebar = document.getElementById('sessionsSidebar');
+          sidebar.classList.contains('mob-open')
+            ? closeMobileSidebar()
+            : openMobileSidebar();
+        }
+      });
+    }
+  }, 150);
+});
+
+/* ============================================================
+   INPUT HELPERS
+   ============================================================ */
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+/* ============================================================
+   TEXT HELPERS
+   ============================================================ */
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function formatMarkdown(text) {
+  // Very simple markdown: bold, line-breaks, bullet lists
+  let html = escHtml(text);
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = html.replace(/\n- /g, '\n• ');
+  html = html.replace(/\n/g, '<br>');
+  return '<p>' + html + '</p>';
+}
+
+function relTime(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return new Date(iso).toLocaleDateString();
+}
+</script>
+</body>
+</html>

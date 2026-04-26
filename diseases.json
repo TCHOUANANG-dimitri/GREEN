@@ -1,0 +1,674 @@
+[
+  {
+    "id": "healthy",
+    "name": "Saine",
+    "scientificName": "N/A",
+    "affectedPlants": ["Toutes les plantes"],
+    "symptoms": [],
+    "actions": [
+      "Continuez l'observation régulière",
+      "Maintenez une bonne hygiène du jardin",
+      "Assurez un arrosage adapté"
+    ],
+    "aliases": ["Healthy"]
+  },
+  {
+    "id": "mildiou",
+    "name": "Mildiou",
+    "scientificName": "Phytophthora infestans",
+    "affectedPlants": ["Tomate", "Pomme de terre"],
+    "symptoms": [
+      "Taches brunes huileuses sur les feuilles",
+      "Taches sombres sur les fruits",
+      "Feuilles flétrissantes et nécrosées"
+    ],
+    "actions": [
+      "Retirer et détruire les parties infectées",
+      "Améliorer le drainage et diminuer l'humidité",
+      "Appliquer un fongicide (cuivre ou autre selon recommandation locale)",
+      "Alterner les cultures et pratiquer une rotation"
+    ],
+    "aliases": ["Late Blight"]
+  },
+  {
+    "id": "oidium",
+    "name": "Oïdium",
+    "scientificName": "Erysiphales (gén.)",
+    "affectedPlants": ["Courgette", "Vigne", "Céréales"],
+    "symptoms": [
+      "Poudre blanche sur la surface des feuilles",
+      "Distorsion des jeunes tissus",
+      "Feuilles jaunissantes et desséchées"
+    ],
+    "actions": [
+      "Supprimer feuilles fortement touchées",
+      "Favoriser l'aération et éclaircissement de la plante",
+      "Utiliser traitement à base de soufre ou fongicide adapté"
+    ],
+    "aliases": ["Powdery Mildew"]
+  },
+  {
+    "id": "rouille",
+    "name": "Rouille",
+    "scientificName": "Pucciniales",
+    "affectedPlants": ["Blé", "Ornementales", "Hortensia"],
+    "symptoms": [
+      "Pustules orange/rouille sur la face inférieure des feuilles",
+      "Taches jaunes ou chlorotiques sur la face supérieure",
+      "Perte de vigueur et chute précoce des feuilles"
+    ],
+    "actions": [
+      "Enlever débris végétaux et éviter l'humidité prolongée",
+      "Planter des variétés résistantes si disponibles",
+      "Appliquer fongicides quand nécessaire"
+    ],
+    "aliases": ["Rust"]
+  },
+  {
+    "id": "anthracnose",
+    "name": "Anthracnose",
+    "scientificName": "Colletotrichum spp.",
+    "affectedPlants": ["Fruits", "Légumes", "Arbres fruitiers"],
+    "symptoms": [
+      "Taches nécrotiques anguleuses sur feuilles",
+      "Taches noires ou pourriture sur fruits",
+      "Branches mortes ou dépérissantes"
+    ],
+    "actions": [
+      "Éliminer les parties atteintes et réduire l'humidité",
+      "Éviter les blessures aux plantes",
+      "Appliquer traitements de contact au besoin"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "fusariose",
+    "name": "Fusariose",
+    "scientificName": "Fusarium spp.",
+    "affectedPlants": ["Tomate", "Bananier", "Plantes ornementales"],
+    "symptoms": [
+      "Jaunissement uni-latéral des feuilles",
+      "Pourriture racinaire ou collet",
+      "Dépérissement progressif de la plante"
+    ],
+    "actions": [
+      "Utiliser plants sains et sol bien drainé",
+      "Éviter excès d'arrosage",
+      "Rotation des cultures et désinfection du sol si possible"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "black-sigatoka",
+    "name": "Black Sigatoka",
+    "scientificName": "Pseudocercospora fijiensis",
+    "affectedPlants": ["Bananier"],
+    "symptoms": [
+      "Taches foliaires sombres longues et étroites",
+      "Feuilles noircissantes conduisant à perte de rendement",
+      "Défaut de maturation des fruits"
+    ],
+    "actions": [
+      "Enlever feuilles très atteintes",
+      "Améliorer la ventilation des parcelles",
+      "Appliquer traitements fongicides prescrits localement"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "cassava-mosaic",
+    "name": "Cassava Mosaic Disease",
+    "scientificName": "Geminiviridae",
+    "affectedPlants": ["Manioc"],
+    "symptoms": [
+      "Mosaïque de feuilles (zones chlorotiques)",
+      "Rétrécissement des feuilles",
+      "Retard de croissance et diminution de rendement"
+    ],
+    "actions": [
+      "Planter matériel sain certifié",
+      "Éliminer plants infectés",
+      "Contrôle des vecteurs (insectes)"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "maize-streak",
+    "name": "Maize Streak Virus",
+    "scientificName": "Mastrevirus",
+    "affectedPlants": ["Maïs"],
+    "symptoms": [
+      "Lignes chlorotiques parallèles sur feuilles",
+      "Jaunissement et réduction de la croissance",
+      "Diminution significative du rendement"
+    ],
+    "actions": [
+      "Utiliser variétés résistantes",
+      "Contrôler les cicadelles (vecteurs)",
+      "Retirer plants gravement infectés"
+    ],
+    "aliases": []
+  },
+  {
+    "id": "coffee-leaf-rust",
+    "name": "Rouille du café",
+    "scientificName": "Hemileia vastatrix",
+    "affectedPlants": ["Caféier"],
+    "symptoms": [
+      "Poudre jaune/orange sous les feuilles",
+      "Défoliation avancée et baisse de productivité",
+      "Branches affaiblies"
+    ],
+    "actions": [
+      "Élaguer pour réduire l'humidité",
+      "Planter variétés résistantes si disponible",
+      "Appliquer traitements fongicides selon recommandations"
+    ],
+    "aliases": ["Coffee Leaf Rust"]
+  },
+  {
+    "id": "bacterial-wilt",
+    "name": "Flétrissement bactérien",
+    "scientificName": "Ralstonia solanacearum",
+    "affectedPlants": ["Tomate", "Aubergine", "Banane", "Cacao"],
+    "symptoms": [
+      "Flétrissement rapide sans jaunissement du feuillage",
+      "Décoloration marron du tissu vasculaire",
+      "Dépérissement complet de la plante"
+    ],
+    "actions": [
+      "Utiliser plants certifiés sains",
+      "Éviter l'excès d'humidité du sol",
+      "Rotation de cultures obligatoire",
+      "Éliminer plants malades et nettoyer outils"
+    ],
+    "aliases": ["Brown Rot", "Bacterial Wilt"]
+  },
+  {
+    "id": "early-blight",
+    "name": "Alternariose",
+    "scientificName": "Alternaria solani",
+    "affectedPlants": ["Tomate", "Pomme de terre"],
+    "symptoms": [
+      "Petites taches brunes concentriques sur feuilles",
+      "Lésions en cibles avec anneaux nécrotiques",
+      "Feuilles jaunissantes et chute prématurée"
+    ],
+    "actions": [
+      "Améliorer l'aération et réduire l'arrosage par le haut",
+      "Retirer feuilles infra-infectées régulièrement",
+      "Appliquer fongicides préventifs si possible",
+      "Désinfecter outils et matériel"
+    ],
+    "aliases": ["Alternaria Blight"]
+  },
+  {
+    "id": "leaf-spot-fungi",
+    "name": "Tache foliaire fongique",
+    "scientificName": "Cercospora spp., Bipolaris spp.",
+    "affectedPlants": ["Maïs", "Sorgho", "Blé", "Riz"],
+    "symptoms": [
+      "Taches rectangulaires ou circulaires gris-brun",
+      "Centre de tache pâle avec bordure foncée",
+      "Chute des feuilles et réduction de la photosynthèse"
+    ],
+    "actions": [
+      "Choisir variétés résistantes",
+      "Éviter accumulat humidité",
+      "Appliquer fongicides à base de cuivre",
+      "Rotation des cultures sur 2-3 ans"
+    ],
+    "aliases": ["Cercospora Leaf Spot"]
+  },
+  {
+    "id": "powdery-mildew",
+    "name": "Oïdium",
+    "scientificName": "Erysiphales",
+    "affectedPlants": ["Courgette", "Vigne", "Céréales", "Pois"],
+    "symptoms": [
+      "Poudre blanche farineuse sur les feuilles",
+      "Distorsion des tissus",
+      "Feuilles jaunissantes et desséchées"
+    ],
+    "actions": [
+      "Supprimer feuilles fortement touchées",
+      "Favoriser l'aération de la plante",
+      "Traitement à base de soufre ou fongicide adapté",
+      "Arroser à la base pour éviter humidité foliaire"
+    ],
+    "aliases": ["Powdery Mildew"]
+  },
+  {
+    "id": "rust-disease",
+    "name": "Rouille",
+    "scientificName": "Pucciniales",
+    "affectedPlants": ["Blé", "Maïs", "Orge", "Plantes ornementales"],
+    "symptoms": [
+      "Pustules orange/rouille sur face inférieure des feuilles",
+      "Taches jaunes sur la face supérieure",
+      "Perte de vigueur et dépérissement"
+    ],
+    "actions": [
+      "Enlever débris végétaux",
+      "Planter variétés résistantes si disponibles",
+      "Appliquer fongicides en début de saison",
+      "Éviter l'humidité prolongée"
+    ],
+    "aliases": ["Rust"]
+  },
+  {
+    "id": "anthracnose",
+    "name": "Anthracnose",
+    "scientificName": "Colletotrichum spp.",
+    "affectedPlants": ["Fruits", "Légumes", "Arbres fruitiers", "Manioc"],
+    "symptoms": [
+      "Taches nécrotiques anguleuses",
+      "Taches noires sur fruits",
+      "Pourriture et dépérissement des branches"
+    ],
+    "actions": [
+      "Éliminer les parties atteintes",
+      "Réduire l'humidité et améliorer l'aération",
+      "Éviter blessures aux plantes",
+      "Appliquer traitements fongicides de contact"
+    ],
+    "aliases": ["Anthracnose"]
+  },
+  {
+    "id": "fusarium-wilt",
+    "name": "Fusariose",
+    "scientificName": "Fusarium spp.",
+    "affectedPlants": ["Tomate", "Bananier", "Cacao", "Cotonnnier"],
+    "symptoms": [
+      "Jaunissement uni-latéral des feuilles",
+      "Pourriture racinaire ou du collet",
+      "Dépérissement progressif"
+    ],
+    "actions": [
+      "Utiliser plants sains",
+      "Éviter excès d'arrosage",
+      "Rotation obligatoire des cultures (3-4 ans)",
+      "Désinfection du sol si possible"
+    ],
+    "aliases": ["Fusarium Wilt"]
+  },
+  {
+    "id": "black-sigatoka",
+    "name": "Sigatoka noir",
+    "scientificName": "Pseudocercospora fijiensis",
+    "affectedPlants": ["Bananier"],
+    "symptoms": [
+      "Taches foliaires sombres longues",
+      "Feuilles noircissantes progressivement",
+      "Défaut de maturation et baisse rendement"
+    ],
+    "actions": [
+      "Enlever feuilles très atteintes",
+      "Améliorer ventilation des parcelles",
+      "Appliquer traitements fongicides régulièrement",
+      "Planter variétés plus tolérantes"
+    ],
+    "aliases": ["Black Sigatoka"]
+  },
+  {
+    "id": "cassava-mosaic",
+    "name": "Mosaïque du manioc",
+    "scientificName": "Geminiviridae",
+    "affectedPlants": ["Manioc"],
+    "symptoms": [
+      "Mosaïque de zones chlorotiques sur feuilles",
+      "Rétrécissement des feuilles",
+      "Retard de croissance important"
+    ],
+    "actions": [
+      "Planter boutures certifiées saines",
+      "Éliminer plants infectés",
+      "Contrôle des insectes vecteurs (mouches blanches)",
+      "Quarantaine de nouvelles boutures"
+    ],
+    "aliases": ["Cassava Mosaic"]
+  },
+  {
+    "id": "maize-streak-virus",
+    "name": "Virus de la strie du maïs",
+    "scientificName": "Mastrevirus",
+    "affectedPlants": ["Maïs"],
+    "symptoms": [
+      "Lignes chlorotiques parallèles sur feuilles",
+      "Jaunissement et nécrose des feuilles",
+      "Réduction importante du rendement"
+    ],
+    "actions": [
+      "Utiliser variétés résistantes",
+      "Contrôler cicadelles (vecteurs) avec insecticides",
+      "Retirer plants gravement infectés",
+      "Semer plus tard après 1ère génération cicadelles"
+    ],
+    "aliases": ["Maize Streak"]
+  },
+  {
+    "id": "cocoa-frosty-pod",
+    "name": "Frosty Pod Rot du cacao",
+    "scientificName": "Moniliophthora roreri",
+    "affectedPlants": ["Cacao"],
+    "symptoms": [
+      "Pourriture blanche givrée sur gousses",
+      "Désséchement complet des gousses",
+      "Perte totale du rendement de la plante"
+    ],
+    "actions": [
+      "Enlever toutes gousses infectées ou mortes",
+      "Maintenir une bonne santé général de la plante",
+      "Améliorer aération en élagage léger",
+      "Utiliser fongicides recommandés"
+    ],
+    "aliases": ["Frosty Pod Rot"]
+  },
+  {
+    "id": "rice-blast",
+    "name": "Pyriculariose du riz",
+    "scientificName": "Magnaporthe grisea",
+    "affectedPlants": ["Riz"],
+    "symptoms": [
+      "Lésions spindle-shaped gris-brun",
+      "Ceinturage des tiges et panicules",
+      "Baisse dramatique de rendement"
+    ],
+    "actions": [
+      "Utiliser variétés résistantes",
+      "Éviter fertilisation azotée excessive",
+      "Appliquer fongicides en début épiaison",
+      "Enlever résidus de culture après moisson"
+    ],
+    "aliases": ["Rice Blast"]
+  },
+  {
+    "id": "citrus-canker",
+    "name": "Chancre bactérien des agrumes",
+    "scientificName": "Xanthomonas citri",
+    "affectedPlants": ["Citrus", "Citron", "Orange"],
+    "symptoms": [
+      "Lésions surélevées avec auréole jaune",
+      "Ulcérations sur fruits et feuilles",
+      "Défoliation et diminution de productivité"
+    ],
+    "actions": [
+      "Planter plants indemnes certifiés",
+      "Éviter excès d'humidité foliaire",
+      "Pratiquer élagage sanitaire sévère",
+      "Appliquer cuivre oxychlorure préventvif"
+    ],
+    "aliases": ["Citrus Canker"]
+  },
+  {
+    "id": "downy-mildew",
+    "name": "Mildiou blanc",
+    "scientificName": "Plasmopara viticola, Peronospora",
+    "affectedPlants": ["Vigne", "Houblon", "Laitue"],
+    "symptoms": [
+      "Duvet blanc grisâtre sur face inférieure des feuilles",
+      "Taches huileuses sur face supérieure",
+      "Flétrissement et chute des feuilles"
+    ],
+    "actions": [
+      "Améliorer ventilation et aération",
+      "Éviter humidité excessive et rosée prolongée",
+      "Appliquer fongicides à base de cuivre",
+      "Enlever débris infectés"
+    ],
+    "aliases": ["Downy Mildew"]
+  },
+  {
+    "id": "scale-insects",
+    "name": "Cochenilles",
+    "scientificName": "Hemiptera - Coccoidea",
+    "affectedPlants": ["Cacao", "Caféier", "Agrumes", "Manguier"],
+    "symptoms": [
+      "Petits insectes écailleux recouvrant branches et feuilles",
+      "Feuilles collantes (miellée)",
+      "Ralentissement croissance et dépérissement"
+    ],
+    "actions": [
+      "Nettoyer branches infectées avec brosse",
+      "Appliquer savon insecticide ou huile minérale",
+      "Utiliser insecticides systémiques si nécessaire",
+      "Favoriser insectes prédateurs"
+    ],
+    "aliases": ["Scale Insects"]
+  },
+  {
+    "id": "root-knot-nematode",
+    "name": "Nématode des racines",
+    "scientificName": "Meloidogyne spp.",
+    "affectedPlants": ["Tomate", "Aubergine", "Concombre", "Carotte"],
+    "symptoms": [
+      "Nodosités ou renflements sur racines",
+      "Flétrissement des parties aériennes",
+      "Ralentissement de croissance",
+      "Réduction du rendement"
+    ],
+    "actions": [
+      "Rotation des cultures (3-4 ans)",
+      "Planter variétés résistantes",
+      "Améliorer drainage du sol",
+      "Solarisation du sol si possible"
+    ],
+    "aliases": ["Root Knot Nematode"]
+  },
+  {
+    "id": "cotton-leaf-curl",
+    "name": "Recroquevillement de feuille du coton",
+    "scientificName": "Begomovirus",
+    "affectedPlants": ["Cotonnier"],
+    "symptoms": [
+      "Recourbement des bords foliaires",
+      "Jaunissement et chlorose",
+      "Réduction sévère de rendement"
+    ],
+    "actions": [
+      "Contrôler mouches blanches vecteurs",
+      "Planter variétés tolérantes",
+      "Enlever plants fortement infectés",
+      "Appliquer insecticides systémiques"
+    ],
+    "aliases": ["Cotton Leaf Curl"]
+  },
+  {
+    "id": "banana-xanthom",
+    "name": "Flétrissement bactérien de la banane",
+    "scientificName": "Xanthomonas campestris pv. musacearum",
+    "affectedPlants": ["Bananier"],
+    "symptoms": [
+      "Jaunissement des feuilles",
+      "Sécrétion de gouttelettes rougeâtres",
+      "Dépérissement rapide de la plante"
+    ],
+    "actions": [
+      "Utiliser plants de pépinière sain",
+      "Désinfecter les outils de coupe",
+      "Éliminer plants malades complètement",
+      "Quarantaine de nouvelles plantations"
+    ],
+    "aliases": ["Banana Xanthomonas"]
+  },
+  {
+    "id": "bean-anthracnose",
+    "name": "Anthracnose du haricot",
+    "scientificName": "Colletotrichum lindemuthianum",
+    "affectedPlants": ["Haricot", "Pois"],
+    "symptoms": [
+      "Taches circulaires brun foncé sur feuilles",
+      "Lésions sur gousses et graines",
+      "Perte de viabilité des semences"
+    ],
+    "actions": [
+      "Utiliser semences certifiées saines",
+      "Éviter l'humidité foliaire",
+      "Appliquer fongicides en début de culture",
+      "Rotation des cultures obligatoire"
+    ],
+    "aliases": ["Bean Anthracnose"]
+  },
+  {
+    "id": "peanut-aflatoxin",
+    "name": "Aflatoxine de l'arachide",
+    "scientificName": "Aspergillus flavus",
+    "affectedPlants": ["Arachide", "Maïs"],
+    "symptoms": [
+      "Pourriture pré-récolte des gousses",
+      "Contamination de la récolte par moisissures",
+      "Décoloration et décomposition"
+    ],
+    "actions": [
+      "Récolter au moment optimal",
+      "Sécher rapidement et correctement",
+      "Stocker dans endroit sec et frais",
+      "Éviter humidité excessive pendant la culture"
+    ],
+    "aliases": ["Aflatoxin"]
+  },
+  {
+    "id": "whiteflies",
+    "name": "Mouches blanches",
+    "scientificName": "Bemisia tabaci",
+    "affectedPlants": ["Tomate", "Chou", "Courges", "Coton"],
+    "symptoms": [
+      "Jaunissement et taches jaunes sur feuilles",
+      "Miellée (sécrétion collante)",
+      "Transmission de virus"
+    ],
+    "actions": [
+      "Utiliser pièges jaunes pour monitoring",
+      "Appliquer insecticides systémiques",
+      "Utiliser filets anti-insectes si possible",
+      "Contrôler les mauvaises herbes hôtes"
+    ],
+    "aliases": ["Whiteflies"]
+  },
+  {
+    "id": "stem-borer",
+    "name": "Foreurs des tiges",
+    "scientificName": "Lepidoptera - Noctuidae",
+    "affectedPlants": ["Maïs", "Sorgho", "Riz"],
+    "symptoms": [
+      "Larves à l'intérieur des tiges et feuilles",
+      "Trous de sortie visibles sur tiges",
+      "Casse des tiges et flétrissement apical"
+    ],
+    "actions": [
+      "Utiliser plants résistants si disponibles",
+      "Retirer tiges infectées à la main",
+      "Appliquer insecticides au collet",
+      "Enfouir résidus de culture"
+    ],
+    "aliases": ["Stem Borer"]
+  },
+  {
+    "id": "armyworm",
+    "name": "Légionnaire d'automne",
+    "scientificName": "Spodoptera frugiperda",
+    "affectedPlants": ["Maïs", "Sorgho", "Riz", "Coton"],
+    "symptoms": [
+      "Défoliation complète des jeunes plants",
+      "Trous importants dans feuillage",
+      "Mortalité des plantules"
+    ],
+    "actions": [
+      "Monitoring régulier des champs",
+      "Application insecticides en début infestation",
+      "Utiliser pièges à phéromones",
+      "Enfouir résidus de culture"
+    ],
+    "aliases": ["Fall Armyworm", "Légionnaire"]
+  },
+  {
+    "id": "locusts",
+    "name": "Criquets",
+    "scientificName": "Acrididae",
+    "affectedPlants": ["Toutes les cultures", "Herbes"],
+    "symptoms": [
+      "Défoliation totale des cultures",
+      "Destruction complète des feuillages",
+      "Invasions massives rapides"
+    ],
+    "actions": [
+      "Alerte précoce des services agricoles",
+      "Arrosage insecticide aérien si possible",
+      "Creuser fossés barrière",
+      "Couverture du sol avec géotextiles"
+    ],
+    "aliases": ["Locusts", "Criquets"]
+  },
+  {
+    "id": "termites",
+    "name": "Termites",
+    "scientificName": "Isoptera",
+    "affectedPlants": ["Arbres", "Cultures pérennes"],
+    "symptoms": [
+      "Galeries et terriers dans tronc",
+      "Dépérissement progressif des branches",
+      "Chute complète de la plante"
+    ],
+    "actions": [
+      "Badigeon du tronc avec insecticides",
+      "Retrait du bois mort et débris",
+      "Traitement du sol autour du tronc",
+      "Aération du sol pour réduire humidité"
+    ],
+    "aliases": ["Termites", "Termites"]
+  },
+  {
+    "id": "spider-mites",
+    "name": "Acariens",
+    "scientificName": "Acarina",
+    "affectedPlants": ["Cacao", "Tomate", "Courges", "Haricot"],
+    "symptoms": [
+      "Feuilles tachetées et pointillées",
+      "Toiles fines visibles sous feuilles",
+      "Décoloration et desséchement"
+    ],
+    "actions": [
+      "Appliquer savons insecticides",
+      "Utiliser huile minérale ou neem",
+      "Augmenter humidité si possible",
+      "Éviter excès d'azote"
+    ],
+    "aliases": ["Spider Mites", "Acariens"]
+  },
+  {
+    "id": "blight-disease",
+    "name": "Brûlure bactérienne",
+    "scientificName": "Xanthomonas spp.",
+    "affectedPlants": ["Riz", "Tomate", "Poivre"],
+    "symptoms": [
+      "Taches brun-rougeâtre avec bordure jaune",
+      "Encroûtement et perforations",
+      "Dépérissement du feuillage"
+    ],
+    "actions": [
+      "Utiliser graines certifiées saines",
+      "Éviter l'humidité excessive",
+      "Appliquer cuivre oxychlorure",
+      "Rotation cultures sur 2 ans"
+    ],
+    "aliases": ["Blight", "Bacterial Blight"]
+  },
+  {
+    "id": "damping-off",
+    "name": "Fonte des semis",
+    "scientificName": "Pythium, Rhizoctonia",
+    "affectedPlants": ["Tomate", "Poivron", "Chou", "Haricot"],
+    "symptoms": [
+      "Dépérissement de plantules à la surface du sol",
+      "Noircissement du collet",
+      "Mort des jeunes plantes après levée"
+    ],
+    "actions": [
+      "Utiliser terreau désinfecté",
+      "Améliorer drainage et aération",
+      "Éviter surhumidité",
+      "Arroser modérément avec eau claire"
+    ],
+    "aliases": ["Damping Off"]
+  }
+]

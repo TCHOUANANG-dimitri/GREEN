@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GREEN Map — Parcels</title>
+  <link rel="icon" type="image/jpeg" href="/assets/logo.jpeg" />
+  <script>(function(){var t=localStorage.getItem('green_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/app.css" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    /* ---- Page layout --------------------------------------- */
+    .map-page-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 0;
+      height: calc(100vh - var(--header-height) - var(--sp-12));
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .map-page-layout { grid-template-columns: 1fr; height: auto; }
+      #mapContainer     { height: 400px; order: -1; }
+    }
+
+    /* ---- Left sidebar -------------------------------------- */
+    .map-sidebar {
+      background: var(--surface-1);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .map-sidebar-hdr {
+      padding: var(--sp-5) var(--sp-5);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-subtle);
+    }
+    .map-sidebar-title {
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-4);
+    }
+    .parcel-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--sp-3);
+    }
+    .parcel-item {
+      padding: var(--sp-4);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--sp-2);
+      cursor: pointer;
+      transition: all var(--dur-base) var(--ease-out);
+      background: var(--surface-1);
+    }
+    .parcel-item:hover { border-color: var(--brand-primary); }
+    .parcel-item.active {
+      border-color: var(--brand-primary);
+      background: rgba(46,204,113,0.04);
+    }
+    .parcel-item-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .parcel-item-name {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--text-primary);
+    }
+    .parcel-item-crop {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(46,204,113,0.10);
+      color: var(--brand-primary);
+      font-weight: var(--weight-semibold);
+    }
+    .parcel-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .parcel-actions {
+      display: flex;
+      gap: var(--sp-2);
+      margin-top: var(--sp-3);
+    }
+
+    /* ---- Map container ------------------------------------- */
+    #mapContainer {
+      z-index: 0;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Override Leaflet z-index for dark mode */
+    .leaflet-container {
+      background: var(--bg-app) !important;
+      font-family: var(--font-sans) !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: var(--surface-1) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-subtle) !important;
+      border-radius: var(--radius-lg) !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+    }
+    .leaflet-popup-tip { background: var(--surface-1) !important; }
+    .leaflet-popup-content { margin: 12px 16px !important; }
+    .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--text-primary); }
+    .popup-sub   { font-size: 12px; color: var(--text-muted); }
+
+    /* ---- Add parcel form modal ----------------------------- */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--sp-4);
+    }
+    .modal {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--sp-7);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .modal-title {
+      font-size: var(--text-lg);
+      font-weight: var(--weight-bold);
+      color: var(--text-primary);
+      margin: 0 0 var(--sp-5);
+    }
+    .form-row { margin-bottom: var(--sp-4); }
+    .form-label {
+      display: block;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: var(--sp-2);
+    }
+    .form-input, .form-select {
+      width: 100%;
+      height: 42px;
+      padding: 0 var(--sp-4);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      font-family: var(--font-sans);
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color var(--dur-base) var(--ease-out);
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--input-border-focus);
+      box-shadow: 0 0 0 3px var(--input-ring);
+    }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+    .modal-actions { display: flex; gap: var(--sp-3); justify-content: flex-end; margin-top: var(--sp-5); }
+
+    /* ---- Empty state in sidebar ---------------------------- */
+    .sidebar-empty {
+      padding: var(--sp-10) var(--sp-5);
+      text-align: center;
+      color: var(--text-muted);
+    }
+    .sidebar-empty svg { opacity: .2; margin-bottom: var(--sp-3); display: block; margin-inline: auto; }
+    .sidebar-empty p   { font-size: var(--text-sm); margin: 0; }
+
+    /* ---- Delete button in parcel list ---------------------- */
+    .del-parcel {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      transition: color var(--dur-base) var(--ease-out);
+      display: flex; align-items: center;
+    }
+    .del-parcel:hover { color: var(--color-error); }
+
+    /* ---- Analysis dot on map ------------------------------- */
+    .analysis-marker {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout" id="appLayout">
+  <div class="app-main" id="appMain">
+    <main class="app-content" id="appContent" style="padding-bottom:0;">
+
+      <!-- Banner row -->
+      <div style="background:linear-gradient(135deg,var(--brand-darker) 0%,var(--brand-dark) 60%,var(--brand-mid) 100%);border-radius:var(--radius-xl);padding:var(--sp-6) var(--sp-10);margin-bottom:var(--sp-6);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);">
+        <div style="position:absolute;width:240px;height:240px;background:rgba(255,255,255,.05);border-radius:50%;right:-40px;top:-60px;pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;">
+          <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-1);">Operations</div>
+          <div style="font-size:var(--text-2xl);font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1.2;">GREEN Map</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.65);margin-top:var(--sp-1);">
+            Manage parcels and visualise disease detections on your field map.
+          </div>
+        </div>
+        <button class="btn btn-primary" style="flex-shrink:0;background:#fff;color:var(--brand-darker);font-weight:600;"
+                onclick="openAddParcel()">
+          + Add Parcel
+        </button>
+      </div>
+
+      <!-- Map layout -->
+      <div class="map-page-layout">
+
+        <!-- Sidebar -->
+        <div class="map-sidebar">
+          <div class="map-sidebar-hdr">
+            <div class="map-sidebar-title">Parcels</div>
+            <div style="font-size:var(--text-xs);color:var(--text-muted);" id="parcelSummary">Loading...</div>
+          </div>
+          <div class="parcel-list" id="parcelList">
+            <div class="sidebar-empty" id="parcelEmpty">
+              <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              <p>No parcels yet.<br/>Click <strong>+ Add Parcel</strong> to create one.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div id="mapContainer">
+          <div id="map"></div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Add Parcel Modal -->
+<div class="modal-overlay" id="addParcelModal" style="display:none;" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Add New Parcel</div>
+    <div class="form-row">
+      <label class="form-label">Parcel name *</label>
+      <input class="form-input" id="pName" placeholder="e.g. North Field — Maize 2024" />
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0;">
+        <label class="form-label">Crop type</label>
+        <select class="form-select" id="pCrop">
+          <option value="">Select crop...</option>
+          <option value="Maïs">Maize</option>
+          <option value="Manioc">Cassava</option>
+          <option value="Tomate">Tomato</option>
+          <option value="Plantain">Plantain</option>
+          <option value="Arachides">Groundnut</option>
+          <option value="Haricot">Bean</option>
+          <option value="Autre">Other</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin-bottom:0;">
+        <label class="form-label">Area (ha)</label>
+        <input class="form-input" id="pArea" type="number" min="0.01" step="0.01" placeholder="0.50" />
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:var(--sp-4);">
+      <label class="form-label">Region</label>
+      <select class="form-select" id="pRegion">
+        <option value="">Select region...</option>
+        <option>Centre</option><option>Littoral</option><option>Ouest</option>
+        <option>Nord-Ouest</option><option>Sud-Ouest</option><option>Sud</option>
+        <option>Est</option><option>Adamaoua</option><option>Nord</option>
+        <option>Extrême-Nord</option>
+      </select>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0;">
+        <label class="form-label">Latitude</label>
+        <input class="form-input" id="pLat" type="number" step="any" placeholder="3.848" />
+      </div>
+      <div class="form-row" style="margin-bottom:0;">
+        <label class="form-label">Longitude</label>
+        <input class="form-input" id="pLon" type="number" step="any" placeholder="11.502" />
+      </div>
+    </div>
+    <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--sp-2);">
+      Tip: click on the map to auto-fill coordinates.
+    </div>
+    <div class="form-row" style="margin-top:var(--sp-4);">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="pDesc" placeholder="Additional notes..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAddParcel()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitParcel()">Save Parcel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/layout.js"></script>
+<script>
+/* ---- State ------------------------------------------------ */
+let _map        = null;
+let _parcels    = [];
+let _markers    = {};   // parcelId → leaflet marker/polygon
+let _addMode    = false;
+let _activeId   = null;
+let _analysisLayer = null;
+
+/* ---- Boot ------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  App.boot();
+  Layout.init({ page: 'map', title: 'GREEN Map', subtitle: 'Parcel management' });
+  initMap();
+  loadParcels();
+  loadGeoAnalyses();
+});
+
+/* ---- Init Leaflet map ------------------------------------- */
+function initMap() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  _map = L.map('map', {
+    center:  [3.848, 11.502],   // Yaoundé, Cameroon
+    zoom:    7,
+    zoomControl: true,
+  });
+
+  // Tile layer
+  const tileUrl = isDark
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+  L.tileLayer(tileUrl, {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 18,
+  }).addTo(_map);
+
+  // Click on map fills lat/lon in the form
+  _map.on('click', e => {
+    if (_addMode) {
+      document.getElementById('pLat').value = e.latlng.lat.toFixed(5);
+      document.getElementById('pLon').value = e.latlng.lng.toFixed(5);
+    }
+  });
+}
+
+/* ---- Load parcels ----------------------------------------- */
+async function loadParcels() {
+  const { data, error } = await API.parcels.list();
+  if (error) {
+    document.getElementById('parcelSummary').textContent = 'Error loading parcels.';
+    return;
+  }
+  _parcels = data || [];
+  renderParcelList();
+  renderParcelMarkers();
+}
+
+/* ---- Render parcel list in sidebar ------------------------ */
+function renderParcelList() {
+  const list  = document.getElementById('parcelList');
+  const empty = document.getElementById('parcelEmpty');
+  const summary = document.getElementById('parcelSummary');
+
+  const total_ha = _parcels.reduce((s, p) => s + (p.area_ha || 0), 0);
+  summary.textContent = `${_parcels.length} parcel${_parcels.length !== 1 ? 's' : ''} · ${total_ha.toFixed(2)} ha total`;
+
+  if (!_parcels.length) {
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const items = _parcels.map(p => {
+    const crop = p.crop_type ? `<span class="parcel-item-crop">${p.crop_type}</span>` : '';
+    const area = p.area_ha ? `${p.area_ha} ha · ` : '';
+    const region = p.region || 'No region';
+    const isSel = p.id === _activeId ? ' active' : '';
+    return `
+      <div class="parcel-item${isSel}" id="parcel-item-${p.id}" onclick="selectParcel(${p.id})">
+        <div class="parcel-item-hdr">
+          <span class="parcel-item-name">${p.name}</span>
+          ${crop}
+        </div>
+        <div class="parcel-item-meta">${area}${region}</div>
+        <div class="parcel-actions">
+          <button class="btn" style="height:28px;font-size:11px;padding:0 10px;"
+                  onclick="event.stopPropagation();flyToParcel(${p.id})">
+            View on map
+          </button>
+          <button class="del-parcel" onclick="event.stopPropagation();deleteParcel(${p.id})"
+                  title="Delete parcel">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4h6v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>`;
+  });
+
+  list.innerHTML = items.join('') + '<div id="parcelEmpty" style="display:none;"></div>';
+}
+
+/* ---- Render parcel markers on map ------------------------- */
+function renderParcelMarkers() {
+  // Clear old markers
+  Object.values(_markers).forEach(m => _map.removeLayer(m));
+  _markers = {};
+
+  _parcels.forEach(p => {
+    if (!p.latitude || !p.longitude) return;
+
+    const cropColor = {
+      'Maïs': '#16a34a', 'Manioc': '#ca8a04', 'Tomate': '#dc2626', default: '#6b7280'
+    };
+    const color = cropColor[p.crop_type] || cropColor.default;
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:28px;height:28px;border-radius:50%;
+        background:${color};border:2.5px solid #fff;
+        box-shadow:0 2px 8px rgba(0,0,0,0.25);
+        display:flex;align-items:center;justify-content:center;
+        font-size:12px;cursor:pointer;
+      ">🌾</div>`,
+      iconSize:   [28, 28],
+      iconAnchor: [14, 14],
+    });
+
+    const marker = L.marker([p.latitude, p.longitude], { icon })
+      .addTo(_map)
+      .bindPopup(`
+        <div class="popup-title">${p.name}</div>
+        <div class="popup-sub">${p.crop_type || 'Unknown crop'} · ${p.area_ha ? p.area_ha + ' ha' : '?'}</div>
+        <div class="popup-sub" style="margin-top:4px;">${p.region || ''}</div>
+      `);
+
+    marker.on('click', () => selectParcel(p.id));
+    _markers[p.id] = marker;
+  });
+}
+
+/* ---- Load geolocated disease analyses --------------------- */
+async function loadGeoAnalyses() {
+  // Use history endpoint with small limit and filter for geolocated items
+  const { data } = await API.analysis.history(100, 0);
+  if (!data?.items) return;
+
+  const geoItems = data.items.filter(a => a.latitude && a.longitude);
+  if (!geoItems.length) return;
+
+  if (_analysisLayer) _map.removeLayer(_analysisLayer);
+
+  const markers = geoItems.map(a => {
+    const sev = a.severity || 'low';
+    const colMap = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' };
+    const color  = a.detected_disease === 'healthy' ? '#22c55e' : (colMap[sev] || '#6b7280');
+    const emoji  = a.pest_name ? '🐛' : a.detected_disease === 'healthy' ? '✅' : '🦠';
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        width:22px;height:22px;border-radius:50%;
+        background:${color};border:2px solid #fff;opacity:0.9;
+        box-shadow:0 1px 4px rgba(0,0,0,0.2);
+        display:flex;align-items:center;justify-content:center;
+        font-size:10px;
+      ">${emoji}</div>`,
+      iconSize:   [22, 22],
+      iconAnchor: [11, 11],
+    });
+
+    return L.marker([a.latitude, a.longitude], { icon })
+      .bindPopup(`
+        <div class="popup-title">${a.disease_name || (a.detected_disease === 'healthy' ? 'Healthy' : '—')}</div>
+        <div class="popup-sub">${a.plant_type || '—'} · ${a.source || '—'}</div>
+        <div class="popup-sub" style="margin-top:4px;">${new Date(a.created_at).toLocaleDateString()}</div>
+      `);
+  });
+
+  _analysisLayer = L.layerGroup(markers).addTo(_map);
+}
+
+/* ---- Select a parcel -------------------------------------- */
+function selectParcel(id) {
+  _activeId = id;
+  document.querySelectorAll('.parcel-item').forEach(el => {
+    el.classList.toggle('active', el.id === `parcel-item-${id}`);
+  });
+  flyToParcel(id);
+}
+
+function flyToParcel(id) {
+  const p = _parcels.find(x => x.id === id);
+  if (!p?.latitude || !p?.longitude) return;
+  _map.flyTo([p.latitude, p.longitude], 14, { duration: 1 });
+  _markers[id]?.openPopup();
+}
+
+/* ---- Delete parcel ---------------------------------------- */
+async function deleteParcel(id) {
+  if (!confirm('Delete this parcel permanently?')) return;
+  const { error } = await API.parcels.delete(id);
+  if (error) { App.toast(error, 'error'); return; }
+  App.toast('Parcel deleted.', 'success');
+  if (_markers[id]) { _map.removeLayer(_markers[id]); delete _markers[id]; }
+  loadParcels();
+}
+
+/* ---- Add parcel modal ------------------------------------- */
+function openAddParcel() {
+  _addMode = true;
+  document.getElementById('addParcelModal').style.display = 'flex';
+  App.toast('Click the map to set the parcel coordinates.', 'info');
+}
+
+function closeAddParcel() {
+  _addMode = false;
+  document.getElementById('addParcelModal').style.display = 'none';
+  ['pName','pCrop','pArea','pRegion','pLat','pLon','pDesc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+function closeModal(e) {
+  if (e.target.id === 'addParcelModal') closeAddParcel();
+}
+
+async function submitParcel() {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { App.toast('Parcel name is required.', 'error'); return; }
+
+  const lat = parseFloat(document.getElementById('pLat').value);
+  const lon = parseFloat(document.getElementById('pLon').value);
+
+  const payload = {
+    name,
+    crop_type:   document.getElementById('pCrop').value   || null,
+    area_ha:     parseFloat(document.getElementById('pArea').value)   || null,
+    region:      document.getElementById('pRegion').value || null,
+    description: document.getElementById('pDesc').value  || null,
+    latitude:    isNaN(lat) ? null : lat,
+    longitude:   isNaN(lon) ? null : lon,
+  };
+
+  const { data, error } = await API.parcels.create(payload);
+  if (error) { App.toast(error, 'error'); return; }
+
+  App.toast(`Parcel "${name}" created!`, 'success');
+  closeAddParcel();
+  loadParcels();
+}
+</script>
+</body>
+</html>
