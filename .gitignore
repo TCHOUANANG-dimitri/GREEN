@@ -22,8 +22,8 @@ env/
 # ML Models (large binary files — store separately)
 *.onnx
 *.onnx.data
-*.pt
-*.pth
+#*.pt
+#*.pth
 *.weights
 *.h5
 
