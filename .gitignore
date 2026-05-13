@@ -20,7 +20,7 @@ env/
 *.pyc
 
 # ML Models (large binary files — store separately)
-*.onnx
+#*.onnx
 *.onnx.data
 #*.pt
 #*.pth
