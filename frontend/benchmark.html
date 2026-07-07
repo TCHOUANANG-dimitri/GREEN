@@ -226,7 +226,7 @@
     .tip-item.positive { border-color: rgba(46,204,113,.2); background: rgba(46,204,113,.03); }
     .tip-item.caution  { border-color: rgba(245,158,11,.2); background: rgba(245,158,11,.03); }
     .tip-item.alert    { border-color: rgba(239,68,68,.2);  background: rgba(239,68,68,.03); }
-    .tip-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .tip-icon { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .tip-title { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--text-primary); margin-bottom: 2px; }
     .tip-body  { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; }
   </style>
@@ -336,7 +336,6 @@ async function loadBenchmark() {
 
   const totalAnalyses = stats.analyses || 0;
   const diseases      = stats.diseases  || 0;
-  const pests         = stats.pests     || 0;
   const parcels       = stats.parcels   || 0;
   const chatSessions  = stats.chat_sessions || 0;
 
@@ -426,7 +425,7 @@ async function loadBenchmark() {
     const benchPct   = 100;
     const isGood     = m.inverse ? ratio <= 1.2 : ratio >= 0.8;
     const badge      = isGood ? 'good' : ratio >= 0.5 ? 'warning' : 'bad';
-    const badgeText  = isGood ? '✓ Above average' : ratio >= 0.5 ? '~ Near average' : '↓ Below average';
+    const badgeText  = isGood ? 'Above average' : ratio >= 0.5 ? 'Near average' : 'Below average';
     const yourColor  = m.inverse
       ? (ratio > 1.3 ? '#ef4444' : ratio > 1 ? '#f59e0b' : '#2ECC71')
       : (ratio >= 0.8 ? '#2ECC71' : ratio >= 0.5 ? '#f59e0b' : '#ef4444');
@@ -460,28 +459,28 @@ async function loadBenchmark() {
   }).join('');
 
   // Charts
-  renderDonut(healthyCount, diseaseCount, pests);
+  renderDonut(healthyCount, diseaseCount);
   renderActivity(history);
 
   // Tips
   renderTips(score, scansPerMonth, diseaseRate, parcels, chatSessions);
 }
 
-function renderDonut(healthy, disease, pests) {
+function renderDonut(healthy, disease) {
   if (typeof Chart === 'undefined') return;
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const canvas = document.getElementById('donutChart');
   if (!canvas || _donut) return;
 
-  const total = healthy + disease + pests || 1;
+  const total = healthy + disease || 1;
   _donut = new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
     data: {
-      labels: ['Healthy', 'Disease', 'Pest'],
+      labels: ['Healthy', 'Disease'],
       datasets: [{
-        data: [healthy, disease, pests],
-        backgroundColor: ['rgba(46,204,113,0.7)', 'rgba(239,68,68,0.7)', 'rgba(245,158,11,0.7)'],
-        borderColor: ['#2ECC71','#ef4444','#f59e0b'],
+        data: [healthy, disease],
+        backgroundColor: ['rgba(46,204,113,0.7)', 'rgba(239,68,68,0.7)'],
+        borderColor: ['#2ECC71','#ef4444'],
         borderWidth: 2,
       }]
     },
@@ -551,38 +550,50 @@ function renderActivity(history) {
 function renderTips(score, scansPerMonth, diseaseRate, parcels, chatSessions) {
   const tips = [];
 
+  const TIP_ICONS = {
+    camera:   { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`, bg:'rgba(245,158,11,.12)', color:'#d97706' },
+    check:    { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`, bg:'rgba(46,204,113,.12)', color:'#16a34a' },
+    warning:  { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`, bg:'rgba(239,68,68,.12)', color:'#dc2626' },
+    leaf:     { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>`, bg:'rgba(46,204,113,.12)', color:'#16a34a' },
+    map:      { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>`, bg:'rgba(59,130,246,.12)', color:'#2563eb' },
+    bot:      { svg:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M12 11V7"/><circle cx="12" cy="5" r="2"/><line x1="8" y1="15" x2="8" y2="17"/><line x1="16" y1="15" x2="16" y2="17"/></svg>`, bg:'rgba(139,92,246,.12)', color:'#7c3aed' },
+  };
+
   if (scansPerMonth < BENCHMARK.scans_per_month) {
-    tips.push({ type:'caution', icon:'📷', title:'Increase scan frequency', body:`You average ${scansPerMonth.toFixed(1)} scans/month vs ${BENCHMARK.scans_per_month} for comparable operators. Scanning every 5–7 days enables earlier disease detection.` });
+    tips.push({ type:'caution', iconKey:'camera', title:'Increase scan frequency', body:`You average ${scansPerMonth.toFixed(1)} scans/month vs ${BENCHMARK.scans_per_month} for comparable operators. Scanning every 5–7 days enables earlier disease detection.` });
   } else {
-    tips.push({ type:'positive', icon:'✅', title:'Great scanning frequency', body:`Your scan rate (${scansPerMonth.toFixed(1)}/month) is above or near the regional average. Keep up regular monitoring especially during the rainy season.` });
+    tips.push({ type:'positive', iconKey:'check', title:'Great scanning frequency', body:`Your scan rate (${scansPerMonth.toFixed(1)}/month) is above or near the regional average. Keep up regular monitoring especially during the rainy season.` });
   }
 
   if (diseaseRate > 0.5) {
-    tips.push({ type:'alert', icon:'⚠️', title:'High disease detection rate', body:`${(diseaseRate*100).toFixed(0)}% of your scans detect disease — significantly above the regional average (38%). Consider preventive fungicide treatment and crop rotation.` });
+    tips.push({ type:'alert', iconKey:'warning', title:'High disease detection rate', body:`${(diseaseRate*100).toFixed(0)}% of your scans detect disease — significantly above the regional average (38%). Consider preventive fungicide treatment and crop rotation.` });
   } else if (diseaseRate > 0) {
-    tips.push({ type:'positive', icon:'🌿', title:'Healthy disease rate', body:`Your disease detection rate (${(diseaseRate*100).toFixed(0)}%) is within normal range. Continue monitoring and apply preventive treatments at peak risk months.` });
+    tips.push({ type:'positive', iconKey:'leaf', title:'Healthy disease rate', body:`Your disease detection rate (${(diseaseRate*100).toFixed(0)}%) is within normal range. Continue monitoring and apply preventive treatments at peak risk months.` });
   }
 
   if (parcels < 1) {
-    tips.push({ type:'caution', icon:'🗺️', title:'Register your parcels on GREEN Map', body:'No parcels registered yet. Mapping your fields enables parcel-level disease tracking and automatic GPS tagging of analyses.' });
+    tips.push({ type:'caution', iconKey:'map', title:'Register your parcels on GREEN Map', body:'No parcels registered yet. Mapping your fields enables parcel-level disease tracking and automatic GPS tagging of analyses.' });
   } else {
-    tips.push({ type:'positive', icon:'🗺️', title:'Field mapping active', body:`${parcels} parcel${parcels > 1 ? 's' : ''} registered. Analysis results are automatically linked to your field map for traceability.` });
+    tips.push({ type:'positive', iconKey:'map', title:'Field mapping active', body:`${parcels} parcel${parcels > 1 ? 's' : ''} registered. Analysis results are automatically linked to your field map for traceability.` });
   }
 
   if (chatSessions < 2) {
-    tips.push({ type:'caution', icon:'🤖', title:'Use GreenBot for agronomic advice', body:'GreenBot can interpret your disease results and provide customised treatment recommendations. Users who consult GreenBot weekly respond to disease outbreaks 2× faster.' });
+    tips.push({ type:'caution', iconKey:'bot', title:'Use GreenBot for agronomic advice', body:'GreenBot can interpret your disease results and provide customised treatment recommendations. Users who consult GreenBot weekly respond to disease outbreaks 2× faster.' });
   } else {
-    tips.push({ type:'positive', icon:'🤖', title:'Active GreenBot usage', body:`${chatSessions} consultation sessions recorded. Continue using GreenBot for personalised agronomic recommendations linked to your latest scan results.` });
+    tips.push({ type:'positive', iconKey:'bot', title:'Active GreenBot usage', body:`${chatSessions} consultation sessions recorded. Continue using GreenBot for personalised agronomic recommendations linked to your latest scan results.` });
   }
 
-  document.getElementById('tipsList').innerHTML = tips.map(t => `
+  document.getElementById('tipsList').innerHTML = tips.map(t => {
+    const ic = TIP_ICONS[t.iconKey] || TIP_ICONS.check;
+    return `
     <div class="tip-item ${t.type}">
-      <div class="tip-icon">${t.icon}</div>
+      <div class="tip-icon" style="background:${ic.bg};color:${ic.color};">${ic.svg}</div>
       <div>
         <div class="tip-title">${t.title}</div>
         <div class="tip-body">${t.body}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 </script>
 </body>

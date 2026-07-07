@@ -182,7 +182,7 @@
             <div class="stats-row">
               <div class="stat-cell"><div class="stat-val" id="statAnalyses">—</div><div class="stat-lbl">Scans</div></div>
               <div class="stat-cell"><div class="stat-val" id="statDiseases">—</div><div class="stat-lbl">Diseases</div></div>
-              <div class="stat-cell"><div class="stat-val" id="statPests">—</div><div class="stat-lbl">Pests</div></div>
+              <div class="stat-cell"><div class="stat-val" id="statHealthy">—</div><div class="stat-lbl">Healthy</div></div>
             </div>
           </div>
 
@@ -332,7 +332,7 @@ async function loadStats() {
   if (!data) return;
   document.getElementById('statAnalyses').textContent = data.analyses ?? '—';
   document.getElementById('statDiseases').textContent = data.diseases ?? '—';
-  document.getElementById('statPests').textContent    = data.pests    ?? '—';
+  document.getElementById('statHealthy').textContent = data.healthy ?? '—';
 }
 
 async function saveProfile() {

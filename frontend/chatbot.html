@@ -438,12 +438,17 @@
 
           <!-- Welcome state -->
           <div class="chat-welcome" id="chatWelcome">
-            <div class="chat-welcome-logo">🌿</div>
+            <div class="chat-welcome-logo">
+            <svg width="36" height="36" fill="none" stroke="#fff" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/>
+              <path d="M12 22s0-8-7-10"/>
+            </svg>
+          </div>
             <h2>GreenBot</h2>
-            <p>Your AI agronomic partner. Ask me about plant diseases, pests, crop management, and agricultural best practices for Cameroon.</p>
+            <p>Your AI agronomic partner. Ask me about plant diseases, crop management, and agricultural best practices for Cameroon.</p>
             <div class="suggestion-chips">
               <button class="chip" onclick="startWithSuggestion(this.textContent)">Comment traiter la mosaïque du manioc ?</button>
-              <button class="chip" onclick="startWithSuggestion(this.textContent)">Ravageurs du maïs en saison des pluies</button>
+              <button class="chip" onclick="startWithSuggestion(this.textContent)">Maladies du maïs en saison des pluies</button>
               <button class="chip" onclick="startWithSuggestion(this.textContent)">Fungicides recommandés pour la tomate</button>
               <button class="chip" onclick="startWithSuggestion(this.textContent)">Calendrier agricole Cameroun</button>
               <button class="chip" onclick="startWithSuggestion(this.textContent)">Sévérité High — que faire maintenant ?</button>
@@ -470,7 +475,7 @@
             <div class="chat-input-row">
               <textarea
                 id="chatInput"
-                placeholder="Ask GreenBot about plant diseases, pests, treatments…"
+                placeholder="Ask GreenBot about plant diseases, treatments…"
                 rows="1"
                 onkeydown="handleKey(event)"
                 oninput="autoResize(this)"></textarea>
@@ -539,7 +544,11 @@ async function loadSessions(autoOpen = false) {
     <div class="session-item ${s.id === currentSessionId ? 'active' : ''}"
          id="session-${s.id}"
          onclick="openSession(${s.id})">
-      <div class="session-ico">💬</div>
+      <div class="session-ico">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
       <div class="session-info">
         <div class="session-title">${escHtml(s.title || 'Conversation')}</div>
         <div class="session-date">${relTime(s.updated_at)} · ${s.message_count} msg</div>
@@ -579,7 +588,10 @@ async function openSession(id) {
 
 async function newSession() {
   const { data, error } = await API.chat.createSession();
-  if (error || !data) { App.toast('Could not create conversation.', 'error'); return; }
+  if (error || !data) {
+    App.toast(error || 'Could not create conversation. Check server connectivity.', 'error');
+    return;
+  }
 
   currentSessionId = data.id;
   await loadSessions();
@@ -613,7 +625,10 @@ async function sendMessage() {
   // If no session yet, create one first
   if (!currentSessionId) {
     const { data, error } = await API.chat.createSession();
-    if (error || !data) { App.toast('Could not start conversation.', 'error'); return; }
+    if (error || !data) {
+      App.toast(error || 'Could not start conversation. Check server connectivity.', 'error');
+      return;
+    }
     currentSessionId = data.id;
     showChatPane();
     renderMessages([]);
@@ -647,7 +662,7 @@ async function sendMessage() {
     if (error.includes('Quota') || error.includes('429') || error.includes('quota')) {
       appendMessage({
         role: 'assistant',
-        content: '⚠️ **Quota API Gemini épuisé.**\n\nVotre clé gratuite est limitée en nombre de requêtes par minute et par jour. Veuillez patienter quelques minutes avant de réessayer.\n\nPour augmenter votre quota, consultez [console.cloud.google.com](https://console.cloud.google.com).',
+        content: '**Quota API Gemini épuisé.**\n\nVotre clé gratuite est limitée en nombre de requêtes par minute et par jour. Veuillez patienter quelques minutes avant de réessayer.\n\nPour augmenter votre quota, consultez [console.cloud.google.com](https://console.cloud.google.com).',
         created_at: new Date().toISOString(),
         rag_used: false,
       });
@@ -691,10 +706,10 @@ function appendMessage(m) {
 
   const avatarHtml = isUser
     ? `<div class="msg-avatar user-av">${escHtml(userInitials)}</div>`
-    : `<div class="msg-avatar bot">🌿</div>`;
+    : `<div class="msg-avatar bot"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg></div>`;
 
   const ragHtml = (!isUser && m.rag_used)
-    ? `<div class="rag-badge">📚 Base agronomique</div>`
+    ? `<div class="rag-badge"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Agronomic knowledge base</div>`
     : '';
 
   row.innerHTML = `
@@ -714,7 +729,7 @@ function showTyping() {
   el.id = id;
   el.className = 'msg-row bot';
   el.innerHTML = `
-    <div class="msg-avatar bot">🌿</div>
+    <div class="msg-avatar bot"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg></div>
     <div class="msg-bubble" style="padding:var(--sp-3) var(--sp-4);">
       <div class="typing-indicator">
         <div class="typing-dots"><span></span><span></span><span></span></div>

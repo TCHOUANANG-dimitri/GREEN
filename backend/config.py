@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 
 # Load .env file from the project root (one level above /backend)
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'), override=True)
 
 # ---- Security -----------------------------------------------
 SECRET_KEY: str = os.getenv("SECRET_KEY", "green-secret-key-change-in-production-2026")
@@ -30,32 +30,19 @@ GEMINI_MODEL: str = "gemini-2.5-flash-lite"   # Free tier with separate quota
 WEATHER_API_KEY: str = os.getenv("WEATHER_API_KEY", "")
 OPENWEATHER_BASE_URL: str = "https://api.openweathermap.org/data/2.5"
 
-# ---- Camera / Rover -----------------------------------------
-# Default IP for rover camera stream (MJPEG over HTTP)
-DEFAULT_CAMERA_IP: str   = os.getenv("DEFAULT_CAMERA_IP",   "192.168.1.100")
-DEFAULT_CAMERA_PORT: int = int(os.getenv("DEFAULT_CAMERA_PORT", "8080"))
-# Keep drone aliases for backward compatibility
-DEFAULT_DRONE_IP          = DEFAULT_CAMERA_IP
-DEFAULT_DRONE_STREAM_PORT = DEFAULT_CAMERA_PORT
+# ---- Drone / Camera -----------------------------------------
+# Default IP for drone camera stream (MJPEG over HTTP)
+DEFAULT_DRONE_IP: str = os.getenv("DEFAULT_DRONE_IP", os.getenv("DEFAULT_CAMERA_IP", "192.168.10.1"))
+DEFAULT_DRONE_STREAM_PORT: int = int(os.getenv("DEFAULT_DRONE_STREAM_PORT", os.getenv("DEFAULT_CAMERA_PORT", "8080")))
+
+DEFAULT_CAMERA_IP          = DEFAULT_DRONE_IP
+DEFAULT_CAMERA_PORT        = DEFAULT_DRONE_STREAM_PORT
 
 # ---- Models -------------------------------------------------
 # Disease detection model (EfficientNet — cassava / maize / tomato)
 MODEL_PATH: str = os.getenv(
     "MODEL_PATH",
-    os.path.join(os.path.dirname(__file__), '..', 'best_efficientnet.pth')
-)
-
-# Pest detection model (legacy EfficientNet-based — superseded by YOLO model)
-# ⚠️  Set PEST_MODEL_PATH in .env; leave empty to disable gracefully
-PEST_MODEL_PATH: str = os.getenv(
-    "PEST_MODEL_PATH",
-    os.path.join(os.path.dirname(__file__), '..', 'best_pest_model.pth')
-)
-
-# YOLO pest-detection model (best.pt — YOLOv8, detects Criquet + papillon de nuit)
-YOLO_MODEL_PATH: str = os.getenv(
-    "YOLO_MODEL_PATH",
-    os.path.join(os.path.dirname(__file__), '..', 'best.pt')
+    os.path.join(os.path.dirname(__file__), '..', 'Models', 'best_efficientnet.pth')
 )
 
 # ---- RAG ----------------------------------------------------

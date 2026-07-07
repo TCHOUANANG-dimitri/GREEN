@@ -40,7 +40,7 @@ Base.metadata.create_all(bind=engine)
 
 
 def _warmup_models():
-    """Load EfficientNet and YOLO concurrently in background threads."""
+    """Load EfficientNet in a background thread."""
     import time
     import threading
 
@@ -49,35 +49,24 @@ def _warmup_models():
             from inference import get_model
             get_model()
             logger.info("[Warmup] EfficientNet ready.")
-        except Exception:
-            pass
-
-    def load_yolo():
-        try:
-            from yolo_inference import _is_available
-            _is_available()
-            logger.info("[Warmup] YOLO ready.")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"[Warmup] EfficientNet FAILED to load: {e}")
 
     def load_rag():
         try:
             from routers.chatbot_router import _load_rag
             _load_rag()
             logger.info("[Warmup] RAG index ready.")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"[Warmup] RAG index FAILED to load: {e}")
 
     # Brief pause so the ASGI loop finishes binding before we hit the CPU hard
     time.sleep(1)
-    logger.info("[Warmup] Loading AI models in parallel...")
+    logger.info("[Warmup] Loading EfficientNet in background...")
 
     t1 = threading.Thread(target=load_efficientnet, daemon=True)
-    t2 = threading.Thread(target=load_yolo, daemon=True)
     t1.start()
-    t2.start()
     t1.join()
-    t2.join()
 
     # RAG is lighter — load it after the heavy models
     load_rag()
@@ -210,20 +199,11 @@ async def benchmark_page():
     return FileResponse(os.path.join(FRONTEND_DIR, "benchmark.html"))
 
 
-# ---- Mount static assets ------------------------------------
-app.mount(
-    "/",
-    StaticFiles(directory=FRONTEND_DIR, html=True),
-    name="frontend"
-)
-
-
 # ---- Health Check + Warmup status --------------------------
 @app.get("/api/health", tags=["Health"])
 async def health_check():
     """Returns server status and which models are already loaded."""
     from inference import _model as _eff_model
-    from yolo_inference import _yolo_available
     from routers.chatbot_router import _chunks
     return {
         "status":            "ok",
@@ -231,7 +211,14 @@ async def health_check():
         "version":           APP_VERSION,
         "models": {
             "efficientnet":  "ready" if _eff_model  is not None else "lazy",
-            "yolo":          "ready" if _yolo_available              else "lazy",
             "rag_index":     "ready" if len(_chunks) > 0             else "lazy",
         }
     }
+
+
+# ---- Mount static assets ------------------------------------
+app.mount(
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend"
+)

@@ -51,10 +51,9 @@ def get_stats(
                         DiseaseAnalysis.detected_disease != "healthy"
                     ).scalar() or 0
 
-    pests         = db.query(func.count(DiseaseAnalysis.id)).filter(
+    healthy       = db.query(func.count(DiseaseAnalysis.id)).filter(
                         DiseaseAnalysis.user_id == uid,
-                        DiseaseAnalysis.pest_detected != None,
-                        DiseaseAnalysis.pest_detected != "none"
+                        DiseaseAnalysis.detected_disease == "healthy"
                     ).scalar() or 0
 
     chat_sessions = db.query(func.count(ChatSession.id)).filter(
@@ -74,10 +73,9 @@ def get_stats(
                            DiseaseAnalysis.created_at >= week_ago
                        ).scalar() or 0
 
-    new_pests_wk     = db.query(func.count(DiseaseAnalysis.id)).filter(
+    new_healthy_wk   = db.query(func.count(DiseaseAnalysis.id)).filter(
                            DiseaseAnalysis.user_id == uid,
-                           DiseaseAnalysis.pest_detected != None,
-                           DiseaseAnalysis.pest_detected != "none",
+                           DiseaseAnalysis.detected_disease == "healthy",
                            DiseaseAnalysis.created_at >= week_ago
                        ).scalar() or 0
 
@@ -90,12 +88,12 @@ def get_stats(
         "parcels":              parcels,
         "analyses":             analyses,
         "diseases":             diseases,
-        "pests":                pests,
+        "healthy":              healthy,
         "chat_sessions":        chat_sessions,
         # Week-over-week additions (used for change pills in UI)
         "new_analyses_week":    new_analyses_wk,
         "new_diseases_week":    new_diseases_wk,
-        "new_pests_week":       new_pests_wk,
+        "new_healthy_week":     new_healthy_wk,
         "new_chats_week":       new_chats_wk,
     }
 

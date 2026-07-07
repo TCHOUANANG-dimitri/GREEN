@@ -34,9 +34,6 @@ Pillow==11.0.0
 torch==2.5.1
 torchvision==0.20.1
 
-# YOLO pest detection (best.pt — YOLOv8)
-ultralytics==8.4.38
-
 # Numpy (for embeddings / RAG)
 numpy==1.26.4
 

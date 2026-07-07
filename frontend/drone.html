@@ -294,7 +294,9 @@
 
           <!-- Disease verdict banner -->
           <div class="verdict-banner" id="verdictBanner">
-            <div class="verdict-icon" id="verdictIcon">🌿</div>
+            <div class="verdict-icon" id="verdictIcon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>
+            </div>
             <div class="verdict-info">
               <h4 id="verdictName">—</h4>
               <div class="plant-tag" id="verdictPlant">—</div>
@@ -535,7 +537,7 @@ async function captureAndAnalyze() {
   $captureBtn.innerHTML = `<span class="spinner" style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;"></span> Analysing…`;
 
   const { data, error } = await API.drone.captureAndAnalyze(
-    state.droneIp, null, lat, lon
+    state.droneIp, 8080, null, lat, lon
   );
 
   $streamOverlay.classList.remove('active');
@@ -642,10 +644,12 @@ function _renderFiche(fiche, imagePath) {
   // Verdict icon
   const icon = document.getElementById('verdictIcon');
   icon.className = `verdict-icon ${isHealthy ? 'healthy' : 'diseased'}`;
-  icon.textContent = isHealthy ? '🌿' : '🦠';
+  icon.innerHTML = isHealthy
+    ? `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>`
+    : `<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
 
   // Name + plant
-  document.getElementById('verdictName').textContent  = fiche.disease_name || fiche.detected_pest || 'Unknown';
+  document.getElementById('verdictName').textContent  = fiche.disease_name || 'Unknown';
   document.getElementById('verdictPlant').textContent = fiche.plant_type   || '—';
 
   // Confidence bar
@@ -680,22 +684,12 @@ function _renderFiche(fiche, imagePath) {
   const symptomsSection = document.getElementById('symptomsSection');
   const recoSection = document.getElementById('recoSection');
 
-  // If fiche has enrichment (from YOLO pest detection)
-  if (fiche.enrichment) {
-    symptomsSection.style.display = 'block';
-    recoSection.style.display = 'block';
-    _renderList('symptomsList', [fiche.enrichment.characteristics]);
-    _renderList('recoList', fiche.enrichment.recommendations || []);
-  } 
-  // If fiche has direct symptoms and recommendations (from disease detection)
-  else if (fiche.symptoms || fiche.recommendations) {
+  if (fiche.symptoms || fiche.recommendations) {
     symptomsSection.style.display = 'block';
     recoSection.style.display = 'block';
     _renderList('symptomsList', fiche.symptoms || []);
     _renderList('recoList', fiche.recommendations || []);
-  } 
-  // Otherwise hide both sections
-  else {
+  } else {
     symptomsSection.style.display = 'none';
     recoSection.style.display = 'none';
   }

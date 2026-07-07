@@ -98,12 +98,6 @@ class DiseaseAnalysis(Base):
     severity        = Column(String(50),  nullable=True)   # "low" | "medium" | "high"
     plant_type      = Column(String(100), nullable=True)   # "tomate" | "maïs" | "manioc" etc.
 
-    # Detection output — Pest model (Phase MVP)
-    pest_detected   = Column(String(255), nullable=True)   # Pest class ID or "none"
-    pest_name       = Column(String(255), nullable=True)   # Human-readable pest name
-    pest_confidence = Column(Float, nullable=True)         # 0.0 – 1.0
-    pest_severity   = Column(String(50),  nullable=True)   # "low" | "medium" | "high"
-
     # GPS coordinates (optional — rover GPS not yet implemented)
     latitude        = Column(Float, nullable=True)
     longitude       = Column(Float, nullable=True)

@@ -263,21 +263,23 @@ const API = {
      * Connect to a drone by IP address.
      * Backend verifies the MJPEG stream is reachable.
      * @param {string} ip - e.g. "192.168.10.1"
+     * @param {number|string} port - e.g. 8080
      */
-    connect(ip) {
-      return request('/api/drone/connect', 'POST', { ip }, true);
+    connect(ip, port = 8080) {
+      return request('/api/drone/connect', 'POST', { ip, port }, true);
     },
 
     /**
      * Capture a frame from the drone MJPEG stream and run inference.
      * @param {string} ip
+     * @param {number|string} port
      * @param {number|null} parcelId
      * @param {number|null} latitude
      * @param {number|null} longitude
      */
-    captureAndAnalyze(ip, parcelId = null, latitude = null, longitude = null) {
+    captureAndAnalyze(ip, port = 8080, parcelId = null, latitude = null, longitude = null) {
       return request('/api/drone/capture', 'POST', {
-        ip, parcel_id: parcelId, latitude, longitude
+        ip, port, parcel_id: parcelId, latitude, longitude
       }, true);
     },
 
@@ -292,9 +294,10 @@ const API = {
     /**
      * Get the MJPEG stream URL for a given IP.
      * @param {string} ip
+     * @param {number|string} port
      */
-    streamUrl(ip) {
-      return request(`/api/drone/stream-url?ip=${encodeURIComponent(ip)}`, 'GET', null, true);
+    streamUrl(ip, port = 8080) {
+      return request(`/api/drone/stream-url?ip=${encodeURIComponent(ip)}&port=${encodeURIComponent(port)}`, 'GET', null, true);
     }
   },
 
@@ -303,14 +306,14 @@ const API = {
      ---------------------------------------------------------- */
   camera: {
     /** Verify rover camera stream is reachable at given IP. */
-    connect(ip) {
-      return request('/api/camera/connect', 'POST', { ip }, true);
+    connect(ip, port = 8080) {
+      return request('/api/camera/connect', 'POST', { ip, port }, true);
     },
 
     /** Grab one frame from the MJPEG stream and run both AI models. */
-    captureFromStream(ip, parcelId = null, latitude = null, longitude = null) {
+    captureFromStream(ip, port = 8080, parcelId = null, latitude = null, longitude = null) {
       return request('/api/camera/capture', 'POST', {
-        ip, parcel_id: parcelId, latitude, longitude
+        ip, port, parcel_id: parcelId, latitude, longitude
       }, true);
     },
 
@@ -322,7 +325,7 @@ const API = {
       return request('/api/camera/analyze-frame', 'POST', formData, true, true);
     },
 
-    /** Upload a static image for analysis (disease + pest). */
+    /** Upload a static image for disease analysis. */
     upload(formData) {
       return request('/api/camera/upload', 'POST', formData, true, true);
     },

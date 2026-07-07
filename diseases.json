@@ -3,6 +3,7 @@
     "id": "healthy",
     "name": "Saine",
     "scientificName": "N/A",
+    "description": "The plant shows no signs of disease or pest infestation. All leaf tissue is green and vigorous, stems are upright, and growth is normal. Maintaining this healthy status requires regular monitoring and preventive practices.",
     "affectedPlants": ["Toutes les plantes"],
     "symptoms": [],
     "actions": [
@@ -16,6 +17,7 @@
     "id": "mildiou",
     "name": "Mildiou",
     "scientificName": "Phytophthora infestans",
+    "description": "Late blight is one of the most destructive plant diseases in the world, caused by the water mold Phytophthora infestans. It thrives in cool, humid conditions and can destroy an entire crop within days. The same pathogen was responsible for the Irish Great Famine of the 1840s. In Cameroon, it is particularly devastating for tomatoes and potatoes during the rainy season.",
     "affectedPlants": ["Tomate", "Pomme de terre"],
     "symptoms": [
       "Taches brunes huileuses sur les feuilles",
@@ -34,6 +36,7 @@
     "id": "oidium",
     "name": "Oïdium",
     "scientificName": "Erysiphales (gén.)",
+    "description": "Powdery mildew is a fungal disease caused by various species of the order Erysiphales. Unlike most fungi, it thrives in warm, dry conditions with moderate humidity. It is one of the most widespread plant diseases globally, affecting a broad range of vegetables, cereals, and ornamental plants. The white powdery coating is actually composed of fungal spores and mycelium on the leaf surface.",
     "affectedPlants": ["Courgette", "Vigne", "Céréales"],
     "symptoms": [
       "Poudre blanche sur la surface des feuilles",
@@ -51,6 +54,7 @@
     "id": "rouille",
     "name": "Rouille",
     "scientificName": "Pucciniales",
+    "description": "Rust diseases are caused by obligate parasitic fungi of the order Pucciniales. They are highly specific to their host plant species and require living plant tissue to complete their life cycle. Rust spores are easily spread by wind over long distances. In Sub-Saharan Africa, rusts cause significant losses in wheat and maize, and coffee leaf rust (Hemileia vastatrix) is particularly damaging to Cameroonian coffee production.",
     "affectedPlants": ["Blé", "Ornementales", "Hortensia"],
     "symptoms": [
       "Pustules orange/rouille sur la face inférieure des feuilles",
@@ -68,6 +72,7 @@
     "id": "anthracnose",
     "name": "Anthracnose",
     "scientificName": "Colletotrichum spp.",
+    "description": "Anthracnose is a group of fungal diseases caused by Colletotrichum species, affecting a wide range of tropical and subtropical crops. The pathogen survives on infected plant debris and is spread by rain splash and infected seeds. In Cameroon, anthracnose is a major constraint for cassava, mango, and various legume crops, particularly during humid conditions of the rainy season.",
     "affectedPlants": ["Fruits", "Légumes", "Arbres fruitiers"],
     "symptoms": [
       "Taches nécrotiques anguleuses sur feuilles",
@@ -85,6 +90,7 @@
     "id": "fusariose",
     "name": "Fusariose",
     "scientificName": "Fusarium spp.",
+    "description": "Fusarium wilt is a soil-borne fungal disease caused by various Fusarium species. The fungus invades the plant's vascular system through the roots, blocking water and nutrient transport. It can persist in the soil for decades. In Central Africa, Fusarium is a major threat to tomatoes, bananas (Panama disease), and cocoa, causing irreversible wilting and plant death.",
     "affectedPlants": ["Tomate", "Bananier", "Plantes ornementales"],
     "symptoms": [
       "Jaunissement uni-latéral des feuilles",
@@ -102,6 +108,7 @@
     "id": "black-sigatoka",
     "name": "Black Sigatoka",
     "scientificName": "Pseudocercospora fijiensis",
+    "description": "Black Sigatoka (or Black Leaf Streak) is the most damaging foliar disease of banana and plantain worldwide. Caused by the fungus Pseudocercospora fijiensis, it can reduce yields by 35–50% and shorten the productive life of plantations. It spreads rapidly through spores carried by wind and rain. Cameroon is among the African countries most affected, particularly plantain-growing regions in the South and West.",
     "affectedPlants": ["Bananier"],
     "symptoms": [
       "Taches foliaires sombres longues et étroites",
@@ -119,6 +126,7 @@
     "id": "cassava-mosaic",
     "name": "Cassava Mosaic Disease",
     "scientificName": "Geminiviridae",
+    "description": "Cassava Mosaic Disease (CMD) is a viral disease transmitted by the whitefly Bemisia tabaci and through infected cuttings. It is the most economically important disease of cassava in Africa. CMD can cause yield losses of 20–95% depending on variety susceptibility and severity. In Cameroon, where cassava is a staple food for millions, CMD is a critical food security concern managed through certified disease-free planting material.",
     "affectedPlants": ["Manioc"],
     "symptoms": [
       "Mosaïque de feuilles (zones chlorotiques)",
@@ -136,6 +144,7 @@
     "id": "maize-streak",
     "name": "Maize Streak Virus",
     "scientificName": "Mastrevirus",
+    "description": "Maize Streak Virus (MSV) is the most important virus disease of maize in Africa. It is transmitted by leafhopper insects (Cicadulina species) in a persistent manner, meaning the insect remains infective for life. MSV can cause yield losses of 10–100% depending on timing of infection. In Cameroon's humid zones, early infection of young maize plants causes near-complete loss, making vector management and resistant varieties critical.",
     "affectedPlants": ["Maïs"],
     "symptoms": [
       "Lignes chlorotiques parallèles sur feuilles",
@@ -153,6 +162,7 @@
     "id": "coffee-leaf-rust",
     "name": "Rouille du café",
     "scientificName": "Hemileia vastatrix",
+    "description": "Coffee Leaf Rust (CLR) is the most economically important disease of Arabica coffee worldwide. The fungus Hemileia vastatrix infects leaves and can cause premature defoliation, weakening the plant and significantly reducing yield. First recorded in Sri Lanka in 1869, it has since spread globally. In Cameroon's western highlands, CLR is a persistent threat to coffee-farming communities, worsened by climate variability that extends the favorable infection period.",
     "affectedPlants": ["Caféier"],
     "symptoms": [
       "Poudre jaune/orange sous les feuilles",
@@ -170,6 +180,7 @@
     "id": "bacterial-wilt",
     "name": "Flétrissement bactérien",
     "scientificName": "Ralstonia solanacearum",
+    "description": "Bacterial Wilt caused by Ralstonia solanacearum is one of the most devastating bacterial plant pathogens globally. It infects more than 250 plant species across 54 botanical families. The bacterium survives in soil and water for extended periods and spreads through contaminated tools, irrigation water, and infected plant material. In Cameroon's warm, humid solanaceous crop-producing regions, bacterial wilt regularly causes total crop losses with no effective cure once established.",
     "affectedPlants": ["Tomate", "Aubergine", "Banane", "Cacao"],
     "symptoms": [
       "Flétrissement rapide sans jaunissement du feuillage",
@@ -188,6 +199,7 @@
     "id": "early-blight",
     "name": "Alternariose",
     "scientificName": "Alternaria solani",
+    "description": "Early blight caused by Alternaria solani is a widespread fungal disease primarily affecting tomatoes and potatoes. Despite its name, it can occur at any crop stage. The fungus survives on infected debris and is dispersed by wind and rain. Hot, humid conditions with alternating wet and dry periods favor disease development. In Cameroon's two rainy seasons, early blight is a constant challenge for tomato growers and frequently requires preventive fungicide programs.",
     "affectedPlants": ["Tomate", "Pomme de terre"],
     "symptoms": [
       "Petites taches brunes concentriques sur feuilles",
@@ -206,6 +218,7 @@
     "id": "leaf-spot-fungi",
     "name": "Tache foliaire fongique",
     "scientificName": "Cercospora spp., Bipolaris spp.",
+    "description": "Cercospora leaf spot is caused by various Cercospora fungal species and represents one of the most common and widespread foliar diseases of cereals, legumes, and vegetables in tropical Africa. The pathogen overwinters in crop debris and produces airborne conidia that infect new crops. In maize, Turcicum leaf blight (Exserohilum turcicum) and Cercospora leaf spot together reduce photosynthetic capacity and are among the top yield-reducing diseases in Cameroonian fields.",
     "affectedPlants": ["Maïs", "Sorgho", "Blé", "Riz"],
     "symptoms": [
       "Taches rectangulaires ou circulaires gris-brun",
@@ -224,6 +237,7 @@
     "id": "powdery-mildew",
     "name": "Oïdium",
     "scientificName": "Erysiphales",
+    "description": "Powdery mildew is a fungal disease caused by various species in the order Erysiphales, recognized by the white powdery fungal growth on leaf surfaces. Unlike most pathogens that require wet conditions, powdery mildew thrives in warm temperatures with moderate humidity and adequate air movement that disperses spores. It is host-specific, meaning each powdery mildew species attacks only certain plant families.",
     "affectedPlants": ["Courgette", "Vigne", "Céréales", "Pois"],
     "symptoms": [
       "Poudre blanche farineuse sur les feuilles",
@@ -242,6 +256,7 @@
     "id": "rust-disease",
     "name": "Rouille",
     "scientificName": "Pucciniales",
+    "description": "Rust diseases are obligate fungal parasites that can only survive and reproduce on living plant tissue. They produce millions of airborne urediniospores that spread rapidly over long distances, making outbreaks difficult to contain once they start. Rust fungi have complex life cycles, sometimes requiring two different host plant species. Wheat stem rust (Puccinia graminis) and corn rust (Puccinia sorghi) are economically significant in Central African cereal systems.",
     "affectedPlants": ["Blé", "Maïs", "Orge", "Plantes ornementales"],
     "symptoms": [
       "Pustules orange/rouille sur face inférieure des feuilles",
@@ -257,27 +272,10 @@
     "aliases": ["Rust"]
   },
   {
-    "id": "anthracnose",
-    "name": "Anthracnose",
-    "scientificName": "Colletotrichum spp.",
-    "affectedPlants": ["Fruits", "Légumes", "Arbres fruitiers", "Manioc"],
-    "symptoms": [
-      "Taches nécrotiques anguleuses",
-      "Taches noires sur fruits",
-      "Pourriture et dépérissement des branches"
-    ],
-    "actions": [
-      "Éliminer les parties atteintes",
-      "Réduire l'humidité et améliorer l'aération",
-      "Éviter blessures aux plantes",
-      "Appliquer traitements fongicides de contact"
-    ],
-    "aliases": ["Anthracnose"]
-  },
-  {
     "id": "fusarium-wilt",
     "name": "Fusariose",
     "scientificName": "Fusarium spp.",
+    "description": "Fusarium wilt is caused by soil-borne Fusarium fungi that penetrate plant roots and colonize the vascular (xylem) tissue, preventing water movement. The fungus produces persistent chlamydospores in soil that can survive for decades without a host. Panama disease (Fusarium oxysporum f. sp. cubense) is particularly devastating for banana production. Fusarium crown and root rot in tomatoes is a major challenge in Cameroon's vegetable production zones.",
     "affectedPlants": ["Tomate", "Bananier", "Cacao", "Cotonnnier"],
     "symptoms": [
       "Jaunissement uni-latéral des feuilles",
@@ -293,9 +291,10 @@
     "aliases": ["Fusarium Wilt"]
   },
   {
-    "id": "black-sigatoka",
+    "id": "black-sigatoka-2",
     "name": "Sigatoka noir",
     "scientificName": "Pseudocercospora fijiensis",
+    "description": "Black Sigatoka is the most economically important leaf disease of banana and plantain globally. It significantly reduces photosynthetic capacity by destroying leaf tissue, leading to premature fruit ripening, reduced bunch weight, and poor fruit quality. The pathogen produces vast quantities of wind-dispersed conidia, making it difficult to control without regular fungicide applications. In Cameroon's humid southern regions, intensive plantain cultivation requires careful disease monitoring.",
     "affectedPlants": ["Bananier"],
     "symptoms": [
       "Taches foliaires sombres longues",
@@ -311,9 +310,10 @@
     "aliases": ["Black Sigatoka"]
   },
   {
-    "id": "cassava-mosaic",
+    "id": "cassava-mosaic-2",
     "name": "Mosaïque du manioc",
     "scientificName": "Geminiviridae",
+    "description": "Cassava Mosaic Disease (CMD) is caused by a complex of several species of begomoviruses (family Geminiviridae). It is the most significant constraint to cassava production in Africa, causing annual yield losses estimated at over $1 billion. The whitefly vector (Bemisia tabaci) and infected cuttings are the primary spread mechanisms. IRAD Cameroon and IITA continuously develop resistant varieties to combat CMD in local growing conditions.",
     "affectedPlants": ["Manioc"],
     "symptoms": [
       "Mosaïque de zones chlorotiques sur feuilles",
@@ -332,6 +332,7 @@
     "id": "maize-streak-virus",
     "name": "Virus de la strie du maïs",
     "scientificName": "Mastrevirus",
+    "description": "Maize Streak Virus (MSV) is transmitted exclusively by leafhoppers of the genus Cicadulina. Once the insect acquires the virus, it remains infective for life, enabling rapid spread across fields. The virus replicates in both the insect vector and the plant host. Plants infected early in their development show the most severe symptoms and yield losses. MSV-resistant maize varieties developed by IITA have significantly reduced losses in East and West Africa, and similar varieties are available for Cameroon.",
     "affectedPlants": ["Maïs"],
     "symptoms": [
       "Lignes chlorotiques parallèles sur feuilles",
@@ -350,6 +351,7 @@
     "id": "cocoa-frosty-pod",
     "name": "Frosty Pod Rot du cacao",
     "scientificName": "Moniliophthora roreri",
+    "description": "Frosty Pod Rot (Monilia) is one of the most destructive diseases of cocoa, capable of destroying 30–90% of a crop within a single season if left unmanaged. Originally from South America, it has spread to Central and West Africa. The disease attacks developing pods, which initially appear water-soaked, then develop a characteristic white-gray powdery coating of spores before turning completely black and mummified. Timely removal of infected pods is the cornerstone of management.",
     "affectedPlants": ["Cacao"],
     "symptoms": [
       "Pourriture blanche givrée sur gousses",
@@ -368,6 +370,7 @@
     "id": "rice-blast",
     "name": "Pyriculariose du riz",
     "scientificName": "Magnaporthe grisea",
+    "description": "Rice blast caused by Magnaporthe grisea (Pyricularia oryzae) is the most important fungal disease of rice globally, capable of causing total crop failure under favorable conditions. The pathogen can infect all above-ground parts of the plant at any growth stage, including leaves, nodes, collars, panicles, and seeds. High humidity, excessive nitrogen, and temperature fluctuations promote infection. In Cameroon's rice production systems in the Noun valley and Lake Chad basin, rice blast management is critical for food security.",
     "affectedPlants": ["Riz"],
     "symptoms": [
       "Lésions spindle-shaped gris-brun",
@@ -386,6 +389,7 @@
     "id": "citrus-canker",
     "name": "Chancre bactérien des agrumes",
     "scientificName": "Xanthomonas citri",
+    "description": "Citrus canker is caused by the bacterium Xanthomonas citri subsp. citri and is one of the most regulated plant diseases in international trade. The pathogen is dispersed by wind-driven rain, infected plant material, and contaminated tools. It causes raised corky lesions surrounded by a yellow halo on leaves, fruit, and stems, leading to defoliation and premature fruit drop. Warm, rainy tropical climates like those in southern Cameroon create ideal conditions for canker development.",
     "affectedPlants": ["Citrus", "Citron", "Orange"],
     "symptoms": [
       "Lésions surélevées avec auréole jaune",
@@ -404,6 +408,7 @@
     "id": "downy-mildew",
     "name": "Mildiou blanc",
     "scientificName": "Plasmopara viticola, Peronospora",
+    "description": "Downy mildew diseases are caused by oomycetes (water molds), related to Phytophthora rather than true fungi. They require high humidity and free moisture on leaf surfaces for spore germination and infection. The characteristic downy sporulation on the underside of leaves distinguishes it from powdery mildew. In tropical environments, downy mildew can spread extremely rapidly during prolonged rainy periods, affecting cucurbits, legumes, and leafy vegetables in Cameroonian market gardens.",
     "affectedPlants": ["Vigne", "Houblon", "Laitue"],
     "symptoms": [
       "Duvet blanc grisâtre sur face inférieure des feuilles",
@@ -422,6 +427,7 @@
     "id": "scale-insects",
     "name": "Cochenilles",
     "scientificName": "Hemiptera - Coccoidea",
+    "description": "Scale insects are small piercing-sucking insects that feed on plant sap. Female scales are covered by a protective shell or waxy coating that makes them difficult to control with contact insecticides. They excrete honeydew, which promotes the growth of sooty mold, further reducing photosynthesis. Scale insects are common pests of perennial crops in Cameroon — particularly cocoa, coffee, and citrus — and can severely weaken trees over time. They are naturally controlled by parasitoid wasps and lady beetles.",
     "affectedPlants": ["Cacao", "Caféier", "Agrumes", "Manguier"],
     "symptoms": [
       "Petits insectes écailleux recouvrant branches et feuilles",
@@ -440,6 +446,7 @@
     "id": "root-knot-nematode",
     "name": "Nématode des racines",
     "scientificName": "Meloidogyne spp.",
+    "description": "Root-knot nematodes (Meloidogyne spp.) are microscopic roundworms that invade plant roots and induce the formation of characteristic galls or knots. The nematodes disrupt the plant's ability to absorb water and nutrients, causing symptoms that mimic drought or nutrient deficiency. They are particularly damaging in sandy, well-drained soils. Meloidogyne incognita and M. javanica are the most prevalent species in Cameroonian soils, affecting vegetable gardens and cassava fields throughout the country.",
     "affectedPlants": ["Tomate", "Aubergine", "Concombre", "Carotte"],
     "symptoms": [
       "Nodosités ou renflements sur racines",
@@ -459,6 +466,7 @@
     "id": "cotton-leaf-curl",
     "name": "Recroquevillement de feuille du coton",
     "scientificName": "Begomovirus",
+    "description": "Cotton Leaf Curl Disease (CLCuD) is caused by a complex of begomoviruses and their associated satellites, transmitted by the silverleaf whitefly (Bemisia tabaci). It is one of the most devastating diseases of cotton in Asia and Africa. The virus causes leaf curling, vein thickening, and stunting that can result in complete crop failure. Managing whitefly populations through integrated pest management is the primary strategy, as there is no chemical treatment for the virus itself.",
     "affectedPlants": ["Cotonnier"],
     "symptoms": [
       "Recourbement des bords foliaires",
@@ -477,6 +485,7 @@
     "id": "banana-xanthom",
     "name": "Flétrissement bactérien de la banane",
     "scientificName": "Xanthomonas campestris pv. musacearum",
+    "description": "Banana Xanthomonas Wilt (BXW) is caused by Xanthomonas campestris pv. musacearum and is one of the most serious threats to banana and plantain production in the African Great Lakes region. First reported in Ethiopia in 1974, it spread rapidly through East and Central Africa. The bacteria are spread by infected cutting tools, contaminated soil, and insect pollinators visiting male buds. Once a plant is infected, it cannot be cured and must be destroyed to prevent further spread.",
     "affectedPlants": ["Bananier"],
     "symptoms": [
       "Jaunissement des feuilles",
@@ -495,6 +504,7 @@
     "id": "bean-anthracnose",
     "name": "Anthracnose du haricot",
     "scientificName": "Colletotrichum lindemuthianum",
+    "description": "Bean anthracnose caused by Colletotrichum lindemuthianum is a seed-borne disease that spreads through rain splash and infected plant debris. It can infect all above-ground parts of the plant, but pod and seed infections are most economically significant as they reduce both yield and seed quality. The fungus has numerous races with varying virulence, making variety development challenging. In Cameroon's humid zones, bean anthracnose is a limiting factor for common bean production during high-humidity periods.",
     "affectedPlants": ["Haricot", "Pois"],
     "symptoms": [
       "Taches circulaires brun foncé sur feuilles",
@@ -513,6 +523,7 @@
     "id": "peanut-aflatoxin",
     "name": "Aflatoxine de l'arachide",
     "scientificName": "Aspergillus flavus",
+    "description": "Aflatoxins are highly toxic secondary metabolites produced by Aspergillus flavus and A. parasiticus fungi. They are among the most potent natural carcinogens known, posing serious food safety and public health risks. Contamination occurs primarily during drought stress before harvest, and continues during improper drying and storage. Groundnut and maize are the most affected crops in Cameroon. Aflatoxin contamination causes liver cancer, immune suppression, and child stunting, and represents a major barrier to agricultural export.",
     "affectedPlants": ["Arachide", "Maïs"],
     "symptoms": [
       "Pourriture pré-récolte des gousses",
@@ -531,6 +542,7 @@
     "id": "whiteflies",
     "name": "Mouches blanches",
     "scientificName": "Bemisia tabaci",
+    "description": "Whiteflies (Bemisia tabaci) are one of the world's most economically significant agricultural pests. They feed on plant phloem sap, causing direct damage through leaf yellowing and stunting, and indirect damage by transmitting more than 100 plant viruses, including Cassava Mosaic Disease and Cassava Brown Streak. Adult whiteflies quickly develop resistance to insecticides, making management challenging. In Cameroon's vegetable and cassava production systems, whitefly populations explode during dry seasons and require integrated management strategies.",
     "affectedPlants": ["Tomate", "Chou", "Courges", "Coton"],
     "symptoms": [
       "Jaunissement et taches jaunes sur feuilles",
@@ -549,6 +561,7 @@
     "id": "stem-borer",
     "name": "Foreurs des tiges",
     "scientificName": "Lepidoptera - Noctuidae",
+    "description": "Stem borers are larval caterpillars of various moth species that bore into plant stems, causing internal feeding damage that is difficult to detect early. The most important species in Africa are the spotted stem borer (Chilo partellus), the African stem borer (Busseola fusca), and the maize stalk borer (Eldana saccharina). Stem borers cause an estimated 20–40% yield loss in maize throughout sub-Saharan Africa. The introduction of Fall Armyworm (Spodoptera frugiperda) has further complicated management in Cameroon.",
     "affectedPlants": ["Maïs", "Sorgho", "Riz"],
     "symptoms": [
       "Larves à l'intérieur des tiges et feuilles",
@@ -567,6 +580,7 @@
     "id": "armyworm",
     "name": "Légionnaire d'automne",
     "scientificName": "Spodoptera frugiperda",
+    "description": "Fall Armyworm (Spodoptera frugiperda) is an invasive pest native to the Americas that was first detected in Africa in 2016 in Togo and Benin, reaching Cameroon by 2017. It has since become one of the most serious agricultural threats on the continent. A single female moth can lay 1,000 to 2,000 eggs, and larvae migrate rapidly through fields. The caterpillars prefer maize but attack over 350 plant species. FAO estimates it causes $13 billion in annual losses across Africa. Early detection and response are critical as larvae become difficult to control once they penetrate the plant whorl.",
     "affectedPlants": ["Maïs", "Sorgho", "Riz", "Coton"],
     "symptoms": [
       "Défoliation complète des jeunes plants",
@@ -585,6 +599,7 @@
     "id": "locusts",
     "name": "Criquets",
     "scientificName": "Acrididae",
+    "description": "Desert locusts (Schistocerca gregaria) and other locust species are among the most destructive pests on Earth. A small swarm of 1 km² can contain up to 40 million locusts, consuming the same amount of food in one day as 35,000 people. Locust outbreaks in the Sahel and northern Cameroon are linked to rainfall events that trigger vegetation growth and population explosions. The Far North and Adamaoua regions of Cameroon are most vulnerable. International coordination through FAO's Desert Locust Watch is critical for early warning.",
     "affectedPlants": ["Toutes les cultures", "Herbes"],
     "symptoms": [
       "Défoliation totale des cultures",
@@ -603,6 +618,7 @@
     "id": "termites",
     "name": "Termites",
     "scientificName": "Isoptera",
+    "description": "Termites are social insects that play an important role in decomposing organic matter in tropical ecosystems. However, several species are serious agricultural pests that attack living trees, wooden structures, and stored crops. In Cameroon, termites cause significant damage to cocoa, coffee, oil palm, and timber trees, particularly during dry seasons when they seek moisture inside plant tissue. They are most destructive in the savanna and forest-savanna transition zones. Termites are notoriously difficult to control once established within a plant.",
     "affectedPlants": ["Arbres", "Cultures pérennes"],
     "symptoms": [
       "Galeries et terriers dans tronc",
@@ -621,6 +637,7 @@
     "id": "spider-mites",
     "name": "Acariens",
     "scientificName": "Acarina",
+    "description": "Spider mites (Tetranychus urticae and related species) are tiny arachnids that feed on plant cell contents by piercing leaf tissue with their mouthparts. They reproduce extremely rapidly in hot, dry conditions, with a generation completing in as little as 5 days at 30°C. A heavy infestation can kill a plant within weeks. Spider mites are particularly problematic in greenhouses and during dry seasons. They develop resistance to acaricides quickly, requiring rotation of different chemical groups. Natural enemies (Phytoseiidae predatory mites) are effective biological control agents.",
     "affectedPlants": ["Cacao", "Tomate", "Courges", "Haricot"],
     "symptoms": [
       "Feuilles tachetées et pointillées",
@@ -639,6 +656,7 @@
     "id": "blight-disease",
     "name": "Brûlure bactérienne",
     "scientificName": "Xanthomonas spp.",
+    "description": "Bacterial blight diseases caused by Xanthomonas species are among the most widespread bacterial plant diseases in tropical agriculture. They are spread by rain, irrigation water, contaminated tools, and infected seeds. The bacteria penetrate plants through stomata, hydathodes, and wounds, colonizing the vascular system or leaf mesophyll. Bacterial blight of rice (Xanthomonas oryzae pv. oryzae) and bacterial spot of tomato and pepper are common in Cameroon's humid growing regions, especially during extended rainy seasons.",
     "affectedPlants": ["Riz", "Tomate", "Poivre"],
     "symptoms": [
       "Taches brun-rougeâtre avec bordure jaune",
@@ -657,6 +675,7 @@
     "id": "damping-off",
     "name": "Fonte des semis",
     "scientificName": "Pythium, Rhizoctonia",
+    "description": "Damping-off is a complex of soil-borne diseases caused primarily by Pythium and Rhizoctonia species. It attacks germinating seeds and young seedlings at or near the soil surface, causing the characteristic collapse of stems at the soil line. Pre-emergence damping-off prevents seeds from germinating, while post-emergence damping-off kills seedlings after they emerge. Over-watering, poor drainage, and overcrowding of seedlings in nursery trays create ideal conditions. Damping-off is a major challenge in Cameroon's vegetable nurseries, particularly for tomato, pepper, and cabbage seedling production.",
     "affectedPlants": ["Tomate", "Poivron", "Chou", "Haricot"],
     "symptoms": [
       "Dépérissement de plantules à la surface du sol",

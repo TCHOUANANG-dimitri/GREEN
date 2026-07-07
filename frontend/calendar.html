@@ -67,7 +67,7 @@
       gap: var(--sp-3);
       border-right: 1px solid var(--border-subtle);
     }
-    .crop-emoji { font-size: 1.2rem; flex-shrink: 0; }
+    .crop-icon { width: 28px; height: 28px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .crop-name { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--text-primary); }
     .crop-sub  { font-size: 11px; color: var(--text-muted); }
 
@@ -210,7 +210,7 @@
         </div>
         <div class="legend-item">
           <div class="legend-dot" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);"></div>
-          <span class="legend-label">High disease / pest risk</span>
+          <span class="legend-label">High disease risk</span>
         </div>
       </div>
 
@@ -246,11 +246,19 @@
    ============================================================ */
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+/* ---- Crop icons -------------------------------------------- */
+const CROP_ICONS = {
+  maize:   { svg: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="14" rx="3"/><path d="M9 8H5a2 2 0 0 0 0 4h4"/><path d="M15 6h4a2 2 0 0 1 0 4h-4"/><line x1="12" y1="16" x2="12" y2="22"/></svg>`, bg:'rgba(46,204,113,.12)', color:'#16a34a' },
+  cassava: { svg: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>`, bg:'rgba(245,158,11,.12)', color:'#ca8a04' },
+  tomato:  { svg: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 7V3"/><path d="M9 5c0 0 1 2 3 2s3-2 3-2"/></svg>`, bg:'rgba(239,68,68,.12)', color:'#dc2626' },
+  locust:  { svg: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 12c-2 0-4-1-4-3s2-3 4-3 4 1 4 3-2 3-4 3z"/><path d="M8 9l-4-2M16 9l4-2M8 12l-4 2M16 12l4 2M10 14l-2 4M14 14l2 4"/></svg>`, bg:'rgba(239,68,68,.10)', color:'#dc2626' },
+};
+
 const CROPS = [
   {
     name:  'Maize (Season 1)',
     sub:   'Grande saison des pluies',
-    emoji: '🌽',
+    iconKey: 'maize',
     // Plant Mar-Apr, Grow May, Harvest Jun-Jul, Risk May-Jun
     acts: ['','','P','P','G','H','H','','','','',''],
     risk: ['','','','','R','R','','','','','',''],
@@ -258,7 +266,7 @@ const CROPS = [
   {
     name:  'Maize (Season 2)',
     sub:   'Petite saison des pluies',
-    emoji: '🌽',
+    iconKey: 'maize',
     // Plant Aug-Sep, Grow Oct, Harvest Nov-Dec, Risk Sep-Oct
     acts: ['','','','','','','','P','P','G','H','H'],
     risk: ['','','','','','','','','R','R','',''],
@@ -266,7 +274,7 @@ const CROPS = [
   {
     name:  'Cassava',
     sub:   'Year-round crop (~18 months)',
-    emoji: '🪴',
+    iconKey: 'cassava',
     // Plant Mar-Apr or Aug-Sep, long growing cycle, harvest staggered
     acts: ['G','G','P','P','G','G','G','P','P','G','G','G'],
     risk: ['','','','','R','R','','','R','R','',''],
@@ -274,7 +282,7 @@ const CROPS = [
   {
     name:  'Tomato (Season 1)',
     sub:   'Grande saison',
-    emoji: '🍅',
+    iconKey: 'tomato',
     // Seedlings Feb, transplant Mar, grow Apr-May, harvest Jun
     acts: ['','P','P','G','G','H','','','','','',''],
     risk: ['','','','R','R','R','','','','','',''],
@@ -282,15 +290,15 @@ const CROPS = [
   {
     name:  'Tomato (Season 2)',
     sub:   'Petite saison',
-    emoji: '🍅',
+    iconKey: 'tomato',
     // Seedlings Jul, transplant Aug, grow Sep-Oct, harvest Nov
     acts: ['','','','','','','P','P','G','G','H',''],
     risk: ['','','','','','','','','R','R','R',''],
   },
   {
-    name:  'Pest Risk — Locust',
+    name:  'Disease Risk — Maize',
     sub:   'Criquet pèlerin (monitoring)',
-    emoji: '🦗',
+    iconKey: 'locust',
     acts: ['','','','','','','','','','','',''],
     risk: ['','','R','R','','','','R','R','','',''],
   },
@@ -309,7 +317,7 @@ const TIPS = [
   { month: 'July',      type: 'ok',      title: 'Short dry season',       body: 'Brief dry spell — prepare land for S2 planting. Apply compost to improve soil structure. Control weeds before next rains.' },
   { month: 'August',    type: 'caution', title: 'S2 planting begins',     body: 'Plant S2 maize and new cassava plots. Transplant tomato S2 seedlings. First locust monitoring reports in the Sahel — check regional alerts.' },
   { month: 'September', type: 'warning', title: 'Watch for locusts',      body: 'Peak locust migration risk in northern Cameroon. Inspect crops every 2–3 days. Tomato late blight at peak risk. Use copper-based fungicides.' },
-  { month: 'October',   type: 'warning', title: 'Disease peak S2',        body: 'Second rainy season peak — highest disease pressure of the year. Double scouting frequency. Apply YOLO rover scans every other day.' },
+  { month: 'October',   type: 'warning', title: 'Disease peak S2',        body: 'Second rainy season peak — highest disease pressure of the year. Double scouting frequency. Run rover scans every other day.' },
   { month: 'November',  type: 'caution', title: 'Harvest S2 crops',       body: 'Harvest S2 maize and tomatoes. Cassava can be selectively harvested from 8-month plots. Prepare storage facilities.' },
   { month: 'December',  type: 'ok',      title: 'Post-harvest',           body: 'Dry crops for storage. Assess season results. Plan fertilizer inputs and variety selection for next year. Soil testing recommended.' },
 ];
@@ -324,7 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentMonthIdx = new Date().getMonth();
 
   // Current month badge
-  document.getElementById('currentMonthBadge').textContent = `📅 ${MONTHS[currentMonthIdx]}`;
+  document.getElementById('currentMonthBadge').innerHTML =
+    `<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+     ${MONTHS[currentMonthIdx]}`;
 
   // Month header strip
   const strip = document.getElementById('monthsStrip');
@@ -337,11 +347,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Crop rows
   const table = document.getElementById('cropTable');
+  const CELL_ICONS = {
+    P: `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" opacity=".7"><path d="M12 22V12"/><path d="M20 6s-4 0-8 6c-4-6-8-6-8-6s0 6 8 8c8-2 8-8 8-8z"/></svg>`,
+    H: `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" opacity=".7"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`,
+    R: `<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" opacity=".7"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  };
+
   table.innerHTML = CROPS.map(crop => {
+    const cropIcon = CROP_ICONS[crop.iconKey];
     let rowHtml = `
       <div class="crop-row">
         <div class="crop-label">
-          <span class="crop-emoji">${crop.emoji}</span>
+          <div class="crop-icon" style="background:${cropIcon.bg};color:${cropIcon.color};">${cropIcon.svg}</div>
           <div>
             <div class="crop-name">${crop.name}</div>
             <div class="crop-sub">${crop.sub}</div>
@@ -359,12 +376,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const isCurrentMonth = i === currentMonthIdx;
       const cellStyle = isCurrentMonth ? 'background:rgba(46,204,113,0.04);' : '';
-      const label = act === 'P' ? '🌱' : act === 'H' ? '🌾' : risk === 'R' ? '⚠' : '';
+      const label = CELL_ICONS[act] || CELL_ICONS[risk] || '';
 
       rowHtml += `
         <div class="cell" style="${cellStyle}">
           <div class="act-block ${cls}" title="${act||risk||'—'}">
-            <span style="font-size:12px;">${label}</span>
+            ${label}
           </div>
         </div>`;
     }

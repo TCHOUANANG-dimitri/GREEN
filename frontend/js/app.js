@@ -97,10 +97,10 @@ const App = {
 
     // Color map per type
     const colors = {
-      success: { bg: 'var(--color-success-bg)',  border: 'var(--color-success-border)', text: '#166534', icon: '✓' },
-      error:   { bg: 'var(--color-error-bg)',    border: 'var(--color-error-border)',   text: '#991B1B', icon: '✕' },
-      warning: { bg: 'var(--color-warning-bg)',  border: 'var(--color-warning-border)', text: '#92400E', icon: '!' },
-      info:    { bg: 'var(--color-info-bg)',     border: 'var(--color-info-border)',    text: '#1E40AF', icon: 'i' },
+      success: { bg: 'var(--color-success-bg)',  border: 'var(--color-success-border)', text: '#166534', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' },
+      error:   { bg: 'var(--color-error-bg)',    border: 'var(--color-error-border)',   text: '#991B1B', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' },
+      warning: { bg: 'var(--color-warning-bg)',  border: 'var(--color-warning-border)', text: '#92400E', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
+      info:    { bg: 'var(--color-info-bg)',     border: 'var(--color-info-border)',    text: '#1E40AF', icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' },
     };
     const c = colors[type] || colors.info;
 
@@ -135,7 +135,7 @@ const App = {
       font-family: var(--font-sans, Inter, sans-serif);
     `;
     toast.innerHTML = `
-      <span style="font-weight:700;font-size:0.8rem;width:18px;text-align:center;">${c.icon}</span>
+      <span style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${c.icon}</span>
       <span style="flex:1;">${message}</span>
     `;
     container.appendChild(toast);

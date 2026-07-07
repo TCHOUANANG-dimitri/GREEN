@@ -15,6 +15,8 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Draw CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
 
   <style>
     /* ---- Page layout --------------------------------------- */
@@ -144,8 +146,11 @@
       border-radius: var(--radius-xl);
       width: 100%;
       max-width: 520px;
+      max-height: 90vh;
       box-shadow: 0 24px 80px rgba(0,0,0,0.22);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
       animation: slideModal .22s var(--ease-out);
     }
     @keyframes slideModal {
@@ -190,7 +195,7 @@
     .modal-close-btn:hover { background:rgba(255,255,255,.25); }
 
     /* Body */
-    .modal-body { padding: var(--sp-6); }
+    .modal-body { padding: var(--sp-6); flex: 1; overflow-y: auto; }
 
     /* Section label */
     .form-section-label {
@@ -307,6 +312,59 @@
       border: 2px solid #fff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
+
+    /* ---- Draw mode banner ---------------------------------- */
+    #drawBanner {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      background: var(--brand-darker);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: var(--sp-3) var(--sp-5);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      align-items: center;
+      gap: var(--sp-4);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+    }
+    #drawBanner svg { flex-shrink: 0; }
+    #drawBanner .draw-cancel-btn {
+      background: rgba(255,255,255,0.2);
+      border: none; cursor: pointer;
+      color: #fff; padding: 4px 12px;
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-sans);
+      transition: background var(--dur-base) var(--ease-out);
+    }
+    #drawBanner .draw-cancel-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* ---- Draw polygon button ------------------------------- */
+    .draw-poly-btn {
+      display: flex; align-items: center; gap: var(--sp-2);
+      width: 100%; height: 42px;
+      padding: 0 var(--sp-4);
+      background: rgba(46,204,113,0.08);
+      border: 1.5px dashed var(--brand-primary);
+      border-radius: var(--radius-md);
+      color: var(--text-brand);
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: all var(--dur-base) var(--ease-out);
+    }
+    .draw-poly-btn:hover { background: rgba(46,204,113,0.14); }
+    .draw-poly-btn.has-polygon {
+      background: rgba(46,204,113,0.12);
+      border-style: solid;
+    }
   </style>
 </head>
 <body>
@@ -367,7 +425,12 @@
     <!-- Header -->
     <div class="modal-header">
       <div class="modal-header-left">
-        <div class="modal-header-icon">🗺️</div>
+        <div class="modal-header-icon">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+        </div>
         <div>
           <div class="modal-header-title">Add New Parcel</div>
           <div class="modal-header-sub">Register a new agricultural field</div>
@@ -404,13 +467,15 @@
             <label class="form-label">Crop type</label>
             <select class="form-select" id="pCrop">
               <option value="">— Select crop —</option>
-              <option value="Maïs">🌽  Maize</option>
-              <option value="Manioc">🥔  Cassava</option>
-              <option value="Tomate">🍅  Tomato</option>
-              <option value="Plantain">🍌  Plantain</option>
-              <option value="Arachides">🥜  Groundnut</option>
-              <option value="Haricot">🫘  Bean</option>
-              <option value="Autre">🌿  Other</option>
+              <option value="Maïs">Maize</option>
+              <option value="Manioc">Cassava</option>
+              <option value="Tomate">Tomato</option>
+              <option value="Plantain">Plantain</option>
+              <option value="Arachides">Groundnut</option>
+              <option value="Haricot">Bean</option>
+              <option value="Cacao">Cacao</option>
+              <option value="Café">Coffee</option>
+              <option value="Autre">Other</option>
             </select>
           </div>
           <div class="form-row">
@@ -428,8 +493,20 @@
       <div class="form-section">
         <div class="form-section-label">Location</div>
 
+        <!-- Draw polygon button -->
         <div class="form-row">
-          <label class="form-label">Region</label>
+          <label class="form-label">Parcel boundary</label>
+          <button type="button" class="draw-poly-btn" id="drawPolyBtn" onclick="startDrawPolygon()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+              <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+            </svg>
+            <span id="drawPolyBtnText">Draw parcel polygon on the map</span>
+          </button>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Region <span style="color:var(--text-muted);font-weight:400;">(auto-detected from drawing)</span></label>
           <div class="input-icon-wrap">
             <span class="input-icon">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -448,11 +525,11 @@
 
         <div class="form-row-2">
           <div class="form-row">
-            <label class="form-label">Latitude</label>
+            <label class="form-label">Latitude <span style="color:var(--text-muted);font-weight:400;">(centroid)</span></label>
             <input class="form-input" id="pLat" type="number" step="any" placeholder="3.84800" />
           </div>
           <div class="form-row">
-            <label class="form-label">Longitude</label>
+            <label class="form-label">Longitude <span style="color:var(--text-muted);font-weight:400;">(centroid)</span></label>
             <input class="form-input" id="pLon" type="number" step="any" placeholder="11.50200" />
           </div>
         </div>
@@ -463,7 +540,7 @@
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <span id="coordHintText">Click on the map to auto-fill coordinates</span>
+          <span id="coordHintText">Draw a polygon or click on the map to set coordinates</span>
         </div>
       </div>
 
@@ -500,20 +577,36 @@
   </div>
 </div>
 
+<!-- Draw mode banner -->
+<div id="drawBanner">
+  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+    <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+  </svg>
+  <span>Click points to draw your parcel boundary. Double-click to finish.</span>
+  <button class="draw-cancel-btn" onclick="cancelDraw()">Cancel</button>
+</div>
+
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet Draw JS -->
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <script src="/js/utils.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/layout.js"></script>
 <script>
 /* ---- State ------------------------------------------------ */
-let _map        = null;
-let _parcels    = [];
-let _markers    = {};   // parcelId → leaflet marker/polygon
-let _addMode    = false;
-let _activeId   = null;
+let _map           = null;
+let _parcels       = [];
+let _markers       = {};      // parcelId → leaflet marker/polygon
+let _addMode       = false;
+let _activeId      = null;
 let _analysisLayer = null;
+let _drawnItems    = null;    // FeatureGroup for drawn polygons
+let _polygonHandler = null;   // Leaflet.Draw polygon handler
+let _drawnGeoJSON  = null;    // stored GeoJSON of drawn polygon
+let _drawingActive = false;
 
 /* ---- Boot ------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -523,6 +616,29 @@ document.addEventListener('DOMContentLoaded', () => {
   loadParcels();
   loadGeoAnalyses();
 });
+
+/* ---- Cameroon region bounding boxes (lat_min, lat_max, lon_min, lon_max) --- */
+const CAMEROON_REGIONS = [
+  { name: 'Extrême-Nord', latMin: 10.0, latMax: 13.1, lonMin: 13.5, lonMax: 15.2 },
+  { name: 'Nord',         latMin:  7.5, latMax: 10.5, lonMin: 12.5, lonMax: 15.5 },
+  { name: 'Adamaoua',     latMin:  6.0, latMax:  8.2, lonMin: 11.5, lonMax: 15.5 },
+  { name: 'Est',          latMin:  1.5, latMax:  7.2, lonMin: 13.5, lonMax: 16.2 },
+  { name: 'Nord-Ouest',   latMin:  5.5, latMax:  7.2, lonMin:  9.2, lonMax: 11.0 },
+  { name: 'Ouest',        latMin:  4.5, latMax:  6.5, lonMin:  9.7, lonMax: 11.2 },
+  { name: 'Littoral',     latMin:  3.0, latMax:  4.8, lonMin:  9.0, lonMax: 10.8 },
+  { name: 'Sud-Ouest',    latMin:  3.5, latMax:  5.8, lonMin:  8.5, lonMax: 10.0 },
+  { name: 'Centre',       latMin:  2.9, latMax:  6.5, lonMin: 10.8, lonMax: 14.5 },
+  { name: 'Sud',          latMin:  1.5, latMax:  3.8, lonMin:  9.5, lonMax: 16.0 },
+];
+
+function regionFromLatLng(lat, lng) {
+  for (const r of CAMEROON_REGIONS) {
+    if (lat >= r.latMin && lat <= r.latMax && lng >= r.lonMin && lng <= r.lonMax) {
+      return r.name;
+    }
+  }
+  return '';
+}
 
 /* ---- Init Leaflet map ------------------------------------- */
 function initMap() {
@@ -544,14 +660,104 @@ function initMap() {
     maxZoom: 18,
   }).addTo(_map);
 
-  // Click on map fills lat/lon in the form
+  // FeatureGroup for drawn polygons
+  _drawnItems = new L.FeatureGroup();
+  _map.addLayer(_drawnItems);
+
+  // Polygon draw handler (no toolbar shown — triggered programmatically)
+  _polygonHandler = new L.Draw.Polygon(_map, {
+    allowIntersection: false,
+    showArea: true,
+    shapeOptions: {
+      color: '#2ecc71',
+      weight: 2.5,
+      fillColor: '#2ecc71',
+      fillOpacity: 0.15,
+    },
+  });
+
+  // When a polygon is drawn
+  _map.on(L.Draw.Event.CREATED, e => {
+    _drawingActive = false;
+    document.getElementById('drawBanner').style.display = 'none';
+
+    // Remove previous drawing
+    _drawnItems.clearLayers();
+    _drawnItems.addLayer(e.layer);
+
+    // Compute centroid from latlngs
+    const latlngs = e.layer.getLatLngs()[0];
+    const centLat = latlngs.reduce((s, p) => s + p.lat, 0) / latlngs.length;
+    const centLng = latlngs.reduce((s, p) => s + p.lng, 0) / latlngs.length;
+
+    // Store GeoJSON geometry
+    _drawnGeoJSON = e.layer.toGeoJSON().geometry;
+
+    // Auto-fill form
+    document.getElementById('pLat').value = centLat.toFixed(5);
+    document.getElementById('pLon').value = centLng.toFixed(5);
+    const detectedRegion = regionFromLatLng(centLat, centLng);
+    if (detectedRegion) {
+      const sel = document.getElementById('pRegion');
+      for (const opt of sel.options) {
+        if (opt.value === detectedRegion) { opt.selected = true; break; }
+      }
+    }
+
+    // Update UI
+    const btn = document.getElementById('drawPolyBtn');
+    if (btn) {
+      btn.classList.add('has-polygon');
+      document.getElementById('drawPolyBtnText').textContent =
+        `Boundary drawn${detectedRegion ? ' · ' + detectedRegion : ''} — click to redraw`;
+    }
+    _updateCoordHint();
+
+    // Re-show modal if it was hidden
+    const modal = document.getElementById('addParcelModal');
+    if (modal) { modal.style.opacity = '1'; modal.style.pointerEvents = ''; }
+  });
+
+  // If user presses Escape while drawing
+  _map.on(L.Draw.Event.DRAWSTOP, () => {
+    if (_drawingActive) {
+      _drawingActive = false;
+      document.getElementById('drawBanner').style.display = 'none';
+      const modal = document.getElementById('addParcelModal');
+      if (modal) { modal.style.opacity = '1'; modal.style.pointerEvents = ''; }
+    }
+  });
+
+  // Click on map fills lat/lon when in add mode (non-draw)
   _map.on('click', e => {
-    if (_addMode) {
+    if (_addMode && !_drawingActive) {
       document.getElementById('pLat').value = e.latlng.lat.toFixed(5);
       document.getElementById('pLon').value = e.latlng.lng.toFixed(5);
       _updateCoordHint();
     }
   });
+}
+
+/* ---- Draw polygon controls -------------------------------- */
+function startDrawPolygon() {
+  _drawingActive = true;
+  _drawnGeoJSON  = null;
+  _drawnItems.clearLayers();
+
+  // Dim modal so user can interact with map
+  const modal = document.getElementById('addParcelModal');
+  if (modal) { modal.style.opacity = '0.15'; modal.style.pointerEvents = 'none'; }
+
+  document.getElementById('drawBanner').style.display = 'flex';
+  _polygonHandler.enable();
+}
+
+function cancelDraw() {
+  _drawingActive = false;
+  if (_polygonHandler) _polygonHandler.disable();
+  document.getElementById('drawBanner').style.display = 'none';
+  const modal = document.getElementById('addParcelModal');
+  if (modal) { modal.style.opacity = '1'; modal.style.pointerEvents = ''; }
 }
 
 /* ---- Load parcels ----------------------------------------- */
@@ -619,13 +825,31 @@ function renderParcelMarkers() {
   Object.values(_markers).forEach(m => _map.removeLayer(m));
   _markers = {};
 
-  _parcels.forEach(p => {
-    if (!p.latitude || !p.longitude) return;
+  const cropColor = {
+    'Maïs': '#16a34a', 'Manioc': '#ca8a04', 'Tomate': '#dc2626',
+    'Plantain': '#d97706', 'Arachides': '#92400e', 'Cacao': '#78350f', default: '#6b7280'
+  };
+  const popupHtml = p => `
+    <div class="popup-title">${p.name}</div>
+    <div class="popup-sub">${p.crop_type || 'Unknown crop'} · ${p.area_ha ? p.area_ha + ' ha' : '?'}</div>
+    <div class="popup-sub" style="margin-top:4px;">${p.region || ''}</div>
+  `;
 
-    const cropColor = {
-      'Maïs': '#16a34a', 'Manioc': '#ca8a04', 'Tomate': '#dc2626', default: '#6b7280'
-    };
+  _parcels.forEach(p => {
     const color = cropColor[p.crop_type] || cropColor.default;
+
+    // If parcel has polygon geometry, draw it
+    if (p.geometry && p.geometry.type === 'Polygon') {
+      const layer = L.geoJSON(p.geometry, {
+        style: { color, weight: 2.5, fillColor: color, fillOpacity: 0.15 }
+      }).addTo(_map)
+        .bindPopup(popupHtml(p));
+      layer.on('click', () => selectParcel(p.id));
+      _markers[p.id] = layer;
+      return;
+    }
+
+    if (!p.latitude || !p.longitude) return;
 
     const icon = L.divIcon({
       className: '',
@@ -634,19 +858,15 @@ function renderParcelMarkers() {
         background:${color};border:2.5px solid #fff;
         box-shadow:0 2px 8px rgba(0,0,0,0.25);
         display:flex;align-items:center;justify-content:center;
-        font-size:12px;cursor:pointer;
-      ">🌾</div>`,
+        cursor:pointer;
+      "><svg width="13" height="13" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 0 20A10 10 0 0 1 12 2"/><path d="M12 6v6l4 2"/></svg></div>`,
       iconSize:   [28, 28],
       iconAnchor: [14, 14],
     });
 
     const marker = L.marker([p.latitude, p.longitude], { icon })
       .addTo(_map)
-      .bindPopup(`
-        <div class="popup-title">${p.name}</div>
-        <div class="popup-sub">${p.crop_type || 'Unknown crop'} · ${p.area_ha ? p.area_ha + ' ha' : '?'}</div>
-        <div class="popup-sub" style="margin-top:4px;">${p.region || ''}</div>
-      `);
+      .bindPopup(popupHtml(p));
 
     marker.on('click', () => selectParcel(p.id));
     _markers[p.id] = marker;
@@ -668,7 +888,6 @@ async function loadGeoAnalyses() {
     const sev = a.severity || 'low';
     const colMap = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' };
     const color  = a.detected_disease === 'healthy' ? '#22c55e' : (colMap[sev] || '#6b7280');
-    const emoji  = a.pest_name ? '🐛' : a.detected_disease === 'healthy' ? '✅' : '🦠';
 
     const icon = L.divIcon({
       className: '',
@@ -676,9 +895,7 @@ async function loadGeoAnalyses() {
         width:22px;height:22px;border-radius:50%;
         background:${color};border:2px solid #fff;opacity:0.9;
         box-shadow:0 1px 4px rgba(0,0,0,0.2);
-        display:flex;align-items:center;justify-content:center;
-        font-size:10px;
-      ">${emoji}</div>`,
+      "></div>`,
       iconSize:   [22, 22],
       iconAnchor: [11, 11],
     });
@@ -704,10 +921,14 @@ function selectParcel(id) {
 }
 
 function flyToParcel(id) {
-  const p = _parcels.find(x => x.id === id);
-  if (!p?.latitude || !p?.longitude) return;
-  _map.flyTo([p.latitude, p.longitude], 14, { duration: 1 });
-  _markers[id]?.openPopup();
+  const layer = _markers[id];
+  if (!layer) return;
+  if (layer.getBounds) {
+    _map.flyToBounds(layer.getBounds(), { padding: [40, 40], duration: 1 });
+  } else if (layer.getLatLng) {
+    _map.flyTo(layer.getLatLng(), 14, { duration: 1 });
+  }
+  layer.openPopup?.();
 }
 
 /* ---- Delete parcel ---------------------------------------- */
@@ -722,7 +943,9 @@ async function deleteParcel(id) {
 
 /* ---- Add parcel modal ------------------------------------- */
 function openAddParcel() {
-  _addMode = true;
+  _addMode       = true;
+  _drawnGeoJSON  = null;
+  _drawnItems.clearLayers();
   document.getElementById('addParcelModal').style.display = 'flex';
   _updateCoordHint();
 }
@@ -743,12 +966,24 @@ function _updateCoordHint() {
 }
 
 function closeAddParcel() {
-  _addMode = false;
+  _addMode       = false;
+  _drawingActive = false;
+  _drawnGeoJSON  = null;
+  if (_polygonHandler) _polygonHandler.disable();
+  _drawnItems.clearLayers();
+  document.getElementById('drawBanner').style.display = 'none';
   document.getElementById('addParcelModal').style.display = 'none';
+  document.getElementById('addParcelModal').style.opacity = '1';
+  document.getElementById('addParcelModal').style.pointerEvents = '';
   ['pName','pCrop','pArea','pRegion','pLat','pLon','pDesc'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const btn = document.getElementById('drawPolyBtn');
+  if (btn) {
+    btn.classList.remove('has-polygon');
+    document.getElementById('drawPolyBtnText').textContent = 'Draw parcel polygon on the map';
+  }
   const hint = document.getElementById('coordHint');
   if (hint) hint.classList.remove('active-mode');
 }
@@ -783,6 +1018,7 @@ async function submitParcel() {
     description: document.getElementById('pDesc').value  || null,
     latitude:    isNaN(lat) ? null : lat,
     longitude:   isNaN(lon) ? null : lon,
+    geometry:    _drawnGeoJSON || null,
   };
 
   const { data, error } = await API.parcels.create(payload);

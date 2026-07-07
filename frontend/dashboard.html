@@ -309,7 +309,7 @@
         <div class="welcome-banner" id="welcomeBanner">
           <div class="welcome-text">
             <div class="welcome-greeting">Good morning,</div>
-            <div class="welcome-title" id="welcomeTitle">Welcome back 👋</div>
+            <div class="welcome-title" id="welcomeTitle">Welcome back</div>
             <div class="welcome-subtitle">
               Here's an overview of your agricultural operations.
               No disease alerts today — your fields look healthy.
@@ -381,19 +381,19 @@
             </div>
           </div>
 
-          <!-- KPI 4 — Pests Detected -->
+          <!-- KPI 4 — Healthy Plants -->
           <div class="kpi-card">
             <div class="kpi-header">
-              <span class="kpi-label">Pests Detected</span>
+              <span class="kpi-label">Healthy Plants</span>
               <div class="kpi-icon-wrap kpi-icon-orange">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
               </div>
             </div>
-            <div class="kpi-value" id="kpiPests">—</div>
-            <div id="kpiPestsChange" class="kpi-change neutral">
-              <span class="kpi-change-label">Ravageurs identifiés</span>
+            <div class="kpi-value" id="kpiHealthy">—</div>
+            <div id="kpiHealthyChange" class="kpi-change neutral">
+              <span class="kpi-change-label">Plantes saines détectées</span>
             </div>
           </div>
 
@@ -594,8 +594,8 @@
         if (bannerGreeting) bannerGreeting.textContent = greeting + ',';
         if (welcomeTitle)
           welcomeTitle.textContent = user.first_name
-            ? `${user.first_name} ${user.last_name || ''} 👋`
-            : 'Welcome back 👋';
+            ? `${user.first_name} ${user.last_name || ''}`
+            : 'Welcome back';
       }
 
       /* ---- Load dashboard stats ------------------------- */
@@ -619,27 +619,27 @@
     /** Load the 4 KPI cards from /api/dashboard/stats */
     async function loadDashboardStats() {
       const { data } = await API.dashboard.stats();
-      const vals = data || { parcels: 0, analyses: 0, diseases: 0, chat_sessions: 0,
-                             new_analyses_week: 0, new_diseases_week: 0, new_chats_week: 0 };
+      const vals = data || { parcels: 0, analyses: 0, diseases: 0, healthy: 0, chat_sessions: 0,
+                             new_analyses_week: 0, new_diseases_week: 0, new_healthy_week: 0, new_chats_week: 0 };
 
       document.getElementById('kpiParcels').textContent      = vals.parcels;
       document.getElementById('kpiAnalyses').textContent     = vals.analyses;
       document.getElementById('kpiDiseases').textContent     = vals.diseases;
-      document.getElementById('kpiPests').textContent        = vals.pests ?? '—';
+      document.getElementById('kpiHealthy').textContent      = vals.healthy ?? '—';
       document.getElementById('kpiChatSessions').textContent = vals.chat_sessions;
 
       // ---- Weekly change indicators ----
       _setKpiChange('kpiAnalysesChange', vals.new_analyses_week,  'new this week');
       _setKpiChange('kpiDiseasesChange', vals.new_diseases_week,  'new this week',  true);
-      _setKpiChange('kpiPestsChange',    vals.new_pests_week,     'new this week',  true);
+      _setKpiChange('kpiHealthyChange',  vals.new_healthy_week,   'new this week');
       _setKpiChange('kpiChatsChange',    vals.new_chats_week,     'new this week');
 
       // Update banner subtitle based on disease count
       const sub = document.querySelector('.welcome-subtitle');
       if (sub) {
         sub.textContent = vals.diseases > 0
-          ? `⚠️ ${vals.diseases} disease detection${vals.diseases > 1 ? 's' : ''} recorded this season. Check the GREEN Map for affected parcels.`
-          : `✅ No disease alerts recorded. Your fields look healthy — keep monitoring with regular drone scans.`;
+          ? `${vals.diseases} disease detection${vals.diseases > 1 ? 's' : ''} recorded this season. Check the GREEN Map for affected parcels.`
+          : `No disease alerts recorded. Your fields look healthy — keep monitoring with regular drone scans.`;
       }
     }
 

@@ -159,7 +159,7 @@
     }
     .scenario-table-hdr {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
       background: var(--bg-subtle);
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -176,7 +176,7 @@
     }
     .scenario-row {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
       border-top: 1px solid var(--border-subtle);
       transition: background var(--dur-base) var(--ease-out);
     }
@@ -271,10 +271,12 @@
               <!-- Crop -->
               <div class="form-field">
                 <div class="form-label">Crop type</div>
-                <select class="form-select" id="cropType" onchange="simulate()">
-                  <option value="maize">Maize</option>
-                  <option value="cassava">Cassava</option>
-                  <option value="tomato">Tomato</option>
+                <select class="form-select" id="cropType" onchange="onCropChange()">
+                  <option value="maize">Maïs</option>
+                  <option value="cassava">Manioc</option>
+                  <option value="tomato">Tomate</option>
+                  <option value="groundnut">Arachide</option>
+                  <option value="sorghum">Sorgho</option>
                 </select>
               </div>
 
@@ -400,16 +402,21 @@
           <div class="section-title">Detailed Scenario Table <div class="section-title-line"></div></div>
           <div class="scenario-table">
             <div class="scenario-table-hdr">
-              <div>Scenario</div>
-              <div>Gross revenue</div>
-              <div>Total loss</div>
-              <div>Net revenue</div>
+              <div>Scénario</div>
+              <div>Revenu brut</div>
+              <div>Coût traitement</div>
+              <div>Perte maladie</div>
+              <div>Revenu net</div>
             </div>
             <div id="scenarioRows"></div>
           </div>
 
           <!-- Market price reference -->
-          <div class="section-title" style="margin-top:var(--sp-6);">Cameroon Market Reference Prices <div class="section-title-line"></div></div>
+          <div class="section-title" style="margin-top:var(--sp-6);">Prix de référence — Cameroun <div class="section-title-line"></div></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:var(--sp-4);line-height:1.6;">
+            Sources : WFP · FEWS NET · MINADER-PAM · combien-coute.net — Données 2025-2026.
+            Les prix varient selon la saison, la région et la qualité du produit.
+          </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--sp-4);" id="priceRef"></div>
 
         </div>
@@ -424,31 +431,115 @@
 <script src="/js/app.js"></script>
 <script src="/js/layout.js"></script>
 <script>
-/* ---- Reference crop prices (XAF/kg) — Cameroon averages --- */
+/* ── Prix marché Cameroun (XAF/kg) — Sources : WFP · FEWS NET · MINADER-PAM · 2025-2026 ─── */
 const CROP_PRICES = {
-  maize:   { min:100,  avg:150,  max:220,  unit:'t/ha',  yield_avg:2.5, yield_best:5.0 },
-  cassava: { min:60,   avg:100,  max:160,  unit:'t/ha',  yield_avg:8.0, yield_best:15.0 },
-  tomato:  { min:200,  avg:450,  max:900,  unit:'t/ha',  yield_avg:15.0, yield_best:40.0 },
+  maize: {
+    label: 'Maïs (grain)',
+    min: 100, avg: 175, max: 280,
+    pmin: 50,  pmax: 500,  pstep: 5,
+    ymin: 0.5, ymax: 8,   ystep: 0.1, yield_avg: 2.5,
+    treat_def: 20000,
+    source: 'WFP/FEWS NET 2025',
+  },
+  cassava: {
+    label: 'Manioc (tubercules)',
+    min: 80, avg: 200, max: 400,
+    pmin: 50,  pmax: 600,  pstep: 10,
+    ymin: 1,   ymax: 20,  ystep: 0.5, yield_avg: 8.0,
+    treat_def: 25000,
+    source: 'MINADER-PAM 2025',
+  },
+  tomato: {
+    label: 'Tomate',
+    min: 200, avg: 600, max: 1200,
+    pmin: 100, pmax: 1500, pstep: 10,
+    ymin: 1,   ymax: 50,  ystep: 0.5, yield_avg: 15.0,
+    treat_def: 60000,
+    source: 'combien-coute.net 2026',
+  },
+  groundnut: {
+    label: 'Arachide',
+    min: 400, avg: 800, max: 1500,
+    pmin: 200, pmax: 2000, pstep: 25,
+    ymin: 0.3, ymax: 3,   ystep: 0.1, yield_avg: 0.9,
+    treat_def: 20000,
+    source: 'FEWS NET/CBT 2025',
+  },
+  sorghum: {
+    label: 'Sorgho',
+    min: 100, avg: 150, max: 240,
+    pmin: 50,  pmax: 400,  pstep: 5,
+    ymin: 0.3, ymax: 4,   ystep: 0.1, yield_avg: 1.0,
+    treat_def: 15000,
+    source: 'FEWS NET 2025',
+  },
 };
 
 const PRICE_REF = [
-  { name:'Maize (grain)',    min:100,  avg:150,  max:220,  unit:'XAF/kg', emoji:'🌽' },
-  { name:'Cassava (tubers)', min:60,   avg:100,  max:160,  unit:'XAF/kg', emoji:'🪴' },
-  { name:'Tomato',           min:200,  avg:450,  max:900,  unit:'XAF/kg', emoji:'🍅' },
-  { name:'Groundnut',        min:500,  avg:750,  max:1100, unit:'XAF/kg', emoji:'🥜' },
+  {
+    name: 'Maïs (grain)', min: 100, avg: 175, max: 280, unit: 'XAF/kg',
+    bg: 'rgba(46,204,113,.10)', color: '#16a34a', source: 'WFP/FEWS NET 2025',
+    svg: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="14" rx="3"/><path d="M9 8H5a2 2 0 0 0 0 4h4"/><path d="M15 6h4a2 2 0 0 1 0 4h-4"/><line x1="12" y1="16" x2="12" y2="22"/></svg>`,
+  },
+  {
+    name: 'Manioc (tubercules)', min: 80, avg: 200, max: 400, unit: 'XAF/kg',
+    bg: 'rgba(245,158,11,.10)', color: '#ca8a04', source: 'MINADER-PAM 2025',
+    svg: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>`,
+  },
+  {
+    name: 'Tomate', min: 200, avg: 600, max: 1200, unit: 'XAF/kg',
+    bg: 'rgba(239,68,68,.10)', color: '#dc2626', source: 'combien-coute.net 2026',
+    svg: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="14" r="7"/><path d="M12 7V3"/><path d="M9 5c0 0 1 2 3 2s3-2 3-2"/></svg>`,
+  },
+  {
+    name: 'Arachide', min: 400, avg: 800, max: 1500, unit: 'XAF/kg',
+    bg: 'rgba(180,83,9,.10)', color: '#b45309', source: 'FEWS NET/CBT 2025',
+    svg: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="8" cy="13" rx="4" ry="6" transform="rotate(-20 8 13)"/><ellipse cx="16" cy="11" rx="4" ry="6" transform="rotate(20 16 11)"/><line x1="8" y1="7" x2="16" y2="5"/></svg>`,
+  },
+  {
+    name: 'Sorgho', min: 100, avg: 150, max: 240, unit: 'XAF/kg',
+    bg: 'rgba(124,58,237,.10)', color: '#7c3aed', source: 'FEWS NET 2025',
+    svg: `<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="22" x2="12" y2="8"/><circle cx="12" cy="5" r="3"/><line x1="9" y1="13" x2="12" y2="11"/><line x1="15" y1="13" x2="12" y2="11"/><line x1="8" y1="17" x2="12" y2="15"/><line x1="16" y1="17" x2="12" y2="15"/></svg>`,
+  },
 ];
 
 let _chart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   App.boot();
-  Layout.init({ page: 'economics', title: 'Economic Scenarios', subtitle: 'Revenue simulation' });
+  Layout.init({ page: 'economics', title: 'Scénarios Économiques', subtitle: 'Simulation de revenus' });
   renderPriceRef();
-  simulate();
+  onCropChange();
 });
 
 function formatXAF(n) {
   return Math.round(n).toLocaleString('fr-FR');
+}
+
+/* Met à jour les sliders Rendement, Prix et Coût traitement selon la culture choisie */
+function onCropChange() {
+  const key = document.getElementById('cropType').value;
+  const c   = CROP_PRICES[key];
+
+  const ySlider = document.getElementById('yield');
+  ySlider.min   = c.ymin;
+  ySlider.max   = c.ymax;
+  ySlider.step  = c.ystep;
+  ySlider.value = c.yield_avg;
+  document.getElementById('yieldVal').textContent = parseFloat(c.yield_avg).toFixed(1) + ' t/ha';
+
+  const pSlider = document.getElementById('price');
+  pSlider.min   = c.pmin;
+  pSlider.max   = c.pmax;
+  pSlider.step  = c.pstep;
+  pSlider.value = c.avg;
+  document.getElementById('priceVal').textContent = c.avg + ' XAF/kg';
+
+  const tSlider = document.getElementById('treatCost');
+  tSlider.value = c.treat_def;
+  document.getElementById('treatVal').textContent = formatXAF(c.treat_def) + ' XAF/ha';
+
+  simulate();
 }
 
 function simulate() {
@@ -459,41 +550,56 @@ function simulate() {
   const treatHa    = parseFloat(document.getElementById('treatCost').value);
   const eff        = parseFloat(document.getElementById('effectiveness').value) / 100;
 
-  // Calculations
-  const totalYieldKg  = area * yieldTha * 1000;          // kg
-  const grossRevenue  = totalYieldKg * priceKg;           // XAF
-  const lossNoTreat   = grossRevenue * diseasePct;        // XAF
-  const totalTreatCost= area * treatHa;                   // XAF
-  const lossWithTreat = lossNoTreat * (1 - eff);          // XAF
-  const netNoTreat    = grossRevenue - lossNoTreat;
-  const netWithTreat  = grossRevenue - lossWithTreat - totalTreatCost;
+  /* ── Calculs de base ────────────────────────────────────────── */
+  const totalYieldKg    = area * yieldTha * 1000;
+  const grossRevenue    = totalYieldKg * priceKg;
+  const lossNoTreat     = grossRevenue * diseasePct;
+  const totalTreatCost  = area * treatHa;
+  const lossWithTreat   = lossNoTreat * (1 - eff);
+  const netNoTreat      = grossRevenue - lossNoTreat;
+  const netWithTreat    = grossRevenue - lossWithTreat - totalTreatCost;
   const savedByTreating = lossNoTreat - lossWithTreat;
-  const roi            = totalTreatCost > 0 ? savedByTreating / totalTreatCost : 0;
+  const roi             = totalTreatCost > 0 ? savedByTreating / totalTreatCost : 0;
 
-  // KPIs
-  setEl('kpiGross',   formatXAF(grossRevenue) + ' XAF');
-  setEl('kpiGrossSub', area + ' ha × ' + (yieldTha * 1000) + ' kg/ha × ' + priceKg + ' XAF');
-  setEl('kpiLoss',    '−' + formatXAF(lossNoTreat) + ' XAF');
-  setEl('kpiLossSub', diseasePct * 100 + '% incidence → ' + formatXAF(lossNoTreat / totalYieldKg) + ' XAF/kg lost');
-  setEl('kpiNet',     formatXAF(netWithTreat) + ' XAF');
-  setEl('kpiNetSub',  'After treatment cost (' + formatXAF(totalTreatCost) + ' XAF)');
+  /* ── Scénario épidémie — dynamique ──────────────────────────
+     Incidence multipliée par 2,5 (plafond 85 %) pour simuler
+     une propagation rapide. L'efficacité du traitement est
+     réduite de 35 % et le coût majoré de 50 % (urgence).     */
+  const epicDiseasePct   = Math.min(diseasePct * 2.5, 0.85);
+  const epicEff          = Math.max(eff * 0.65, 0.10);
+  const epicTreatCost    = totalTreatCost * 1.5;
+  const epicGrossLoss    = grossRevenue * epicDiseasePct;
+  const epicResidualLoss = epicGrossLoss * (1 - epicEff);
+  const epicNet          = grossRevenue - epicResidualLoss - epicTreatCost;
 
-  // ROI
+  /* ── KPIs ───────────────────────────────────────────────────── */
+  setEl('kpiGross',    formatXAF(grossRevenue) + ' XAF');
+  setEl('kpiGrossSub', area + ' ha × ' + (yieldTha * 1000).toLocaleString('fr-FR') + ' kg/ha × ' + priceKg + ' XAF');
+  setEl('kpiLoss',     '−' + formatXAF(lossNoTreat) + ' XAF');
+  setEl('kpiLossSub',  (diseasePct * 100).toFixed(0) + '% incidence → −' + formatXAF(lossNoTreat / (totalYieldKg || 1)) + ' XAF/kg');
+  setEl('kpiNet',      formatXAF(netWithTreat) + ' XAF');
+  setEl('kpiNetSub',   'Après traitement (' + formatXAF(totalTreatCost) + ' XAF total)');
+
+  /* ── ROI ────────────────────────────────────────────────────── */
   setEl('roiValue', (roi * 100).toFixed(0) + '%');
   setEl('roiPer',   formatXAF(roi * 1000));
 
-  // Scenarios
+  /* ── Tableau des scénarios ──────────────────────────────────── */
+  const epicLabel = `Pessimiste — Épidémie (×2,5 · ${(epicDiseasePct * 100).toFixed(0)}%)`;
   const scenarios = [
-    { name:'Optimistic — No disease',   gross: grossRevenue, loss: 0,                    treat: 0,              net: grossRevenue,   cls:'best'  },
-    { name:'With treatment ✓ (recommended)', gross: grossRevenue, loss: lossWithTreat, treat: totalTreatCost, net: netWithTreat,  cls:''      },
-    { name:'No treatment — baseline',   gross: grossRevenue, loss: lossNoTreat,          treat: 0,              net: netNoTreat,    cls:''      },
-    { name:'Pessimistic — Epidemic',    gross: grossRevenue, loss: grossRevenue * 0.65,  treat: totalTreatCost * 1.5, net: grossRevenue - grossRevenue * 0.65 * 0.3 - totalTreatCost * 1.5, cls:'worst' },
+    { name: 'Optimiste — Aucune maladie',    gross: grossRevenue, treat: 0,             loss: 0,                  net: grossRevenue, cls: 'best'  },
+    { name: 'Avec traitement (recommandé)',   gross: grossRevenue, treat: totalTreatCost, loss: lossWithTreat,      net: netWithTreat, cls: ''      },
+    { name: 'Sans traitement — référence',   gross: grossRevenue, treat: 0,             loss: lossNoTreat,         net: netNoTreat,   cls: ''      },
+    { name: epicLabel,                        gross: grossRevenue, treat: epicTreatCost, loss: epicResidualLoss,    net: epicNet,      cls: 'worst' },
   ];
 
   document.getElementById('scenarioRows').innerHTML = scenarios.map(s => `
     <div class="scenario-row ${s.cls}">
       <div class="label">${s.name}</div>
       <div class="val">${formatXAF(s.gross)} XAF</div>
+      <div class="val" style="color:${s.treat > 0 ? '#d97706' : 'var(--text-muted)'};">
+        ${s.treat > 0 ? formatXAF(s.treat) : '—'} XAF
+      </div>
       <div class="val" style="color:${s.loss > 0 ? 'var(--color-error)' : 'var(--text-muted)'};">
         ${s.loss > 0 ? '−' + formatXAF(s.loss) : '—'} XAF
       </div>
@@ -503,7 +609,6 @@ function simulate() {
     </div>
   `).join('');
 
-  // Chart
   updateChart(scenarios);
 }
 
@@ -517,15 +622,15 @@ function updateChart(scenarios) {
   const canvas = document.getElementById('scenarioChart');
   if (!canvas) return;
 
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const isDark    = document.documentElement.getAttribute('data-theme') === 'dark';
   const gridColor = isDark ? '#21262D' : '#F3F4F6';
   const tickColor = isDark ? '#6E7681' : '#9CA3AF';
 
   const labels = scenarios.map(s => s.name);
-  const nets   = scenarios.map(s => Math.max(0, Math.round(s.net / 1000)));  // in kXAF
+  const nets   = scenarios.map(s => Math.max(0, Math.round(s.net / 1000)));
 
-  const colors = ['rgba(46,204,113,0.7)', 'rgba(46,204,113,0.5)', 'rgba(245,158,11,0.6)', 'rgba(239,68,68,0.6)'];
-  const borders = ['#2ECC71','#2ECC71','#f59e0b','#ef4444'];
+  const colors  = ['rgba(46,204,113,0.7)', 'rgba(46,204,113,0.5)', 'rgba(245,158,11,0.6)', 'rgba(239,68,68,0.6)'];
+  const borders = ['#2ECC71', '#2ECC71', '#f59e0b', '#ef4444'];
 
   if (_chart) { _chart.destroy(); _chart = null; }
 
@@ -533,48 +638,33 @@ function updateChart(scenarios) {
     type: 'bar',
     data: {
       labels,
-      datasets: [{
-        label: 'Net Revenue (× 1000 XAF)',
-        data: nets,
-        backgroundColor: colors,
-        borderColor: borders,
-        borderWidth: 1.5,
-        borderRadius: 6,
-      }]
+      datasets: [{ label: 'Revenu net (× 1 000 XAF)', data: nets, backgroundColor: colors, borderColor: borders, borderWidth: 1.5, borderRadius: 6 }],
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.parsed.y.toLocaleString('fr-FR')} 000 XAF`
-          }
-        }
+        tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y.toLocaleString('fr-FR')} 000 XAF` } },
       },
       scales: {
         x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
-        y: {
-          grid: { color: gridColor },
-          ticks: { color: tickColor, callback: v => v.toLocaleString('fr-FR') + 'k' },
-          beginAtZero: true,
-        }
-      }
-    }
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: v => v.toLocaleString('fr-FR') + 'k' }, beginAtZero: true },
+      },
+    },
   });
 }
 
 function renderPriceRef() {
   document.getElementById('priceRef').innerHTML = PRICE_REF.map(p => `
     <div style="background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:var(--sp-4) var(--sp-5);">
-      <div style="font-size:1.4rem;margin-bottom:var(--sp-2);">${p.emoji}</div>
+      <div style="width:36px;height:36px;border-radius:var(--radius-md);background:${p.bg};color:${p.color};display:flex;align-items:center;justify-content:center;margin-bottom:var(--sp-3);">${p.svg}</div>
       <div style="font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--text-primary);margin-bottom:var(--sp-2);">${p.name}</div>
       <div style="display:flex;gap:var(--sp-4);">
         <div><div style="font-size:10px;color:var(--text-muted);">Min</div><div style="font-size:var(--text-sm);font-weight:600;color:var(--color-error);">${p.min}</div></div>
-        <div><div style="font-size:10px;color:var(--text-muted);">Avg</div><div style="font-size:var(--text-sm);font-weight:700;color:var(--brand-primary);">${p.avg}</div></div>
+        <div><div style="font-size:10px;color:var(--text-muted);">Moy</div><div style="font-size:var(--text-sm);font-weight:700;color:var(--brand-primary);">${p.avg}</div></div>
         <div><div style="font-size:10px;color:var(--text-muted);">Max</div><div style="font-size:var(--text-sm);font-weight:600;color:var(--color-success);">${p.max}</div></div>
       </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${p.unit}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${p.unit} · ${p.source}</div>
     </div>`).join('');
 }
 </script>

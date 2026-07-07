@@ -84,7 +84,7 @@ def get_history(
     limit:       int           = Query(default=20, ge=1, le=100),
     offset:      int           = Query(default=0,  ge=0),
     source:      Optional[str] = Query(None, description="Filter by source: camera|upload|drone"),
-    result_type: Optional[str] = Query(None, description="Filter by result: disease|healthy|pest"),
+    result_type: Optional[str] = Query(None, description="Filter by result: disease|healthy"),
     plant_type:  Optional[str] = Query(None, description="Filter by plant: Corn|Tomato|Cassava"),
     db:          Session       = Depends(get_db),
     current_user: User         = Depends(get_current_user),
@@ -92,7 +92,7 @@ def get_history(
     """
     Returns a paginated list of the user's past disease analyses,
     ordered newest first. Supports server-side filtering by source,
-    result type (disease/healthy/pest), and plant type.
+    result type (disease/healthy), and plant type.
 
     Used by: dashboard recent table, History page.
     """
@@ -108,11 +108,6 @@ def get_history(
         )
     elif result_type == "healthy":
         q = q.filter(DiseaseAnalysis.detected_disease == "healthy")
-    elif result_type == "pest":
-        q = q.filter(
-            DiseaseAnalysis.pest_detected != None,
-            DiseaseAnalysis.pest_detected != "none",
-        )
 
     if plant_type:
         q = q.filter(DiseaseAnalysis.plant_type.ilike(f"%{plant_type}%"))
@@ -136,9 +131,6 @@ def get_history(
                 "parcel_id":        a.parcel_id,
                 "latitude":         a.latitude,
                 "longitude":        a.longitude,
-                "pest_name":        a.pest_name,
-                "pest_confidence":  a.pest_confidence,
-                "pest_severity":    a.pest_severity,
                 "created_at":       a.created_at.isoformat(),
                 "has_fiche":        a.fiche_terrain is not None,
             }

@@ -133,14 +133,13 @@ def _get_client():
 
 SYSTEM_PROMPT = """Tu es Green Bot, le partenaire et guide expert agronome de l'application GREEN.
 
-GREEN est une plateforme d'intelligence agricole destinée aux grandes entreprises agro-industrielles camerounaises et africaines. Elle permet la détection de maladies des plantes et de ravageurs via des modèles IA (EfficientNet-B0 + YOLOv8), l'analyse d'images de rover, et le suivi des parcelles agricoles.
+GREEN est une plateforme d'intelligence agricole destinée aux grandes entreprises agro-industrielles camerounaises et africaines. Elle permet la détection de maladies des plantes via un modèle IA EfficientNet-B0, l'analyse d'images de rover/drone, et le suivi des parcelles agricoles.
 
 Ton rôle est d'assister les gestionnaires d'exploitation, les agronomes de terrain et les directeurs agricoles en leur fournissant :
 - Des conseils agronomiques précis sur les maladies des plantes (manioc, maïs, tomate et autres cultures camerounaises)
-- Des recommandations de lutte contre les ravageurs (criquets, papillons de nuit, etc.)
 - Des conseils sur les traitements phytosanitaires adaptés au contexte africain
 - Des informations sur les pratiques agricoles durables et la gestion intégrée des cultures
-- Une interprétation des résultats d'analyse IA (maladies détectées, ravageurs identifiés, niveaux de sévérité)
+- Une interprétation des résultats d'analyse IA (maladies détectées, niveaux de sévérité)
 - Des conseils économiques et de gestion des coûts agricoles
 
 Contexte géographique : Cameroun et Afrique centrale. Adapte toujours tes réponses aux réalités locales (disponibilité des produits, saisons, pratiques paysannes).
@@ -294,9 +293,6 @@ def _analysis_context(analysis_id: Optional[int], db: Session) -> str:
         lines.append(f"Maladie détectée: {a.disease_name} (confiance: {conf}, sévérité: {a.severity or '—'})")
     elif a.detected_disease == "healthy":
         lines.append("Maladie: Aucune (plante saine)")
-    if a.pest_name and a.pest_name != "No pest detected":
-        pconf = f"{a.pest_confidence * 100:.1f}%" if a.pest_confidence else "—"
-        lines.append(f"Ravageur détecté: {a.pest_name} (confiance: {pconf}, sévérité: {a.pest_severity or '—'})")
 
     fiche = a.fiche_terrain or {}
     symptoms = fiche.get("symptoms") or (fiche.get("disease") or {}).get("symptoms") or []
@@ -329,20 +325,28 @@ async def create_session(
     current_user: User = Depends(get_current_user),
 ):
     """Create a new GreenBot chat session."""
-    session = ChatSession(
-        user_id=current_user.id,
-        title=payload.title or "New conversation",
-    )
-    db.add(session)
-    db.commit()
-    db.refresh(session)
-    return {
-        "id": session.id,
-        "title": session.title,
-        "created_at": _fmt(session.created_at),
-        "updated_at": _fmt(session.updated_at),
-        "message_count": 0,
-    }
+    try:
+        session = ChatSession(
+            user_id=current_user.id,
+            title=payload.title or "New conversation",
+        )
+        db.add(session)
+        db.commit()
+        db.refresh(session)
+        return {
+            "id": session.id,
+            "title": session.title,
+            "created_at": _fmt(session.created_at),
+            "updated_at": _fmt(session.updated_at),
+            "message_count": 0,
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"[GreenBot] Failed to create session for user {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Could not create session: {str(e)}. Try restarting the server — the database tables may need to be recreated."
+        )
 
 
 @router.get("/sessions")

@@ -271,7 +271,7 @@
         <div style="position:relative;z-index:1;">
           <div style="font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:var(--weight-semibold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Operations</div>
           <div style="font-size:var(--text-2xl);font-weight:var(--weight-extrabold);color:#fff;letter-spacing:-.02em;line-height:1.2;margin-bottom:var(--sp-2);">Analysis History</div>
-          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.6);">All disease and pest detections from your rover camera and uploads.</div>
+          <div style="font-size:var(--text-sm);color:rgba(255,255,255,.6);">All disease detections from your rover camera and uploads.</div>
         </div>
       </div>
 
@@ -291,7 +291,6 @@
           <select class="filter-select" id="filterType" onchange="applyFilters()">
             <option value="">All results</option>
             <option value="disease">Disease detected</option>
-            <option value="pest">Pest detected</option>
             <option value="healthy">Healthy</option>
           </select>
         </div>
@@ -326,7 +325,6 @@
                   <tr>
                     <th>#</th>
                     <th>Disease</th>
-                    <th>Pest</th>
                     <th>Plant</th>
                     <th>Conf.</th>
                     <th>Severity</th>
@@ -427,7 +425,6 @@ async function loadHistory() {
     return `<tr class="${sel}" onclick="selectAnalysis(${a.id})">
       <td style="color:var(--text-muted);font-size:var(--text-xs);">${offset + i + 1}</td>
       <td class="${isHealthy ? 'td-healthy' : 'td-disease'}">${isHealthy ? 'Healthy' : (a.disease_name || a.detected_disease || '—')}</td>
-      <td class="${a.pest_name ? 'td-pest' : ''}">${a.pest_name || '—'}</td>
       <td style="color:var(--text-secondary);">${a.plant_type || '—'}</td>
       <td style="color:var(--text-secondary);">${pct}</td>
       <td><span class="sev-pill sev-${sev}">${sev}</span></td>
@@ -471,11 +468,9 @@ async function selectAnalysis(id) {
 
 function renderFiche(a) {
   const fiche    = a.fiche_terrain || {};
-  const disease  = fiche.disease   || {};
-  const pest     = fiche.pest      || {};
   const isHealthy= a.detected_disease === 'healthy' || !a.detected_disease;
-  const dConf    = typeof disease.confidence === 'number'
-    ? disease.confidence
+  const dConf    = fiche.confidence != null
+    ? fiche.confidence
     : (a.confidence ? a.confidence * 100 : 0);
 
   let html = '';
@@ -485,7 +480,10 @@ function renderFiche(a) {
 
   html += `
     <div class="fiche-verdict">
-      <div class="verdict-ico ${isHealthy ? 'healthy' : 'diseased'}">${isHealthy ? '🌿' : '🦠'}</div>
+      <div class="verdict-ico ${isHealthy ? 'healthy' : 'diseased'}">${isHealthy
+        ? `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82A2 2 0 0 0 6 22c5.13 0 9-4.46 9-10V8"/><path d="M12 22s0-8-7-10"/></svg>`
+        : `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`
+      }</div>
       <div class="verdict-main">
         <h4>${a.disease_name || (isHealthy ? 'Healthy plant' : '—')}</h4>
         <div class="verdict-sub">${a.plant_type || 'Unknown plant'}</div>
@@ -496,23 +494,12 @@ function renderFiche(a) {
       </div>
     </div>`;
 
-  if (a.pest_name && a.pest_name !== 'No pest detected') {
-    const pConf = typeof pest.confidence === 'number'
-      ? pest.confidence
-      : (a.pest_confidence ? a.pest_confidence * 100 : 0);
-    html += `
-      <div class="pest-block">
-        <div class="pest-block-name">🐛 ${a.pest_name}</div>
-        <div class="pest-block-sub">Confidence: ${pConf.toFixed(1)}% · Severity: ${a.pest_severity || '—'}</div>
-      </div>`;
-  }
-
-  const symptoms = fiche.symptoms || disease.symptoms || [];
+  const symptoms = fiche.symptoms || (fiche.winner && fiche.winner.symptoms) || [];
   if (symptoms.length) {
     html += `<div class="fiche-section"><div class="fiche-section-title">Symptoms</div><ul>${symptoms.map(s=>`<li>${s}</li>`).join('')}</ul></div>`;
   }
 
-  const recos = fiche.recommendations || disease.recommendations || [];
+  const recos = fiche.recommendations || (fiche.winner && fiche.winner.recommendations) || [];
   if (recos.length) {
     html += `<div class="fiche-section"><div class="fiche-section-title">Recommendations</div><ul>${recos.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
   }

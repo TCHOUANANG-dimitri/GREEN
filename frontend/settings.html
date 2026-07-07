@@ -231,7 +231,7 @@
           <div class="s-row">
             <div class="s-row-info">
               <h4>High severity alerts</h4>
-              <p>Show a banner when a high-risk disease or pest is detected.</p>
+              <p>Show a banner when a high-risk disease is detected.</p>
             </div>
             <label class="toggle-wrap">
               <input type="checkbox" id="toggleAlerts" onchange="savePref('alerts', this.checked)" checked />
@@ -298,7 +298,7 @@
           <div class="s-row">
             <div class="s-row-info">
               <h4>AI Models</h4>
-              <p>EfficientNet-B0 — Disease &amp; Pest detection</p>
+              <p>EfficientNet-B0 — Disease detection</p>
             </div>
             <span class="model-chip" id="modelStatus">Checking…</span>
           </div>
@@ -365,7 +365,7 @@ function loadPrefs() {
   setTheme(t);
   updateLanguageButtons();
 
-  const ip   = localStorage.getItem('green_pref_default_ip')   || '192.168.1.100';
+  const ip   = localStorage.getItem('green_pref_default_ip')   || '192.168.10.1';
   const port = localStorage.getItem('green_pref_default_port') || '8080';
   document.getElementById('defaultIp').value   = ip;
   document.getElementById('defaultPort').value = port;
@@ -387,7 +387,7 @@ async function checkApi() {
   const { data } = await API.health();
   const el = document.getElementById('modelStatus');
   if (data) {
-    el.textContent = 'API online ✓';
+    el.textContent = 'API online';
     el.className   = 'model-chip online';
   } else {
     el.textContent = 'API offline';
