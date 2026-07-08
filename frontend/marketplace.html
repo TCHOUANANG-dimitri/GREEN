@@ -134,6 +134,15 @@
       justify-content: center;
       font-size: 3rem;
       position: relative;
+      overflow: hidden;
+      background-color: var(--surface-2);
+    }
+    .product-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
     }
     .product-badge {
       position: absolute;
@@ -168,7 +177,21 @@
       gap: 4px;
     }
     .supplier-verified { color: var(--brand-primary); }
-    .product-stars { font-size: 11px; color: #f59e0b; margin-bottom: var(--sp-2); }
+    .product-stars {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      color: #f59e0b;
+      margin-bottom: var(--sp-2);
+    }
+    .product-stars svg {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      vertical-align: middle;
+    }
     .product-desc {
       font-size: 11px;
       color: var(--text-muted);
@@ -734,6 +757,42 @@ const CAT_ICONS = {
   equipment:  `<svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07M4.93 4.93a10 10 0 0 0 14.14 14.14"/></svg>`,
 };
 
+const PRODUCT_IMAGE_MAP = {
+  'IITA Maize Hybrid CMS 8704': 'IITA Maize Hybrid CMS 8704.jpe',
+  'Cassava Variety TMS 30572': 'Cassava Variety TMS 30572.jpe',
+  'Tomato Mongal F1 Hybrid': 'Tomato Mongal F1 Hybrid.jpg',
+  'Groundnut Fleur 11': 'Groundnut Fleur 11.png',
+  'Maize Open Pollinated EV8728': 'Maize Open Pollinated EV8728.jpg',
+  'Plantain Sucker CRBP39': 'Plantain Sucker CRBP39.jpg',
+  'Ridomil Gold MZ 68 WG': 'Ridomil Gold MZ 68 WG.webp',
+  'Score 250 EC (Difenoconazole)': 'Score 250 EC (Difenoconazole).webp',
+  'Confidor 200 SL (Imidacloprid)': 'Confidor 200 SL (Imidacloprid).jpg',
+  'Copper Oxychloride 50 WP': 'Copper Oxychloride 50 WP.webp',
+  'Lambda-cyhalothrin 2.5 EC': 'Lambda-cyhalothrin 2.5 EC.jpe',
+  'Neem Extract Bio-Pesticide': 'Neem Extract Bio-Pesticide.png',
+  'NPK 20-10-10 Granular': 'NPK 20-10-10 Granular.jpe',
+  'Urea 46% Granular': 'Urea-46-Granular.png',
+  'Calcium-Magnesium Lime': 'Calcium-Magnesium Lime.jpe',
+  'Foliar Zinc-Boron Mix': 'Foliar Zinc-Boron Mix.jpg',
+  'Potassium Sulphate 50%': 'Potassium Sulphate 50%.webp',
+  'Bokashi Compost Enriched': 'Bokashi Compost Enriched.jpe',
+  'Trichoderma Bio-fungicide': 'Trichoderma Bio-fungicide.jpg',
+  'Biochar — Rice Husk': 'Biochar — Rice Husk.jpg',
+  'Bacillus subtilis WP': 'Bacillus subtilis WP.webp',
+  'Liquid Organic Fertilizer 7-3-6': 'Liquid Organic Fertilizer 7-3-6.webp',
+  'IFAS Rover Camera Kit': 'Rover Camera Kit.webp',
+  'Knapsack Sprayer 16 L': 'Knapsack Sprayer 16 L.jpg',
+  'Digital Soil Moisture Sensor': 'Digital Soil Moisture Sensor.jpg',
+  'Manual Corn Sheller': 'Manual Corn Sheller.jpg',
+  'pH & NPK Soil Test Kit': 'pH & NPK Soil Test Kit.jpg',
+  'Solar Water Pump 0.5 HP': 'Solar Water Pump 0.5 HP.webp',
+};
+
+function getProductImage(product) {
+  const fileName = PRODUCT_IMAGE_MAP[product.name] || null;
+  return fileName ? encodeURI(`/assets/marketplace_img/${fileName}`) : null;
+}
+
 /* ---- State ------------------------------------------------ */
 let _activeCategory = 'all';
 let _cart = JSON.parse(localStorage.getItem('green_cart') || '[]');
@@ -834,11 +893,13 @@ function renderProducts(list) {
            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
            Add to cart
          </button>`;
+    const imageUrl = getProductImage(p);
+    const imgTag = imageUrl ? `<img src="${imageUrl}" alt="${p.name}" loading="lazy"/>` : `<div class="product-img-icon" style="color:${p.color};">${CAT_ICONS[p.cat] || CAT_ICONS.seeds}</div>`;
     return `
       <div class="product-card">
-        <div class="product-img" style="background:${p.bg};">
+        <div class="product-img">
           ${badge}
-          <div class="product-img-icon" style="color:${p.color};">${CAT_ICONS[p.cat] || CAT_ICONS.seeds}</div>
+          ${imgTag}
         </div>
         <div class="product-body">
           <div class="product-name">${p.name}</div>
