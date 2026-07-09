@@ -141,6 +141,7 @@
             <button class="mode-tab active" id="tabStream"  onclick="switchMode('stream')">IP Stream</button>
             <button class="mode-tab"        id="tabCamera"  onclick="switchMode('camera')">Camera</button>
             <button class="mode-tab"        id="tabUpload"  onclick="switchMode('upload')">Upload</button>
+            <button class="mode-tab"        id="tabEsp32"   onclick="switchMode('esp32')">ESP32-CAM</button>
           </div>
         </div>
 
@@ -230,6 +231,62 @@
             <p class="up-hint">JPG · PNG · max 10 MB</p>
           </div>
           <img id="uploadThumb" class="upload-thumb" alt="preview" />
+        </div>
+
+        <!-- ── ESP32-CAM ─────────────────────────── -->
+        <div id="sectionEsp32" style="display:none;">
+
+          <div class="camera-note" style="margin-bottom:var(--sp-3);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            GREEN-CAM is discovered automatically via Wi-Fi — no IP address needed.
+            All traffic is relayed through the server.
+          </div>
+
+          <!-- Device info chip (shown when connected) -->
+          <div id="esp32Info" style="display:none;
+               background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);
+               border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);
+               margin-bottom:var(--sp-3);">
+            <div style="display:flex;align-items:center;gap:var(--sp-2);margin-bottom:var(--sp-1);">
+              <span class="conn-dot on" style="flex-shrink:0;"></span>
+              <span style="font-size:var(--text-sm);font-weight:var(--weight-semibold);color:var(--text-primary);" id="esp32DeviceName">GREEN-CAM</span>
+            </div>
+            <div style="font-size:var(--text-xs);color:var(--text-muted);display:flex;flex-direction:column;gap:2px;">
+              <span id="esp32FwLabel"></span>
+              <span id="esp32RssiLabel"></span>
+              <span id="esp32IpLabel"></span>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;flex-direction:column;gap:var(--sp-2);">
+            <button class="connect-btn primary" id="esp32DiscoverBtn" onclick="discoverEsp32()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              Auto-discover
+            </button>
+            <button class="connect-btn" id="esp32DisconnectBtn" onclick="disconnectEsp32()" style="display:none;">
+              Disconnect
+            </button>
+          </div>
+
+          <!-- Manual IP fallback (advanced) -->
+          <details style="margin-top:var(--sp-3);">
+            <summary style="font-size:var(--text-xs);color:var(--text-muted);cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:var(--sp-1);">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+              Advanced: connect by IP
+            </summary>
+            <div style="margin-top:var(--sp-2);display:flex;gap:var(--sp-2);">
+              <input type="text" id="esp32ManualIp" class="form-input"
+                     placeholder="192.168.10.1"
+                     style="font-family:var(--font-mono);flex:1;" />
+              <button class="cam-btn" onclick="connectEsp32Manual()"
+                      style="flex-shrink:0;padding:0 var(--sp-3);height:38px;">
+                Connect
+              </button>
+            </div>
+            <div class="field-error" id="esp32ConnErr" style="display:none;margin-top:var(--sp-1);"></div>
+          </details>
+
         </div>
 
         <!-- Auto-analysis status indicator -->
@@ -473,6 +530,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('camPort').value = localStorage.getItem('green_pref_default_port') || '8080';
   loadRecent();
   enumerateDevices();
+  // Try to adopt an ESP32-CAM already known by the backend (silent — no toast on failure)
+  _silentEsp32Adopt();
 });
 
 // ============================================================
@@ -499,10 +558,11 @@ function stopAutoAnalysis() {
 // ============================================================
 function switchMode(m) {
   S.mode = m;
-  const modeLabels = { stream: 'IP Stream', camera: 'Connected Camera', upload: 'Upload' };
+  const modeLabels = { stream: 'IP Stream', camera: 'Connected Camera', upload: 'Upload', esp32: 'ESP32-CAM' };
   _('statMode', modeLabels[m]);
 
-  ['stream','camera','upload'].forEach(t => {
+  // 'esp32' capitalises to 'Esp32' so tab/section IDs match tabEsp32 / sectionEsp32
+  ['stream','camera','upload','esp32'].forEach(t => {
     const cap = t.charAt(0).toUpperCase() + t.slice(1);
     $('tab'    + cap).classList.toggle('active', t === m);
     $('section'+ cap).style.display = t === m ? '' : 'none';
@@ -512,6 +572,7 @@ function switchMode(m) {
     stream: 'Enter the drone IP and click Connect',
     camera: 'Start the external camera to preview',
     upload: 'Upload an image to preview',
+    esp32:  'Click "Auto-discover" to find your GREEN-CAM',
   };
   _('vpHint', hints[m]);
 }
@@ -571,11 +632,19 @@ function disconnectStream() {
 function onStreamError() {
   if (!S.connected) return;
   stopAutoAnalysis();
+  S.connected = false;
   $('streamImg').style.display     = 'none';
   $('vpPlaceholder').style.display = 'flex';
-  _('vpHint', 'Stream lost. Check drone connection and try reconnecting.');
-  _setConn('off', 'Stream lost');
   $('liveBadge').classList.add('hidden');
+  if (S.mode === 'esp32') {
+    _('vpHint', 'Stream lost. Click "Auto-discover" to reconnect.');
+    _setConn('off', 'Stream lost');
+    _esp32.connected = false;
+    _esp32UpdatePanel();
+  } else {
+    _('vpHint', 'Stream lost. Check drone connection and try reconnecting.');
+    _setConn('off', 'Stream lost');
+  }
 }
 
 // ============================================================
@@ -741,7 +810,10 @@ async function analyse() {
   let data, error;
 
   try {
-    if (S.mode === 'stream') {
+    if (S.mode === 'esp32') {
+      ({ data, error } = await API.esp32.capture());
+
+    } else if (S.mode === 'stream') {
       const ip = $('camIp').value.trim();
       const port = $('camPort').value.trim() || '8080';
       ({ data, error } = await API.camera.captureFromStream(ip, port));
@@ -1000,6 +1072,121 @@ function _setConn(state, label) {
   const dot = $('connDot');
   dot.className   = `conn-dot ${state === 'on' ? 'on' : state === 'checking' ? '' : 'off'}`;
   _('connLabel', label);
+}
+
+// ============================================================
+// MODE D — ESP32-CAM  (auto-discovery, all traffic via FastAPI)
+// ============================================================
+
+// Runtime state for the ESP32 panel
+const _esp32 = { connected: false, device: null, ip: null, firmware: null, rssi: null };
+
+const _esp32DiscoverSvg = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg> Auto-discover`;
+
+/** Refresh the ESP32 panel to match _esp32 state. */
+function _esp32UpdatePanel() {
+  const c = _esp32.connected;
+  $('esp32Info').style.display          = c ? '' : 'none';
+  $('esp32DiscoverBtn').style.display   = c ? 'none' : '';
+  $('esp32DisconnectBtn').style.display = c ? '' : 'none';
+  if (c) {
+    _('esp32DeviceName', _esp32.device   || 'GREEN-CAM');
+    _('esp32FwLabel',    _esp32.firmware ? 'Firmware : ' + _esp32.firmware : '');
+    _('esp32RssiLabel',  _esp32.rssi != null ? 'Signal : ' + _esp32.rssi + ' dBm' : '');
+    _('esp32IpLabel',    _esp32.ip        ? 'IP : '       + _esp32.ip       : '');
+  }
+}
+
+/**
+ * Called after a successful /discover or /connect response.
+ * Starts the MJPEG proxy stream and the auto-analysis loop.
+ */
+function _esp32OnConnected(data) {
+  _esp32.connected = true;
+  _esp32.device    = data.device   || 'GREEN-CAM';
+  _esp32.ip        = data.ip       || null;
+  _esp32.firmware  = data.firmware || null;
+  _esp32.rssi      = (data.extra && data.extra.rssi) || data.rssi || null;
+  _esp32UpdatePanel();
+
+  S.connected = true;
+  _setConn('on', _esp32.device);
+  $('vpPlaceholder').style.display = 'none';
+  $('streamImg').style.display     = 'block';
+  // Authenticated proxy URL — browser never contacts the ESP32 directly
+  $('streamImg').src               = API.esp32.streamSrc() + '?t=' + Date.now();
+  $('liveBadge').classList.remove('hidden');
+  startAutoAnalysis();
+}
+
+/** Tears down the ESP32 live feed. */
+function _esp32OnDisconnected() {
+  _esp32.connected = false;
+  _esp32UpdatePanel();
+  stopAutoAnalysis();
+  S.connected = false;
+  $('streamImg').src               = '';
+  $('streamImg').style.display     = 'none';
+  $('vpPlaceholder').style.display = 'flex';
+  _('vpHint', 'Click "Auto-discover" to find your GREEN-CAM');
+  _setConn('off', 'Offline');
+  $('liveBadge').classList.add('hidden');
+}
+
+/** Triggered by the "Auto-discover" button. */
+async function discoverEsp32() {
+  const btn = $('esp32DiscoverBtn');
+  btn.disabled   = true;
+  btn.textContent = 'Searching…';
+  _setConn('checking', 'Discovering…');
+
+  const { data, error } = await API.esp32.discover();
+
+  btn.disabled  = false;
+  btn.innerHTML = _esp32DiscoverSvg;
+
+  if (error) {
+    _setConn('off', 'Not found');
+    App.toast(error, 'error');
+    return;
+  }
+  _esp32OnConnected(data);
+}
+
+/** Triggered by the manual IP "Connect" button inside <details>. */
+async function connectEsp32Manual() {
+  const ip = ($('esp32ManualIp').value || '').trim();
+  if (!ip) return;
+  $('esp32ConnErr').style.display = 'none';
+  _setConn('checking', 'Connecting…');
+
+  const { data, error } = await API.esp32.connect(ip);
+  if (error) {
+    $('esp32ConnErr').textContent   = error;
+    $('esp32ConnErr').style.display = 'block';
+    _setConn('off', 'Failed');
+    return;
+  }
+  _esp32OnConnected(data);
+}
+
+/** Triggered by the "Disconnect" button. */
+async function disconnectEsp32() {
+  await API.esp32.disconnect();
+  _esp32OnDisconnected();
+}
+
+/**
+ * Called silently at page load.
+ * If the backend already has an ESP32 connected (from startup or healthcheck),
+ * adopt it and switch to ESP32-CAM mode automatically.
+ */
+async function _silentEsp32Adopt() {
+  const { data } = await API.esp32.status();
+  if (data && data.connected) {
+    _esp32OnConnected(data);
+    switchMode('esp32');
+  }
 }
 </script>
 

@@ -392,5 +392,63 @@ const API = {
     get(id) {
       return request(`/api/diseases/${id}`, 'GET');
     }
+  },
+
+  /* ----------------------------------------------------------
+     ESP32-CAM — GREEN-CAM (proxy via FastAPI, never direct)
+     ---------------------------------------------------------- */
+  esp32: {
+    /** Connection state + camera metadata (lightweight, no probing). */
+    status() {
+      return request('/api/esp32/status', 'GET', null, true);
+    },
+
+    /** Hardware info from the ESP32 (/info): MAC, RSSI, SSID, free heap… */
+    info() {
+      return request('/api/esp32/info', 'GET', null, true);
+    },
+
+    /** Quick alive ping — returns { alive: bool }. */
+    health() {
+      return request('/api/esp32/health', 'GET', null, true);
+    },
+
+    /** Auto-discover: mDNS (green-cam.local) then IP fallback. */
+    discover() {
+      return request('/api/esp32/discover', 'POST', null, true);
+    },
+
+    /**
+     * Connect to a specific IP (manual fallback when mDNS fails).
+     * @param {string} ip   - e.g. "192.168.10.1"
+     * @param {number} port - ESP32 HTTP port (default 80)
+     */
+    connect(ip, port = 80) {
+      return request('/api/esp32/connect', 'POST', { ip, port }, true);
+    },
+
+    /** Detach the active camera (discovery loop will try to reconnect). */
+    disconnect() {
+      return request('/api/esp32/disconnect', 'POST', null, true);
+    },
+
+    /**
+     * Capture a JPEG from the ESP32 and run disease inference.
+     * Reuses the existing AI pipeline — result shape is identical to
+     * /api/camera/capture so _renderResults() works unchanged.
+     * @param {object} payload - { parcel_id?, latitude?, longitude? }
+     */
+    capture(payload = {}) {
+      return request('/api/esp32/capture', 'POST', payload, true);
+    },
+
+    /**
+     * Full URL for the MJPEG proxy stream.
+     * Use as <img src> — the backend relays the ESP32 stream,
+     * so the browser never contacts the camera directly.
+     */
+    streamSrc() {
+      return `${API_BASE_URL}/api/esp32/stream`;
+    }
   }
 };

@@ -32,6 +32,7 @@ from routers import parcel_router      # Phase 5 — Parcel CRUD
 from routers import chatbot_router     # Phase 6 — GreenBot RAG + Gemini API
 from routers import weather_router     # Phase 6 — OpenWeatherMap proxy
 from routers import diseases_router    # Disease reference database
+from routers import esp32_router       # ESP32-CAM — proxy + découverte automatique
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,25 @@ async def lifespan(app: FastAPI):
     import threading
     logger.info("[Startup] GREEN server ready — scheduling parallel AI warmup.")
     threading.Thread(target=_warmup_models, daemon=True).start()
+
+    # ── ESP32-CAM : découverte au démarrage + healthcheck en arrière-plan ──
+    from camera.discovery  import discover_esp32
+    from camera.state      import camera_state
+    from camera.healthcheck import camera_healthcheck_loop
+
+    result = await discover_esp32()
+    if result:
+        provider, info = result
+        await camera_state.attach(provider, info)
+        logger.info("[Startup] ESP32-CAM découverte : %s @ %s", info.device, info.ip)
+    else:
+        logger.info("[Startup] Aucune ESP32-CAM trouvée au démarrage — surveillance active.")
+
+    hc_task = asyncio.create_task(camera_healthcheck_loop())
+
     yield
+
+    hc_task.cancel()
     logger.info("[Shutdown] GREEN server stopped.")
 
 
@@ -116,6 +135,7 @@ app.include_router(parcel_router.router)
 app.include_router(chatbot_router.router)
 app.include_router(weather_router.router)
 app.include_router(diseases_router.router)
+app.include_router(esp32_router.router)
 
 # ---- Serve Frontend Static Files ----------------------------
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), '..', 'frontend')
