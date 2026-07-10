@@ -446,9 +446,13 @@ const API = {
      * Full URL for the MJPEG proxy stream.
      * Use as <img src> — the backend relays the ESP32 stream,
      * so the browser never contacts the camera directly.
+     *
+     * The JWT is passed as a query param (?token=) rather than an
+     * Authorization header, because <img src> cannot send custom headers.
      */
     streamSrc() {
-      return `${API_BASE_URL}/api/esp32/stream`;
+      const token = Auth.getToken();
+      return `${API_BASE_URL}/api/esp32/stream?token=${encodeURIComponent(token)}`;
     }
   }
 };
