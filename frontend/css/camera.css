@@ -112,9 +112,70 @@
 }
 
 /* IP row */
-.ip-row { display: flex; gap: var(--sp-2); }
-.ip-row .form-input { flex: 1; font-family: var(--font-mono); font-size: var(--text-sm); }
-.port-input { width: 76px; }
+.ip-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.ip-row .form-input,
+.ip-row .port-input {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 var(--sp-4) !important;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  box-sizing: border-box;
+}
+.ip-row .form-input { flex: 1; }
+.port-input { width: 92px; }
+.ip-row .port-input::-webkit-outer-spin-button,
+.ip-row .port-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.ip-row .port-input {
+  -moz-appearance: textfield;
+}
+
+/* External camera device row */
+.device-row,
+.esp32-manual-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: stretch;
+}
+
+.device-row .device-select,
+.esp32-manual-row .form-input {
+  flex: 1;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 var(--sp-4) !important;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+}
+
+.device-row .cam-btn,
+.esp32-manual-row .cam-btn {
+  min-height: 44px;
+  height: 44px;
+  padding: 0 var(--sp-3) !important;
+  width: auto;
+  align-self: stretch;
+}
+
+.device-row .cam-btn {
+  flex-shrink: 0;
+}
+
+#sectionEsp32 details {
+  margin-top: var(--sp-3);
+}
+
+#sectionEsp32 details .form-input {
+  min-height: 44px;
+}
 
 /* Error line */
 .field-error { font-size: var(--text-xs); color: var(--color-error); margin-top: var(--sp-1); display: none; }

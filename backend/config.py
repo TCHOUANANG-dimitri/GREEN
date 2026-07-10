@@ -24,7 +24,7 @@ DATABASE_URL: str = os.getenv(
 
 # ---- Gemini AI (GreenBot chatbot + camera disease research) --
 GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL: str = "gemini-2.5-flash-lite"   # Free tier with separate quota
+GEMINI_MODEL: str = "gemini-3.1-flash-lite"   # Stable, budget-friendly; 2.5-flash-lite is restricted for new API keys
 
 # ---- Weather API (OpenWeatherMap) --------------------------
 WEATHER_API_KEY: str = os.getenv("WEATHER_API_KEY", "")
