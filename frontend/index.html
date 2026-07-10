@@ -12,7 +12,7 @@
   <meta name="description" content="Sign in to GREEN, the agricultural intelligence platform for Cameroonian agribusiness." />
 
   <!-- Favicon (using the logo) -->
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -65,6 +65,17 @@
         background: rgba(46, 204, 113, 0.1);
         color: var(--brand-primary);
       }
+
+      /* Stronger login-page branding sizing */
+      .auth-page .auth-logo img {
+        width: 4.25rem !important;
+        height: 4.25rem !important;
+        min-width: 4.25rem;
+      }
+      .auth-page .auth-logo-name {
+        font-size: 2.5rem !important;
+        line-height: 1;
+      }
     </style>
 
     <!-- =========================================================
@@ -77,7 +88,7 @@
       <div class="auth-left-content">
         <!-- Logo -->
         <div class="auth-logo">
-          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <img src="assets/logo.png" alt="GREEN Logo" />
           <span class="auth-logo-name" data-i18n="app.name">GREEN</span>
         </div>
 
@@ -173,7 +184,7 @@
 
         <!-- Mobile logo (visible only when left panel is hidden) -->
         <div class="auth-mobile-logo">
-          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <img src="assets/logo.png" alt="GREEN Logo" />
           <span class="auth-mobile-logo-name">GREEN</span>
         </div>
 

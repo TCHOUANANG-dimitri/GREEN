@@ -139,24 +139,29 @@ function initRegisterPage() {
     }
   });
 
-  // ---- Form submission
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    hideAlert('registerAlert');
-    clearAllErrors('registerForm');
+  // ---- Multi-step navigation (Step 1: Personal + Contact / Step 2: Enterprise + Security)
+  const step1   = document.getElementById('registerStep1');
+  const step2   = document.getElementById('registerStep2');
+  const nextBtn = document.getElementById('registerNextBtn');
+  const backBtn = document.getElementById('registerBackBtn');
+  const indicatorItems = document.querySelectorAll('#formStepsIndicator .step-indicator-item');
 
-    // Collect values
-    const first_name      = document.getElementById('first_name').value.trim();
-    const last_name       = document.getElementById('last_name').value.trim();
-    const phone           = document.getElementById('phone').value.trim();
-    const email           = document.getElementById('email').value.trim();
-    const password        = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    const company_name    = document.getElementById('company_name')?.value.trim();
-    const region          = document.getElementById('region')?.value;
+  function goToStep(step) {
+    if (step1) step1.style.display = step === 1 ? '' : 'none';
+    if (step2) step2.style.display = step === 2 ? '' : 'none';
+    indicatorItems.forEach(item => {
+      const n = parseInt(item.dataset.stepIndicator, 10);
+      item.classList.toggle('active', n === step);
+      item.classList.toggle('completed', n < step);
+    });
+  }
 
-    // ---- Client-side validation
+  function validateStep1() {
     let isValid = true;
+    const first_name = document.getElementById('first_name').value.trim();
+    const last_name   = document.getElementById('last_name').value.trim();
+    const phone       = document.getElementById('phone').value.trim();
+    const email       = document.getElementById('email').value.trim();
 
     if (!first_name) {
       showFieldError('first_name', 'First name is required.');
@@ -177,6 +182,14 @@ function initRegisterPage() {
       showFieldError('email', 'Please enter a valid email address.');
       isValid = false;
     }
+    return isValid;
+  }
+
+  function validateStep2() {
+    let isValid = true;
+    const password        = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+
     if (!password) {
       showFieldError('password', 'Password is required.');
       isValid = false;
@@ -191,8 +204,52 @@ function initRegisterPage() {
       showFieldError('confirm_password', 'Passwords do not match.');
       isValid = false;
     }
+    return isValid;
+  }
 
-    if (!isValid) return;
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      hideAlert('registerAlert');
+      clearAllErrors('registerForm');
+      if (validateStep1()) goToStep(2);
+    });
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      hideAlert('registerAlert');
+      clearAllErrors('registerForm');
+      goToStep(1);
+    });
+  }
+
+  // ---- Form submission
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideAlert('registerAlert');
+    clearAllErrors('registerForm');
+
+    // Collect values
+    const first_name      = document.getElementById('first_name').value.trim();
+    const last_name       = document.getElementById('last_name').value.trim();
+    const phone           = document.getElementById('phone').value.trim();
+    const email           = document.getElementById('email').value.trim();
+    const password        = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const company_name    = document.getElementById('company_name')?.value.trim();
+    const region          = document.getElementById('region')?.value;
+
+    // ---- Client-side validation (both steps — in case of DOM/back edge cases)
+    const step1Valid = validateStep1();
+    const step2Valid = validateStep2();
+
+    if (!step1Valid) {
+      goToStep(1);
+      return;
+    }
+    if (!step2Valid) {
+      return;
+    }
 
     // ---- Build request payload (omit empty optional fields)
     const payload = { first_name, last_name, phone, password };
