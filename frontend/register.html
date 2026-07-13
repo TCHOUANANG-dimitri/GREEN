@@ -12,7 +12,7 @@
   <title>GREEN — Create Account</title>
   <meta name="description" content="Create your GREEN enterprise account and start managing your agricultural operations with AI." />
 
-  <link rel="icon" type="image/jpeg" href="assets/logo.jpeg" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -38,6 +38,76 @@
     /* Register page specific: right panel scrolls, not full-height centered */
     .auth-right { justify-content: flex-start; padding-top: var(--sp-10); padding-bottom: var(--sp-10); }
     @media (min-width: 901px) { .auth-right { justify-content: center; } }
+
+    /* Register page specific: keep the left-side branding content tightly grouped */
+    .auth-left-content { gap: var(--sp-3); }
+    .auth-headline { justify-content: flex-start; }
+
+    /* Stronger override for the branding logo and title on this page */
+    .auth-left .auth-logo img {
+      width: 4.25rem !important;
+      height: 4.25rem !important;
+    }
+    .auth-left .auth-logo-name {
+      font-size: 2.5rem !important;
+    }
+
+    /* ---- Multi-step form (register) --------------------------- */
+    .form-steps-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-6);
+    }
+    .step-indicator-item {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      opacity: 0.5;
+      transition: opacity var(--dur-base) var(--ease-out);
+    }
+    .step-indicator-item.active,
+    .step-indicator-item.completed { opacity: 1; }
+    .step-indicator-num {
+      flex: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      border: 1.5px solid var(--border-default);
+      color: var(--text-secondary);
+      transition: background-color var(--dur-base), border-color var(--dur-base), color var(--dur-base);
+    }
+    .step-indicator-item.active .step-indicator-num,
+    .step-indicator-item.completed .step-indicator-num {
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
+      color: #ffffff;
+    }
+    .step-indicator-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .step-indicator-item.active .step-indicator-label { color: var(--text-primary); }
+    .step-indicator-line {
+      flex: 1;
+      height: 1.5px;
+      background: var(--border-default);
+    }
+    .form-step { display: flex; flex-direction: column; gap: var(--sp-5); }
+    .step-actions {
+      display: flex;
+      gap: var(--sp-3);
+      margin-top: var(--sp-2);
+    }
+    .step-actions .btn-ghost { flex: 0 0 auto; min-width: 110px; }
+    .step-actions .btn-submit { flex: 1; }
   </style>
 </head>
 
@@ -53,7 +123,7 @@
       <div class="auth-left-content">
         <!-- Logo -->
         <div class="auth-logo">
-          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <img src="assets/logo.png" alt="GREEN Logo" />
           <span class="auth-logo-name">GREEN</span>
         </div>
 
@@ -146,7 +216,7 @@
 
         <!-- Mobile logo -->
         <div class="auth-mobile-logo">
-          <img src="assets/logo.jpeg" alt="GREEN Logo" />
+          <img src="assets/logo.png" alt="GREEN Logo" />
           <span class="auth-mobile-logo-name">GREEN</span>
         </div>
 
@@ -159,8 +229,26 @@
         <!-- Global alert -->
         <div id="registerAlert" class="alert" style="display:none;" role="alert"></div>
 
+        <!-- Step indicator -->
+        <div class="form-steps-indicator" id="formStepsIndicator">
+          <div class="step-indicator-item active" data-step-indicator="1">
+            <span class="step-indicator-num">1</span>
+            <span class="step-indicator-label">Personal info</span>
+          </div>
+          <div class="step-indicator-line"></div>
+          <div class="step-indicator-item" data-step-indicator="2">
+            <span class="step-indicator-num">2</span>
+            <span class="step-indicator-label">Enterprise &amp; security</span>
+          </div>
+        </div>
+
         <!-- Register form -->
         <form id="registerForm" class="auth-form" novalidate>
+
+        <!-- =========================================================
+             STEP 1 — Personal Information + Contact
+             ========================================================= -->
+        <div class="form-step" id="registerStep1" data-step="1">
 
           <!-- ---- SECTION: Personal Information --------------- -->
           <div class="form-section-label">Personal information</div>
@@ -266,8 +354,22 @@
             <span id="email_error" class="field-error"></span>
           </div>
 
+          <!-- Step 1 actions -->
+          <div class="step-actions">
+            <button type="button" id="registerNextBtn" class="btn btn-primary btn-full">
+              Next
+            </button>
+          </div>
+
+        </div><!-- /registerStep1 -->
+
+        <!-- =========================================================
+             STEP 2 — Enterprise Details + Security
+             ========================================================= -->
+        <div class="form-step" id="registerStep2" data-step="2" style="display:none;">
+
           <!-- ---- SECTION: Enterprise Details ----------------- -->
-          <div class="form-section-label" style="margin-top: var(--sp-2);">Enterprise details</div>
+          <div class="form-section-label">Enterprise details</div>
 
           <!-- Company name -->
           <div class="form-group">
@@ -411,16 +513,22 @@
             <span id="confirm_password_error" class="field-error"></span>
           </div>
 
-          <!-- Submit -->
-          <button
-            type="submit"
-            id="registerSubmitBtn"
-            class="btn btn-primary btn-full btn-submit"
-            style="margin-top: var(--sp-2);"
-          >
-            <span class="spinner"></span>
-            <span class="btn-text">Create Account</span>
-          </button>
+          <!-- Step 2 actions -->
+          <div class="step-actions">
+            <button type="button" id="registerBackBtn" class="btn btn-ghost">
+              Back
+            </button>
+            <button
+              type="submit"
+              id="registerSubmitBtn"
+              class="btn btn-primary btn-submit"
+            >
+              <span class="spinner"></span>
+              <span class="btn-text">Create Account</span>
+            </button>
+          </div>
+
+        </div><!-- /registerStep2 -->
 
         </form><!-- /registerForm -->
 
@@ -444,6 +552,6 @@
   <!-- Scripts -->
   <script src="js/utils.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/auth.js?v=2"></script>
 </body>
 </html>

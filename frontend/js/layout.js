@@ -174,7 +174,7 @@ const Layout = {
 
         <!-- Logo -->
         <a href="/dashboard" class="sidebar-logo" aria-label="GREEN Home">
-          <img src="/assets/logo.jpeg" alt="GREEN Logo" />
+          <img src="/assets/logo.png" alt="GREEN Logo" />
           <span class="sidebar-logo-name">GREEN</span>
         </a>
 

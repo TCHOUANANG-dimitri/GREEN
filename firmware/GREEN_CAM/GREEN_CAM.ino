@@ -29,8 +29,8 @@
 #define CAM_FIRMWARE_VER  "1.0.0"
 
 // Wi-Fi — peut aussi être chargé depuis NVS/SPIFFS en v2
-#define WIFI_SSID         "TON_SSID"
-#define WIFI_PASSWORD     "TON_MOT_DE_PASSE"
+#define WIFI_SSID         "HUBNUXUSLAB"
+#define WIFI_PASSWORD     "Hubnexus@2026"
 
 // Résolution par défaut (FRAMESIZE_VGA = 640×480)
 // Options : FRAMESIZE_QVGA, FRAMESIZE_VGA, FRAMESIZE_SVGA, FRAMESIZE_XGA, FRAMESIZE_UXGA

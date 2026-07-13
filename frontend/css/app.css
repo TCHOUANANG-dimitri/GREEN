@@ -70,14 +70,14 @@
 }
 
 .sidebar-logo img {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   border-radius: var(--radius-md);
 }
 
 .sidebar-logo-name {
-  font-size: var(--text-xl);
+  font-size: 1.35rem;
   font-weight: var(--weight-extrabold);
   color: var(--text-primary);
   letter-spacing: -0.02em;

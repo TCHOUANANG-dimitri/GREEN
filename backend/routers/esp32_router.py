@@ -15,12 +15,12 @@
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from auth      import get_current_user
+from auth      import get_current_user, decode_access_token
 from database  import get_db
 from models    import User
 from camera.state     import camera_state
@@ -51,6 +51,25 @@ def _require_camera():
             detail="Aucune caméra connectée. Appelez /api/esp32/discover d'abord.",
         )
     return camera_state.info, camera_state.provider
+
+
+def _user_from_query_token(token: str, db: Session) -> User:
+    """
+    Valide un JWT passé en query string (?token=...).
+
+    Utilisé uniquement par /stream : cet endpoint est consommé via une
+    balise <img src="..."> côté navigateur, qui ne peut pas envoyer de
+    header Authorization — le token doit donc voyager dans l'URL.
+    """
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token invalide ou expiré.")
+
+    user_id = payload.get("sub")
+    user = db.query(User).filter(User.id == int(user_id)).first() if user_id else None
+    if user is None or not user.is_active:
+        raise HTTPException(status_code=401, detail="Utilisateur invalide.")
+    return user
 
 
 # ── Endpoints ────────────────────────────────────────────────
@@ -183,14 +202,21 @@ async def disconnect(current_user: User = Depends(get_current_user)):
 
 
 @router.get("/stream", summary="Proxy flux MJPEG vers le navigateur")
-async def proxy_stream(current_user: User = Depends(get_current_user)):
+async def proxy_stream(
+    token: str = Query(..., description="JWT — passé en query car <img src> ne peut pas envoyer de header Authorization"),
+    db: Session = Depends(get_db),
+):
     """
     Relaie le flux MJPEG de l'ESP32-CAM vers le navigateur.
 
     Le frontend appelle UNIQUEMENT cette URL — jamais l'IP de l'ESP32.
     Le Content-Type multipart est conservé tel quel pour que le navigateur
     l'interprète comme un flux MJPEG standard.
+
+    Authentifié par ?token= plutôt que par header Bearer : ce endpoint est
+    consommé via <img src="...">, qui ne peut pas définir de headers.
     """
+    _user_from_query_token(token, db)
     info, provider = _require_camera()
 
     # Récupère le Content-Type depuis l'ESP32 pour le retransmettre
