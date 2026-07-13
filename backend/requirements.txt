@@ -31,8 +31,9 @@ requests==2.32.3
 Pillow==11.0.0
 
 # AI model inference (EfficientNet — best_efficientnet.pth)
-torch==2.5.1
-torchvision==0.20.1
+torch==2.13.0
+torchvision==0.28.0
+timm
 
 # Numpy (for embeddings / RAG)
 numpy==1.26.4

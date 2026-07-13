@@ -17,7 +17,8 @@
  * In development, FastAPI runs on http://localhost:8000
  * In production, use a relative path (same origin).
  */
-const API_BASE_URL = 'http://localhost:8000';
+// Empty string = relative URL (same origin). Works in dev (via proxy) and production.
+const API_BASE_URL = '';
 
 
 /* ============================================================
