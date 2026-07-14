@@ -3,6 +3,9 @@
 # Install with: pip install -r requirements.txt
 # ============================================================
 
+# PyTorch CPU-only wheel index (avoids downloading ~1.4 GB of CUDA libs on CPU-only servers)
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # Web Framework
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
@@ -31,8 +34,8 @@ requests==2.32.3
 Pillow==11.1.0
 
 # AI model inference (EfficientNet — best_efficientnet.pth)
-torch==2.13.0
-torchvision==0.28.0
+torch==2.13.0+cpu
+torchvision==0.28.0+cpu
 timm==1.0.27
 
 # Numpy (for embeddings / RAG)
@@ -42,4 +45,4 @@ numpy==2.2.6
 scikit-learn==1.6.1
 
 # Gemini AI API (GreenBot chatbot + disease research)
-google-genai
+google-genai==1.16.1

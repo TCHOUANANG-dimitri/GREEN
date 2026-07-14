@@ -356,6 +356,21 @@
           </a>
         </div>
 
+        <!-- ══ LOW-CONFIDENCE WARNING ════════════════════════════ -->
+        <div id="lowConfWarning" style="display:none;
+             background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);
+             border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);
+             margin-bottom:var(--sp-3);
+             display:flex;align-items:center;gap:var(--sp-2);
+             font-size:var(--text-xs);color:rgb(180,110,0);line-height:1.5;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24" style="flex-shrink:0;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span id="lowConfText">Confiance faible — résultat indicatif, prenez une photo sous meilleur éclairage.</span>
+        </div>
+
         <!-- ══ WINNER BANNER ══════════════════════════════════════ -->
         <div id="winnerBanner" style="display:none;
              border-radius:var(--radius-md);padding:var(--sp-4) var(--sp-5);
@@ -917,8 +932,9 @@ function _renderResults(data) {
 
   $('resultsCard').classList.add('show');
 
-  // ── Uncertain / unrecognized: show simple message only ────
+  // ── uncertain = ancien fallback de sécurité (ne devrait plus arriver) ──
   if (wType === 'uncertain') {
+    $('lowConfWarning').style.display    = 'none';
     $('winnerBanner').style.display      = 'none';
     $('charSection').style.display       = 'none';
     $('recoSection').style.display       = 'none';
@@ -929,6 +945,17 @@ function _renderResults(data) {
   }
 
   $('unrecognizedSection').style.display = 'none';
+
+  // ── Bandeau confiance faible ───────────────────────────────
+  if (w.low_confidence) {
+    const el = $('lowConfWarning');
+    el.style.display = 'flex';
+    _('lowConfText',
+      `Confiance faible (${w.confidence}%) — résultat indicatif. `
+      + 'Recommencez avec un meilleur éclairage ou un cadrage plus proche.');
+  } else {
+    $('lowConfWarning').style.display = 'none';
+  }
 
   // ── Winner banner ──────────────────────────────────────────
   const cfg   = TYPE_CFG[wType] || TYPE_CFG.uncertain;
@@ -945,8 +972,8 @@ function _renderResults(data) {
   icoEl.innerHTML        = cfg.svg;
 
   const labelEl = $('winnerLabel');
-  labelEl.textContent = cfg.label;
-  labelEl.style.color = cfg.labelColor;
+  labelEl.textContent = w.low_confidence ? cfg.label + ' (faible confiance)' : cfg.label;
+  labelEl.style.color = w.low_confidence ? 'rgb(180,110,0)' : cfg.labelColor;
 
   _('winnerName', w.fr_name || w.name || '—');
   _('winnerSub',  w.scientific_name

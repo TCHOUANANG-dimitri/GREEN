@@ -131,12 +131,8 @@ def build_winner(disease: dict, diseases_db: dict) -> dict:
     detected = disease.get("detected_disease") or "healthy"
     confidence_pct = round((disease.get("confidence") or 0) * 100, 1)
 
-    if confidence_pct < UNCERTAIN_CONFIDENCE_PCT:
-        return {
-            "type":       "uncertain",
-            "confidence": confidence_pct,
-            "message":    "Niveau de confiance insuffisant",
-        }
+    # low_confidence = True quand sous le seuil ; le nom est quand même retourné.
+    low_confidence = confidence_pct < UNCERTAIN_CONFIDENCE_PCT
 
     disease_id = CLASS_TO_DISEASE_ID.get(class_raw, detected.lower().replace("_", "-"))
     info = diseases_db.get(disease_id, {})
@@ -151,6 +147,7 @@ def build_winner(disease: dict, diseases_db: dict) -> dict:
             "confidence":      confidence_pct,
             "severity":        disease.get("severity") or "none",
             "recommendations": info.get("actions", []),
+            "low_confidence":  low_confidence,
         }
 
     return {
@@ -165,6 +162,7 @@ def build_winner(disease: dict, diseases_db: dict) -> dict:
         "recommendations": info.get("actions", []),
         "affected_plants": info.get("affectedPlants", []),
         "characteristics": info.get("description", ""),
+        "low_confidence":  low_confidence,
     }
 
 
