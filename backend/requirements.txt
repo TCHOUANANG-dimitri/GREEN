@@ -10,8 +10,9 @@
 fastapi==0.115.0
 uvicorn[standard]==0.32.0
 
-# Database (SQLite via SQLAlchemy)
+# Database (SQLite via SQLAlchemy + PostgreSQL en production)
 sqlalchemy==2.0.35
+psycopg2-binary==2.9.10
 
 # Authentication (JWT + Password hashing)
 python-jose[cryptography]==3.3.0

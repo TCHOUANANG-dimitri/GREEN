@@ -1,0 +1,167 @@
+/* ============================================================
+   GREEN App — Mobile Responsive Overrides
+   Loaded last in every page's <head>, after all other stylesheets.
+   Only fixes real overflow / layout issues not covered elsewhere.
+   Breakpoints: 768px · 600px · 480px · 380px · 360px
+   ============================================================ */
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+
+/* Page header: stack title + actions on narrow screens */
+@media (max-width: 600px) {
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .page-header-actions { width: 100%; flex-wrap: wrap; }
+  .page-title { font-size: var(--text-xl); }
+}
+
+/* Header: hide verbose breadcrumb on very small screens */
+@media (max-width: 360px) {
+  .header-breadcrumb { display: none; }
+  .header-page-title { font-size: var(--text-base); }
+}
+
+/* ============================================================
+   DASHBOARD — welcome banner + activity table
+   ============================================================ */
+
+/* Welcome banner: stack title + action buttons vertically */
+@media (max-width: 600px) {
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--sp-6) var(--sp-5) !important;
+    gap: var(--sp-4) !important;
+  }
+  /* Hide CTA buttons in banner — they're reachable from the sidebar */
+  .welcome-actions { display: none; }
+  .welcome-title   { font-size: var(--text-2xl); }
+}
+
+/* Recent activity table: horizontal scroll */
+@media (max-width: 768px) {
+  #recentAnalysesContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .activity-table { min-width: 520px; }
+}
+
+/* ============================================================
+   CAMERA / ROVER PAGE
+   ============================================================ */
+
+/* Banner right-side CTA ("View History" button): hide to prevent
+   overflow when the banner is too narrow to fit both text + button */
+@media (max-width: 600px) {
+  .banner-cta { display: none; }
+}
+
+/* Mode tabs: when 4 tabs can't fit in one line, wrap to 2×2 grid */
+@media (max-width: 380px) {
+  .mode-tabs { flex-wrap: wrap; }
+  .mode-tab {
+    flex: 1 1 calc(50% - 3px);
+    font-size: 10px;
+    padding: var(--sp-2) var(--sp-1);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+  }
+}
+
+/* Status KPI row: 2 columns on tablets already; force 1 col on phones */
+@media (max-width: 480px) {
+  .rover-status-row { grid-template-columns: 1fr; }
+}
+
+/* IP / port inputs: stack on very small screens */
+@media (max-width: 360px) {
+  .ip-row { flex-direction: column; }
+  .ip-row .port-input { width: 100% !important; }
+}
+
+/* Recent analyses table: horizontal scroll container (class added to HTML) */
+.rv-tbl-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 768px) {
+  table.rv-tbl { min-width: 560px; }
+}
+
+/* ============================================================
+   ECONOMICS PAGE — scenario table
+   ============================================================ */
+
+/* The 5-column scenario comparison grid overflows on mobile.
+   The existing style sets overflow:hidden; we upgrade to
+   overflow-x:auto and give the inner rows a minimum width so
+   columns stay readable rather than collapsing.               */
+@media (max-width: 768px) {
+  /* !important needed: page's <style> block comes after this
+     stylesheet and sets overflow:hidden at the same specificity. */
+  .scenario-table { overflow-x: auto !important; }
+  .scenario-table-hdr,
+  .scenario-row { min-width: 520px; }
+}
+
+/* ROI block: stack number + description vertically on phones */
+@media (max-width: 480px) {
+  .roi-block {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    padding: var(--sp-4) !important;
+  }
+  .roi-number { font-size: 2rem; }
+}
+
+/* ============================================================
+   DRONE PAGE — mini analysis table
+   ============================================================ */
+
+/* .recent-analyses-card has overflow:hidden which clips the table.
+   Switch to overflow-x:auto at mobile, keep the card visible.   */
+@media (max-width: 768px) {
+  #recentTableWrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .recent-analyses-card { overflow: visible; }
+  table.mini-table { min-width: 480px; }
+}
+
+/* Top-3 probability label: shorter min-width on phones */
+@media (max-width: 480px) {
+  .top3-label { min-width: 100px; font-size: 0.72rem; }
+}
+
+/* ============================================================
+   HISTORY PAGE — analyses table
+   ============================================================ */
+
+@media (max-width: 768px) {
+  #histTableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.hist-tbl { min-width: 580px; }
+}
+
+/* ============================================================
+   AGRICULTURAL CALENDAR PAGE
+   ============================================================ */
+
+/* The 13-column (crop × 12 months) grid overflows on mobile.
+   A wrapper div makes the whole calendar table scrollable.    */
+@media (max-width: 900px) {
+  .calendar-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Fix minimum width so columns don't collapse unreadably */
+  .months-strip,
+  .crop-table { min-width: 700px; }
+}

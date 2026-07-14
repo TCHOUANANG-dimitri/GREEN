@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/css/app.css" />
   <link rel="icon" type="image/png" href="/assets/logo.png" />
   <link rel="stylesheet" href="/css/camera.css" />
+  <link rel="stylesheet" href="/css/mobile.css" />
 </head>
 <body>
 <div class="app-layout" id="appLayout">
@@ -50,7 +51,7 @@
       </p>
     </div>
 
-    <div style="display:flex;gap:var(--sp-3);flex-shrink:0;position:relative;z-index:1;">
+    <div class="banner-cta" style="display:flex;gap:var(--sp-3);flex-shrink:0;position:relative;z-index:1;">
       <a href="/history" style="
         display:flex;align-items:center;gap:var(--sp-2);
         padding:var(--sp-3) var(--sp-5);
@@ -472,19 +473,21 @@
         <a href="/history" style="font-size:var(--text-xs);color:var(--brand-primary);font-weight:var(--weight-semibold);text-decoration:none;">View all →</a>
       </div>
 
-      <table class="rv-tbl" id="recentTbl" style="display:none;">
-        <thead>
-          <tr>
-            <th>Disease detected</th>
-            <th>Plant</th>
-            <th>Confidence</th>
-            <th>Severity</th>
-            <th>Source</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody id="recentBody"></tbody>
-      </table>
+      <div class="rv-tbl-scroll">
+        <table class="rv-tbl" id="recentTbl" style="display:none;">
+          <thead>
+            <tr>
+              <th>Disease detected</th>
+              <th>Plant</th>
+              <th>Confidence</th>
+              <th>Severity</th>
+              <th>Source</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+      </div>
 
       <div id="recentEmpty" class="empty-state" style="padding:var(--sp-12) var(--sp-8);">
         <div class="empty-state-icon">

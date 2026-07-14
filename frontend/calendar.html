@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/variables.css" />
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/mobile.css" />
   <style>
     /* ---- Month header strip --------------------------------- */
     .months-strip {
@@ -214,9 +215,11 @@
         </div>
       </div>
 
-      <!-- Calendar table -->
-      <div class="months-strip" id="monthsStrip"></div>
-      <div class="crop-table" id="cropTable"></div>
+      <!-- Calendar table — scrollable on mobile -->
+      <div class="calendar-scroll">
+        <div class="months-strip" id="monthsStrip"></div>
+        <div class="crop-table" id="cropTable"></div>
+      </div>
 
       <!-- Section title -->
       <div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary);letter-spacing:-.01em;margin-bottom:var(--sp-4);display:flex;align-items:center;gap:var(--sp-3);">
