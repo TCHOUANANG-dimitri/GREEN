@@ -164,15 +164,6 @@ Browser  ──GET /api/camera/stream──▶  camera_router
 | 9 | Tomato_Blight_Leaf | Tomato |
 | 10 | Tomato_Healthy | Tomato |
 
-### Model 2 — Pest Detection (YOLOv8)
-
-| Property | Value |
-|---|---|
-| File | `best.pt` (root) / `Models/model.onnx` / `best_320.onnx` |
-| Architecture | YOLOv8 (73 layers, 3.0 M params, 8.1 GFLOPs) |
-| Input | 640 × 640 (default) / 320 × 320 (ONNX export) |
-| Output | Bounding boxes + class + confidence |
-| Library | `ultralytics 8.4.38` |
 
 **Classes:**
 
