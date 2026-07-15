@@ -164,14 +164,6 @@ Browser  ──GET /api/camera/stream──▶  camera_router
 | 9 | Tomato_Blight_Leaf | Tomato |
 | 10 | Tomato_Healthy | Tomato |
 
-
-**Classes:**
-
-| Index | Class | Common Name |
-|---|---|---|
-| 0 | Criquet | Locust / Grasshopper |
-| 1 | papillon de nuit | Moth (larva stage is destructive) |
-
 ### ONNX Export
 
 Pre-converted models are available in the `Models/` folder (`model.onnx`, `model.tflite`).
