@@ -309,6 +309,11 @@ git clone https://github.com/TCHOUANANG-dimitri/app.git
 cd app
 ```
 
+
+
+
+
+
 ### 2. Create a virtual environment
 
 ```bash
